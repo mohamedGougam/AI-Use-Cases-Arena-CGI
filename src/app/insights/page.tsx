@@ -151,13 +151,13 @@ export default function InsightsPage() {
             <p className="text-sm text-muted col-span-full">No contributors yet.</p>
           )}
           {contributors.map((u) => (
-            <div key={u.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
+            <div key={u.email} className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold">
                 {u.avatar}
               </span>
-              <div>
-                <p className="font-medium">{u.name}</p>
-                <p className="text-xs text-muted">{u.department}</p>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium truncate">{u.name}</p>
+                <p className="text-xs text-muted truncate">{u.email}</p>
               </div>
               <span className="ml-auto font-bold text-primary">{u.score} pts</span>
             </div>
