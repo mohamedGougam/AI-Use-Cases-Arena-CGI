@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 7 26 29;
+    --foreground: 245 247 250;
+    --card: 14 42 47;
+    --card-foreground: 245 247 250;
+    --primary: 141 198 63;
+    --primary-foreground: 7 26 29;
+    --secondary: 31 111 120;
+    --secondary-foreground: 245 247 250;
+    --muted: 183 196 200;
+    --muted-foreground: 183 196 200;
+    --accent: 31 111 120;
+    --accent-foreground: 245 247 250;
+    --border: 255 255 255 / 0.08;
+    --ring: 141 198 63;
+    --radius: 0.75rem;
+  }
+
+  .light {
+    --background: 245 247 250;
+    --foreground: 7 26 29;
+    --card: 255 255 255;
+    --card-foreground: 7 26 29;
+    --primary: 100 150 40;
+    --primary-foreground: 255 255 255;
+    --secondary: 31 111 120;
+    --muted: 100 116 125;
+    --muted-foreground: 100 116 125;
+    --border: 0 0 0 / 0.08;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply rounded-xl border border-white/[0.08] bg-card/80 backdrop-blur-xl;
+    background-image: radial-gradient(
+      ellipse at top left,
+      rgba(141, 198, 63, 0.06),
+      transparent 50%
+    );
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:border-primary/30 hover:shadow-glow-sm;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-[#8DC63F] to-[#A8E063] bg-clip-text text-transparent;
+  }
+
+  .glow-border {
+    box-shadow: 0 0 0 1px rgba(141, 198, 63, 0.2), 0 0 24px rgba(141, 198, 63, 0.08);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(141, 198, 63, 0.3) transparent;
+  }
+}
