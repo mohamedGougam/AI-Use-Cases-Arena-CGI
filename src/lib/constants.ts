@@ -1,16 +1,15 @@
 import type { UseCaseCategory, Badge, RankLevel } from "@/types";
 
 export const DEPARTMENTS = [
-  "Investment",
-  "Risk & Compliance",
+  "Capital",
+  "Market Development",
+  "HR",
   "Finance",
   "Operations",
-  "Legal",
-  "HR",
-  "ESG",
-  "Strategy",
-  "IT & Data",
-  "Customer Relations",
+  "Relationship Management",
+  "Data management related",
+  "IT related",
+  "Cyber Security",
 ] as const;
 
 export const CATEGORIES: UseCaseCategory[] = [

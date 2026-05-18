@@ -1,4 +1,5 @@
 {
-  "git.editor": "${workspaceFolder}/scripts/git-editor.cmd",
-  "git.useEditorAsCommitInput": true
+  "git.useEditorAsCommitInput": true,
+  "git.enableSmartCommit": true,
+  "git.verboseCommit": false
 }

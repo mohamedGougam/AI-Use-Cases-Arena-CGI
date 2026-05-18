@@ -38,3 +38,9 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# local build logs
+build-full.log
+build-out.txt
+vercel-build.log
+build-errors-extract.txt
