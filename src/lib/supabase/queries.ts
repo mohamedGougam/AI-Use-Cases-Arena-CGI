@@ -27,18 +27,22 @@ export async function fetchUseCases(): Promise<UseCase[] | null> {
 }
 
 export async function insertUseCase(
-  _input: SubmitUseCaseInput
+  input: SubmitUseCaseInput
 ): Promise<UseCase | null> {
   if (!isSupabaseConfigured || !supabase) return null;
-  // const { data, error } = await supabase.from("use_cases").insert(_input).select().single();
+  void input;
+  // const { data, error } = await supabase.from("use_cases").insert(input).select().single();
   return null;
 }
 
 export async function insertComment(
-  _useCaseId: string,
-  _userId: string,
-  _text: string
+  useCaseId: string,
+  userId: string,
+  text: string
 ): Promise<Comment | null> {
   if (!isSupabaseConfigured || !supabase) return null;
+  void useCaseId;
+  void userId;
+  void text;
   return null;
 }

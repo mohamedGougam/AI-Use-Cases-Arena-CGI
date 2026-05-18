@@ -141,7 +141,7 @@ export default function InsightsPage() {
       <div className="glass-card p-6">
         <h3 className="font-bold mb-4">Most Active Contributors</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {contributors.map((u, i) => (
+          {contributors.map((u) => (
             <div key={u.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold">
                 {u.avatar}
