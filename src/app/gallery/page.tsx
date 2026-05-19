@@ -30,7 +30,7 @@ export default function GalleryPage() {
   const { filtered, filters, setFilters, sort, setSort, allTags } = useFilteredUseCases(useCases);
 
   return (
-    <div>
+    <div className="min-w-0">
       <PageHeader
         title="Use Case Gallery"
         subtitle="Discover, vote, and discuss AI ideas from across Invest-NL."
@@ -48,12 +48,12 @@ export default function GalleryPage() {
           />
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:flex sm:flex-wrap">
           <Select
             value={filters.department ?? "all"}
             onValueChange={(v) => setFilters({ ...filters, department: v === "all" ? undefined : v })}
           >
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Department" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Department" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All departments</SelectItem>
               {DEPARTMENTS.map((d) => (
@@ -68,7 +68,7 @@ export default function GalleryPage() {
               setFilters({ ...filters, category: v === "all" ? undefined : (v as typeof filters.category) })
             }
           >
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Category" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
               {CATEGORIES.map((c) => (
@@ -83,7 +83,7 @@ export default function GalleryPage() {
               setFilters({ ...filters, impact: v === "all" ? undefined : (v as typeof filters.impact) })
             }
           >
-            <SelectTrigger className="w-[130px]"><SelectValue placeholder="Impact" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[130px]"><SelectValue placeholder="Impact" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All impact</SelectItem>
               {IMPACT_LEVELS.map((l) => (
@@ -98,7 +98,7 @@ export default function GalleryPage() {
               setFilters({ ...filters, effort: v === "all" ? undefined : (v as typeof filters.effort) })
             }
           >
-            <SelectTrigger className="w-[130px]"><SelectValue placeholder="Effort" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[130px]"><SelectValue placeholder="Effort" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All effort</SelectItem>
               {EFFORT_LEVELS.map((l) => (
@@ -111,7 +111,7 @@ export default function GalleryPage() {
             value={filters.tag ?? "all"}
             onValueChange={(v) => setFilters({ ...filters, tag: v === "all" ? undefined : v })}
           >
-            <SelectTrigger className="w-[140px]"><SelectValue placeholder="Tag" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[140px]"><SelectValue placeholder="Tag" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All tags</SelectItem>
               {allTags.map((t) => (
@@ -121,7 +121,7 @@ export default function GalleryPage() {
           </Select>
 
           <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
             <SelectContent>
               {SORT_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>

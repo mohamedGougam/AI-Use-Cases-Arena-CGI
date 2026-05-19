@@ -11,7 +11,7 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-white/10 bg-card",
+        default: "border-border/20 bg-card",
         destructive: "border-red-500/40 bg-red-950/80 text-foreground",
       },
     },
@@ -58,7 +58,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-transparent px-3 text-sm font-medium hover:bg-white/5",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-border/20 bg-transparent px-3 text-sm font-medium surface-hover",
       className
     )}
     {...props}

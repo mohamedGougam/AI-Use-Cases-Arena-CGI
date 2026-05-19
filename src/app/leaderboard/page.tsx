@@ -48,7 +48,7 @@ export default function LeaderboardPage() {
             {email}
           </p>
           {myScore && (
-            <div className="mt-6 space-y-3 border-t border-white/10 pt-6">
+            <div className="mt-6 space-y-3 border-t border-border/15 pt-6">
               <div>
                 <p className="text-sm text-muted">Your total score</p>
                 {isLeader && <LeaderScoreLabel className="mt-2" />}

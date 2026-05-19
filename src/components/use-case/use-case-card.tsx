@@ -20,16 +20,21 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       whileHover={{ y: -4 }}
+      className="min-w-0"
     >
-      <Link href={`/use-cases/${useCase.id}`}>
-        <article className="glass-card-hover flex gap-4 p-5">
-          <VoteButton useCaseId={useCase.id} votes={useCase.votes} compact />
+      <Link href={`/use-cases/${useCase.id}`} className="block min-w-0">
+        <article className="glass-card-hover flex min-w-0 flex-col gap-3 p-4 xs:flex-row xs:gap-4 sm:p-5">
+          <div className="flex shrink-0 xs:block">
+            <VoteButton useCaseId={useCase.id} votes={useCase.votes} compact />
+          </div>
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-              <h3 className="text-lg font-bold leading-tight hover:text-primary transition-colors">
+              <h3 className="min-w-0 text-base font-bold leading-tight break-words hover:text-primary transition-colors sm:text-lg">
                 {useCase.title}
               </h3>
-              <Badge variant="status">{useCase.status}</Badge>
+              <Badge variant="status" className="shrink-0">
+                {useCase.status}
+              </Badge>
             </div>
             <p className="mb-3 line-clamp-2 text-sm text-muted">{useCase.description}</p>
             {useCase.votes >= 5 && (
@@ -37,25 +42,28 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
                 Popular · {useCase.votes} votes
               </Badge>
             )}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
               <span className="rounded-md bg-secondary/30 px-2 py-0.5">{useCase.department}</span>
-              <span>{useCase.category}</span>
+              <span className="hidden xs:inline">{useCase.category}</span>
               <span>Impact: {useCase.impact}</span>
-              <span>Effort: {useCase.effort}</span>
+              <span className="hidden sm:inline">Effort: {useCase.effort}</span>
               <span className="flex items-center gap-1">
                 <MessageSquare className="h-3 w-3" />
                 {useCase.comments.length}
               </span>
               <span className="font-medium text-primary">{useCase.votes} votes</span>
             </div>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-muted">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="min-w-0 truncate text-xs text-muted" title={useCase.submitterEmail || useCase.submitter}>
                 by {useCase.submitterEmail || useCase.submitter} ·{" "}
                 {formatRelativeDate(useCase.createdAt)}
               </span>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex min-w-0 flex-wrap gap-1">
                 {useCase.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="rounded-full bg-white/5 px-2 py-0.5 text-xs">
+                  <span
+                    key={tag}
+                    className="rounded-full surface-muted px-2 py-0.5 text-xs"
+                  >
                     #{tag}
                   </span>
                 ))}

@@ -37,8 +37,8 @@ export function DashboardHome() {
   const quickWins = getQuickWins(useCases);
 
   return (
-    <motion.div className="space-y-10">
-      <section className="glass-card flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
+    <motion.div className="min-w-0 space-y-8 sm:space-y-10">
+      <section className="glass-card flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 md:p-8">
         <motion.div>
           <p className="text-sm text-muted">Welcome back</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
@@ -48,13 +48,13 @@ export function DashboardHome() {
             <p className="mt-1 text-sm text-muted truncate max-w-md">{email}</p>
           )}
         </motion.div>
-        <motion.div className="flex flex-wrap gap-3">
-          <Button asChild size="lg">
+        <motion.div className="flex w-full flex-col gap-2 xs:flex-row xs:flex-wrap xs:gap-3 sm:w-auto">
+          <Button asChild size="lg" className="w-full xs:w-auto">
             <Link href="/submit">
               Submit Use Case <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg">
+          <Button asChild variant="outline" size="lg" className="w-full xs:w-auto">
             <Link href="/gallery">Browse Gallery</Link>
           </Button>
         </motion.div>
@@ -79,8 +79,8 @@ export function DashboardHome() {
         />
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <div className="glass-card p-6 lg:col-span-2">
+      <section className="grid min-w-0 gap-6 lg:grid-cols-3">
+        <div className="glass-card min-w-0 p-4 sm:p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -127,7 +127,7 @@ export function DashboardHome() {
                   <li key={uc.id}>
                     <Link
                       href={`/use-cases/${uc.id}`}
-                      className="block rounded-lg p-3 hover:bg-white/5 transition-colors"
+                      className="block rounded-lg p-3 surface-hover"
                     >
                       <p className="font-medium text-sm">{uc.title}</p>
                       <p className="text-xs text-primary mt-1">
@@ -185,7 +185,7 @@ export function DashboardHome() {
                 className="rounded-lg p-4 text-center transition-transform hover:scale-105"
                 style={{
                   background: `rgba(141, 198, 63, ${Math.min(0.4, d.innovationScore / 500)})`,
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  border: "1px solid rgb(var(--border) / 0.15)",
                 }}
               >
                 <p className="text-xs font-medium truncate">{d.department}</p>

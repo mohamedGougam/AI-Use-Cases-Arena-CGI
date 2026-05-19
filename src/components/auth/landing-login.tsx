@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ParticlesBackground } from "@/components/shared/particles-background";
 import { AboutThisTool } from "@/components/shared/about-this-tool";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useAuth } from "@/context/auth-context";
 import { toast } from "@/hooks/use-toast";
 
@@ -50,12 +51,15 @@ export function LandingLogin() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-x-hidden">
       <ParticlesBackground />
+      <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
+        <ThemeToggle />
+      </div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-16 lg:flex-row lg:items-center lg:gap-16 lg:py-20"
+        className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-3 py-14 sm:px-4 sm:py-16 lg:flex-row lg:items-center lg:gap-12 lg:px-6 lg:py-20 xl:gap-16"
       >
         <div className="mb-12 flex-1 text-center lg:mb-0 lg:text-left">
           <motion.div
@@ -75,7 +79,7 @@ export function LandingLogin() {
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl"
+            className="text-3xl font-bold tracking-tight xs:text-4xl md:text-5xl lg:text-6xl"
           >
             Shape the future of{" "}
             <span className="text-gradient">AI at Invest-NL</span>
@@ -89,7 +93,7 @@ export function LandingLogin() {
             Submit, explore, vote, and prioritize the AI use cases that can
             transform our organization.
           </motion.p>
-          <ul className="mt-10 hidden gap-6 sm:grid sm:grid-cols-3 lg:grid-cols-1 lg:gap-5">
+          <ul className="mt-8 grid gap-4 xs:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-1 lg:gap-5">
             {highlights.map((item, i) => (
               <motion.li
                 key={item.title}
@@ -118,7 +122,7 @@ export function LandingLogin() {
           transition={{ delay: 0.1 }}
           className="w-full max-w-md shrink-0"
         >
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 p-8 shadow-glow-sm backdrop-blur-xl md:p-10">
+          <div className="relative overflow-hidden rounded-2xl border border-border/15 bg-card/80 p-6 shadow-glow-sm backdrop-blur-xl sm:p-8 md:p-10">
             <div className="absolute inset-0 bg-hero-glow pointer-events-none" aria-hidden />
 
             <div className="relative z-10">
@@ -165,7 +169,7 @@ export function LandingLogin() {
         </motion.div>
       </motion.div>
 
-      <AboutThisTool className="relative z-10 mx-auto mt-10 w-full max-w-3xl" />
+      <AboutThisTool className="relative z-10 mx-auto mt-8 w-full max-w-3xl px-3 pb-10 sm:mt-10 sm:px-4" />
     </div>
   );
 }

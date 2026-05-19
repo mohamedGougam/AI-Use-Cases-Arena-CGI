@@ -37,7 +37,9 @@ export function StatCard({
               value
             )}
           </p>
-          {trend && <p className="mt-1 text-xs text-primary">{trend}</p>}
+          {trend && (
+            <p className="mt-1 line-clamp-2 break-words text-xs text-primary">{trend}</p>
+          )}
         </div>
         <div className="rounded-lg bg-primary/10 p-2.5">
           <Icon className="h-5 w-5 text-primary" />

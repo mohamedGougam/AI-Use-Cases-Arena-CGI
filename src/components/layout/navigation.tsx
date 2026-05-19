@@ -42,17 +42,17 @@ export function Navigation() {
 
   const navContent = (
     <>
-      <div className="mb-8 flex items-center gap-3 px-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 shadow-glow-sm">
+      <div className="mb-6 flex shrink-0 items-center gap-3 px-1 lg:mb-8 lg:px-2">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 shadow-glow-sm">
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-bold leading-tight">AI Use Cases</p>
           <p className="text-xs text-primary">Arena</p>
         </div>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1">
+      <nav className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
           const Icon = iconMap[item.icon];
           const active = pathname === item.href;
@@ -63,31 +63,36 @@ export function Navigation() {
               onClick={() => setMobileOpen(false)}
               className={cn(
                 "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                active ? "text-primary" : "text-muted hover:bg-white/5 hover:text-foreground"
+                active
+                  ? "text-primary"
+                  : "text-muted surface-hover hover:text-foreground"
               )}
             >
               {active && (
                 <motion.div
                   layoutId="nav-active"
-                  className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
+                  className="absolute inset-0 rounded-lg border border-primary/20 bg-primary/10"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
-              {Icon && <Icon className="relative h-4 w-4" />}
-              <span className="relative">{item.label}</span>
+              {Icon && <Icon className="relative h-4 w-4 shrink-0" />}
+              <span className="relative truncate">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto rounded-xl border border-white/10 bg-background/50 p-4">
+      <div className="mt-6 shrink-0 rounded-xl border border-border/15 bg-background/60 p-3 sm:p-4 lg:mt-auto">
         <p className="text-xs text-muted">Your score</p>
         {isLeader && <LeaderScoreLabel />}
         <p className="text-2xl font-bold text-primary">{myScore?.score ?? 0} pts</p>
         {myScore && (
-          <p className="mt-2 text-xs text-muted leading-relaxed">
-            {myScore.submissions} submitted · {myScore.votesReceived} votes on your ideas ·{" "}
-            {myScore.votesCast} votes cast
+          <p className="mt-2 text-[11px] leading-relaxed text-muted sm:text-xs">
+            <span className="block sm:inline">{myScore.submissions} submitted</span>
+            <span className="hidden sm:inline"> · </span>
+            <span className="block sm:inline">{myScore.votesReceived} votes on your ideas</span>
+            <span className="hidden sm:inline"> · </span>
+            <span className="block sm:inline">{myScore.votesCast} votes cast</span>
           </p>
         )}
         {email && (
@@ -114,23 +119,25 @@ export function Navigation() {
         </button>
       </div>
 
-      <AboutThisTool compact className="mt-4" />
+      <AboutThisTool compact className="mt-4 shrink-0" />
     </>
   );
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-white/10 bg-background/80 px-4 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <span className="font-bold">AI Arena</span>
+      <header className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border/15 bg-background/90 px-3 backdrop-blur-xl sm:h-16 sm:px-4 lg:hidden">
+        <div className="flex min-w-0 items-center gap-2">
+          <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+          <span className="truncate font-bold">AI Arena</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1">
           <ThemeToggle />
           <button
+            type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="rounded-lg p-2 hover:bg-white/5"
+            className="rounded-lg p-2 surface-hover"
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -138,22 +145,27 @@ export function Navigation() {
       </header>
 
       {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] dark:bg-black/60 lg:hidden"
           onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
         />
       )}
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r border-white/10 bg-card/95 p-4 backdrop-blur-xl transition-transform lg:translate-x-0",
+          "fixed left-0 top-0 z-50 flex h-[100dvh] w-[min(100vw,18rem)] flex-col border-r border-border/15 bg-card/95 p-3 shadow-xl backdrop-blur-xl transition-transform duration-200 ease-out sm:w-72 sm:p-4 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="hidden lg:flex lg:justify-end">
+        <div className="mb-3 flex shrink-0 items-center justify-between lg:mb-0 lg:justify-end">
+          <span className="text-xs font-medium text-muted lg:hidden">Menu</span>
           <ThemeToggle />
         </div>
-        {navContent}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain pb-4 scrollbar-thin">
+          {navContent}
+        </div>
       </aside>
     </>
   );

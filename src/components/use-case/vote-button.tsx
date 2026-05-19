@@ -67,7 +67,7 @@ export function VoteButton({ useCaseId, votes, compact }: VoteButtonProps) {
         compact ? "px-2 py-1.5 min-w-[48px]" : "px-3 py-2 min-w-[56px]",
         voted
           ? "border-primary/50 bg-primary/20 text-primary shadow-glow-sm"
-          : "border-white/10 bg-white/5 hover:border-primary/40 hover:bg-primary/10"
+          : "border-border/20 bg-foreground/5 hover:border-primary/40 hover:bg-primary/10"
       )}
     >
       <motion.div animate={animating ? { y: voted ? 4 : -4, scale: 1.2 } : { y: 0, scale: 1 }}>

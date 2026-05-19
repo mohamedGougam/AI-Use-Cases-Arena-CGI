@@ -4,6 +4,24 @@
 
 @layer base {
   :root {
+    --background: 245 247 250;
+    --foreground: 7 26 29;
+    --card: 255 255 255;
+    --card-foreground: 7 26 29;
+    --primary: 100 150 40;
+    --primary-foreground: 255 255 255;
+    --secondary: 31 111 120;
+    --secondary-foreground: 245 247 250;
+    --muted: 90 106 115;
+    --muted-foreground: 90 106 115;
+    --accent: 31 111 120;
+    --accent-foreground: 245 247 250;
+    --border: 0 0 0;
+    --input: 0 0 0;
+    --ring: 100 150 40;
+  }
+
+  .dark {
     --background: 7 26 29;
     --foreground: 245 247 250;
     --card: 14 42 47;
@@ -16,37 +34,36 @@
     --muted-foreground: 183 196 200;
     --accent: 31 111 120;
     --accent-foreground: 245 247 250;
-    --border: 255 255 255 / 0.08;
+    --border: 255 255 255;
+    --input: 255 255 255;
     --ring: 141 198 63;
-    --radius: 0.75rem;
-  }
-
-  .light {
-    --background: 245 247 250;
-    --foreground: 7 26 29;
-    --card: 255 255 255;
-    --card-foreground: 7 26 29;
-    --primary: 100 150 40;
-    --primary-foreground: 255 255 255;
-    --secondary: 31 111 120;
-    --muted: 100 116 125;
-    --muted-foreground: 100 116 125;
-    --border: 0 0 0 / 0.08;
   }
 
   * {
     @apply border-border;
   }
 
+  html {
+    @apply overflow-x-hidden;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply min-h-screen overflow-x-hidden bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer utilities {
+@layer components {
   .glass-card {
-    @apply rounded-xl border border-white/[0.08] bg-card/80 backdrop-blur-xl;
+    @apply rounded-xl border border-border/15 bg-card/90 shadow-card backdrop-blur-xl dark:border-border/10 dark:bg-card/80 dark:shadow-card-dark;
+    background-image: radial-gradient(
+      ellipse at top left,
+      rgba(141, 198, 63, 0.1),
+      transparent 50%
+    );
+  }
+
+  .dark .glass-card {
     background-image: radial-gradient(
       ellipse at top left,
       rgba(141, 198, 63, 0.06),
@@ -57,9 +74,11 @@
   .glass-card-hover {
     @apply glass-card transition-all duration-300 hover:border-primary/30 hover:shadow-glow-sm;
   }
+}
 
+@layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-[#8DC63F] to-[#A8E063] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#8DC63F] to-[#6fa82e] bg-clip-text text-transparent dark:to-[#A8E063];
   }
 
   .glow-border {
@@ -69,5 +88,13 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: rgba(141, 198, 63, 0.3) transparent;
+  }
+
+  .surface-muted {
+    @apply bg-foreground/5;
+  }
+
+  .surface-hover {
+    @apply transition-colors hover:bg-foreground/5;
   }
 }

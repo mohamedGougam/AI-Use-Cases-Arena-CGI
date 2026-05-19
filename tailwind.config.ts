@@ -10,27 +10,34 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: "480px",
+      },
       colors: {
-        background: "#071A1D",
-        card: "#0E2A2F",
+        border: "rgb(var(--border) / <alpha-value>)",
+        input: "rgb(var(--input) / <alpha-value>)",
+        ring: "rgb(var(--ring) / <alpha-value>)",
+        background: "rgb(var(--background) / <alpha-value>)",
+        foreground: "rgb(var(--foreground) / <alpha-value>)",
         primary: {
-          DEFAULT: "#8DC63F",
-          foreground: "#071A1D",
+          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+          foreground: "rgb(var(--primary-foreground) / <alpha-value>)",
         },
-        "primary-hover": "#A8E063",
         secondary: {
-          DEFAULT: "#1F6F78",
-          foreground: "#F5F7FA",
+          DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
+          foreground: "rgb(var(--secondary-foreground) / <alpha-value>)",
         },
-        foreground: "#F5F7FA",
         muted: {
-          DEFAULT: "#B7C4C8",
-          foreground: "#B7C4C8",
+          DEFAULT: "rgb(var(--muted) / <alpha-value>)",
+          foreground: "rgb(var(--muted-foreground) / <alpha-value>)",
         },
-        border: "rgba(255,255,255,0.08)",
         accent: {
-          DEFAULT: "#1F6F78",
-          foreground: "#F5F7FA",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          foreground: "rgb(var(--accent-foreground) / <alpha-value>)",
+        },
+        card: {
+          DEFAULT: "rgb(var(--card) / <alpha-value>)",
+          foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
       },
       fontFamily: {
@@ -39,14 +46,17 @@ const config: Config = {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "hero-glow":
-          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(141,198,63,0.15), transparent)",
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(141,198,63,0.12), transparent)",
+        "hero-glow-dark":
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(141,198,63,0.18), transparent)",
         "card-glow":
           "radial-gradient(ellipse at top left, rgba(141,198,63,0.08), transparent 50%)",
       },
       boxShadow: {
         glow: "0 0 40px rgba(141, 198, 63, 0.15)",
         "glow-sm": "0 0 20px rgba(141, 198, 63, 0.1)",
-        card: "0 4px 24px rgba(0, 0, 0, 0.3)",
+        card: "0 4px 24px rgba(0, 0, 0, 0.12)",
+        "card-dark": "0 4px 24px rgba(0, 0, 0, 0.35)",
       },
       animation: {
         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",

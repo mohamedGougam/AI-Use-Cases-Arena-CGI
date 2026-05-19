@@ -14,7 +14,7 @@ export function AboutThisTool({
     return (
       <div
         className={cn(
-          "rounded-lg border border-white/10 bg-background/40 px-3 py-3",
+          "rounded-lg border border-border/15 bg-background/40 px-3 py-3",
           className
         )}
       >
