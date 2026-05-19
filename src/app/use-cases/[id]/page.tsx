@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UseCaseCard } from "@/components/use-case/use-case-card";
 import { formatDate, formatRelativeDate } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { departmentsMatch, getDisplayDepartment } from "@/lib/constants";
 import { SCORE_POINTS } from "@/lib/participants";
 
 export default function UseCaseDetailPage({
@@ -49,7 +50,11 @@ export default function UseCaseDetailPage({
   }
 
   const similar = useCases
-    .filter((uc) => uc.id !== id && (uc.category === useCase.category || uc.department === useCase.department))
+    .filter(
+      (uc) =>
+        uc.id !== id &&
+        (uc.category === useCase.category || departmentsMatch(uc.department, useCase.department))
+    )
     .sort((a, b) => b.innovationScore - a.innovationScore)
     .slice(0, 3);
 
@@ -90,7 +95,7 @@ export default function UseCaseDetailPage({
             </div>
             <p className="mt-2 text-muted">{useCase.description}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Badge variant="secondary">{useCase.department}</Badge>
+              <Badge variant="secondary">{getDisplayDepartment(useCase.department)}</Badge>
               <Badge variant="outline">{useCase.category}</Badge>
               <Badge variant="status">{useCase.status}</Badge>
             </div>

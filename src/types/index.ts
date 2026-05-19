@@ -1,3 +1,5 @@
+import type { Department } from "@/lib/constants";
+
 export type ImpactLevel = "Low" | "Medium" | "High";
 export type EffortLevel = "Low" | "Medium" | "High";
 export type UseCaseStatus = "Submitted" | "Under Review" | "Prioritized" | "In Progress" | "Completed";
@@ -42,7 +44,7 @@ export interface User {
   id: string;
   email?: string;
   name: string;
-  department: string;
+  department: Department;
   avatar: string;
   points: number;
   badges: GamificationBadgeId[];
@@ -90,7 +92,7 @@ export interface UseCase {
   description: string;
   businessProblem: string;
   proposedSolution: string;
-  department: string;
+  department: Department;
   category: UseCaseCategory;
   impact: ImpactLevel;
   effort: EffortLevel;
@@ -110,7 +112,7 @@ export interface UseCase {
 }
 
 export interface DepartmentStats {
-  department: string;
+  department: Department;
   useCaseCount: number;
   totalVotes: number;
   innovationScore: number;
@@ -126,7 +128,7 @@ export type SortOption =
   | "quick-wins";
 
 export interface UseCaseFilters {
-  department?: string;
+  department?: Department;
   category?: UseCaseCategory;
   impact?: ImpactLevel;
   effort?: EffortLevel;
@@ -139,7 +141,7 @@ export interface SubmitUseCaseInput {
   description: string;
   businessProblem: string;
   proposedSolution: string;
-  department: string;
+  department: Department;
   impact: ImpactLevel;
   effort: EffortLevel;
   category: UseCaseCategory;

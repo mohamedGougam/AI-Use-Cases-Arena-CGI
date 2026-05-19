@@ -23,7 +23,7 @@ import {
   getParticipantScore,
   type ParticipantScore,
 } from "@/lib/participants";
-import { normalizeDepartment } from "@/lib/constants";
+import { isKnownDepartment, normalizeDepartment } from "@/lib/constants";
 import {
   calculateInnovationScore,
   deriveUseCaseBadges,
@@ -62,9 +62,10 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 function migrateUseCase(uc: UseCase): UseCase {
+  const department = normalizeDepartment(uc.department);
   return {
     ...uc,
-    department: normalizeDepartment(uc.department),
+    department: isKnownDepartment(department) ? department : uc.department,
     voterEmails: uc.voterEmails ?? [],
     creatorMessages: uc.creatorMessages ?? [],
     submitterEmail:
@@ -109,6 +110,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    setUseCases((prev) => {
+      const next = prev.map(migrateUseCase);
+      if (next.every((uc, i) => uc.department === prev[i]?.department)) return prev;
+      return next;
+    });
+  }, [hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;

@@ -19,16 +19,32 @@ const DEPARTMENT_LEGACY_ALIASES: Record<string, Department> = {
   Investment: "Capital",
 };
 
-export function normalizeDepartment(value: string): string {
+/** Map stored labels to a value from {@link DEPARTMENTS}. */
+export function normalizeDepartment(value: string): Department {
   const trimmed = value.trim();
-  if ((DEPARTMENTS as readonly string[]).includes(trimmed)) {
-    return trimmed;
-  }
-  return DEPARTMENT_LEGACY_ALIASES[trimmed] ?? trimmed;
+  if (isKnownDepartment(trimmed)) return trimmed;
+  const legacy = DEPARTMENT_LEGACY_ALIASES[trimmed];
+  if (legacy) return legacy;
+  return trimmed as Department;
 }
 
 export function isKnownDepartment(value: string): value is Department {
   return (DEPARTMENTS as readonly string[]).includes(value.trim());
+}
+
+/** Compare departments after legacy alias resolution (e.g. Investment vs Capital). */
+export function departmentsMatch(a: string, b: string): boolean {
+  return normalizeDepartment(a) === normalizeDepartment(b);
+}
+
+export function isCanonicalDepartment(value: string): boolean {
+  return isKnownDepartment(normalizeDepartment(value));
+}
+
+/** Label for UI: canonical name from {@link DEPARTMENTS} when possible. */
+export function getDisplayDepartment(value: string): string {
+  const normalized = normalizeDepartment(value);
+  return isKnownDepartment(normalized) ? normalized : value;
 }
 
 export const CATEGORIES: UseCaseCategory[] = [

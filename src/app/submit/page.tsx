@@ -20,7 +20,13 @@ import {
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { toast } from "@/hooks/use-toast";
-import { DEPARTMENTS, CATEGORIES, IMPACT_LEVELS, EFFORT_LEVELS } from "@/lib/constants";
+import {
+  DEPARTMENTS,
+  CATEGORIES,
+  IMPACT_LEVELS,
+  EFFORT_LEVELS,
+  type Department,
+} from "@/lib/constants";
 import { SCORE_POINTS } from "@/lib/participants";
 import type { ImpactLevel, EffortLevel, UseCaseCategory } from "@/types";
 
@@ -34,7 +40,7 @@ export default function SubmitPage() {
     description: "",
     businessProblem: "",
     proposedSolution: "",
-    department: "",
+    department: "" as "" | Department,
     impact: "" as ImpactLevel | "",
     effort: "" as EffortLevel | "",
     category: "" as UseCaseCategory | "",
@@ -75,7 +81,7 @@ export default function SubmitPage() {
       description: form.description,
       businessProblem: form.businessProblem,
       proposedSolution: form.proposedSolution,
-      department: form.department,
+      department: form.department as Department,
       impact: form.impact as ImpactLevel,
       effort: form.effort as EffortLevel,
       category: form.category as UseCaseCategory,
@@ -131,7 +137,10 @@ export default function SubmitPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Department *</Label>
-            <Select value={form.department} onValueChange={(v) => setForm({ ...form, department: v })}>
+            <Select
+              value={form.department}
+              onValueChange={(v) => setForm({ ...form, department: v as Department })}
+            >
               <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
               <SelectContent>
                 {DEPARTMENTS.map((d) => (

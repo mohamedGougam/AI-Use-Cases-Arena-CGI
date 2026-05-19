@@ -6,6 +6,7 @@ import { MessageSquare } from "lucide-react";
 import type { UseCase } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { VoteButton } from "./vote-button";
+import { getDisplayDepartment } from "@/lib/constants";
 import { formatRelativeDate } from "@/lib/utils";
 import { UseCaseDateBadge } from "./use-case-date-badge";
 
@@ -45,7 +46,9 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
               </Badge>
             )}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-              <span className="rounded-md bg-secondary/30 px-2 py-0.5">{useCase.department}</span>
+              <span className="rounded-md bg-secondary/30 px-2 py-0.5">
+                {getDisplayDepartment(useCase.department)}
+              </span>
               <span className="hidden xs:inline">{useCase.category}</span>
               <span>Impact: {useCase.impact}</span>
               <span className="hidden sm:inline">Effort: {useCase.effort}</span>

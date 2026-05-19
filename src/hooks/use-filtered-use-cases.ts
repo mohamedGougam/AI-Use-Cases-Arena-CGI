@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { SortOption, UseCase, UseCaseFilters } from "@/types";
+import { departmentsMatch } from "@/lib/constants";
 import { getImpactScore, getEffortScore, isQuickWin } from "@/lib/scoring";
 export function useFilteredUseCases(useCases: UseCase[]) {
   const [filters, setFilters] = useState<UseCaseFilters>({});
@@ -19,7 +20,9 @@ export function useFilteredUseCases(useCases: UseCase[]) {
           uc.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
-    if (filters.department) result = result.filter((uc) => uc.department === filters.department);
+    if (filters.department) {
+      result = result.filter((uc) => departmentsMatch(uc.department, filters.department!));
+    }
     if (filters.category) result = result.filter((uc) => uc.category === filters.category);
     if (filters.impact) result = result.filter((uc) => uc.impact === filters.impact);
     if (filters.effort) result = result.filter((uc) => uc.effort === filters.effort);
