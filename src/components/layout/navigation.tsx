@@ -168,12 +168,21 @@ export function Navigation() {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-[100dvh] w-[min(100vw,18rem)] flex-col border-r border-border/15 bg-card/95 p-3 shadow-xl backdrop-blur-xl transition-transform duration-200 ease-out sm:w-72 sm:p-4 lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          "fixed left-0 top-0 z-50 flex h-[100dvh] w-[min(100vw,18rem)] flex-col border-r border-border/15 bg-card/95 p-3 shadow-xl backdrop-blur-xl transition-transform duration-200 ease-out sm:w-72 sm:p-4 lg:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="mb-3 flex shrink-0 items-center justify-between lg:mb-0 lg:justify-end">
-          <span className="text-xs font-medium text-muted lg:hidden">Menu</span>
+        <div className="mb-3 flex shrink-0 items-center justify-between">
+          <span className="text-xs font-medium text-muted">Menu</span>
+          <ThemeToggle />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain pb-4 scrollbar-thin">
+          {navContent}
+        </div>
+      </aside>
+
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:shrink-0 lg:flex-col lg:border-r lg:border-border/15 lg:bg-card/95 lg:p-4">
+        <div className="mb-4 flex shrink-0 justify-end">
           <ThemeToggle />
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain pb-4 scrollbar-thin">
