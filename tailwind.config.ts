@@ -56,13 +56,13 @@ const config: Config = {
         "hero-glow":
           "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(77,163,255,0.14), transparent)",
         "hero-glow-dark":
-          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(77,163,255,0.2), transparent)",
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(96,165,250,0.22), transparent)",
         "card-glow":
           "radial-gradient(ellipse at top left, rgba(0,26,51,0.12), transparent 50%)",
       },
       boxShadow: {
-        glow: "0 0 40px rgba(77, 163, 255, 0.18)",
-        "glow-sm": "0 0 20px rgba(77, 163, 255, 0.12)",
+        glow: "0 0 40px rgba(96, 165, 250, 0.22)",
+        "glow-sm": "0 0 20px rgba(96, 165, 250, 0.14)",
         card: "0 4px 24px rgba(0, 26, 51, 0.1)",
         "card-dark": "0 4px 24px rgba(0, 0, 0, 0.45)",
       },

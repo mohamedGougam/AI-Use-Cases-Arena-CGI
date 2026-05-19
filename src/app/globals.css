@@ -22,21 +22,21 @@
   }
 
   .dark {
-    --background: 0 0 0;
-    --foreground: 255 255 255;
-    --card: 0 26 51;
-    --card-foreground: 255 255 255;
-    --primary: 77 163 255;
-    --primary-foreground: 0 0 0;
-    --secondary: 10 40 71;
-    --secondary-foreground: 255 255 255;
+    --background: 8 16 28;
+    --foreground: 248 250 252;
+    --card: 15 35 58;
+    --card-foreground: 248 250 252;
+    --primary: 96 165 250;
+    --primary-foreground: 8 16 28;
+    --secondary: 30 58 95;
+    --secondary-foreground: 248 250 252;
     --muted: 148 163 184;
     --muted-foreground: 148 163 184;
-    --accent: 30 58 95;
-    --accent-foreground: 255 255 255;
+    --accent: 56 189 248;
+    --accent-foreground: 8 16 28;
     --border: 255 255 255;
     --input: 255 255 255;
-    --ring: 77 163 255;
+    --ring: 96 165 250;
   }
 
   * {
@@ -50,6 +50,13 @@
   body {
     @apply min-h-screen overflow-x-hidden bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 100% 70% at 0% -10%, rgba(96, 165, 250, 0.14), transparent 55%),
+      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(56, 189, 248, 0.08), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 26, 51, 0.5), transparent);
   }
 }
 
@@ -66,8 +73,8 @@
   .dark .glass-card {
     background-image: radial-gradient(
       ellipse at top left,
-      rgba(77, 163, 255, 0.08),
-      transparent 50%
+      rgba(96, 165, 250, 0.12),
+      transparent 55%
     );
   }
 

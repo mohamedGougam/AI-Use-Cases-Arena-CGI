@@ -40,11 +40,16 @@ export function DashboardHome() {
     <motion.div className="min-w-0 space-y-8 sm:space-y-10">
       <section className="glass-card flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 md:p-8">
         <motion.div>
-          <p className="text-sm text-muted">Welcome back</p>
+          <p className="text-sm text-muted">{isAdmin ? "Administrator" : "Welcome back"}</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
-            Your AI Use Cases Arena
+            {isAdmin ? "Arena overview" : "Your AI Use Cases Arena"}
           </h1>
-          {email && (
+          <p className="mt-2 max-w-xl text-sm text-muted">
+            {isAdmin
+              ? "Monitor submissions, votes, and engagement across 7X."
+              : "Track your ideas, votes, and impact in the arena."}
+          </p>
+          {email && !isAdmin && (
             <p className="mt-1 text-sm text-muted truncate max-w-md">{email}</p>
           )}
         </motion.div>

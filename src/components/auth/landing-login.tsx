@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Mail, FileText, ThumbsUp, Trophy } from "lucide-react";
+import { Logo7x } from "@/components/shared/logo-7x";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,16 +66,9 @@ export function LandingLogin() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="mb-6 inline-flex h-20 w-28 items-center justify-center rounded-2xl border border-white/10 bg-black p-3 shadow-glow-sm"
+            className="mb-6 inline-flex h-20 w-28 items-center justify-center rounded-2xl border border-primary/20 bg-brand-navy p-3 shadow-glow-sm"
           >
-            <Image
-              src="/7x-logo.png"
-              alt="7X"
-              width={96}
-              height={48}
-              className="h-full w-full object-contain"
-              priority
-            />
+            <Logo7x width={96} height={48} className="h-full w-full" priority />
           </motion.div>
           <motion.p
             initial={{ opacity: 0 }}

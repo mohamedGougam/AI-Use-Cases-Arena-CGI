@@ -5,8 +5,8 @@ export const BRAND = {
   navyLight: "#1E3A5F",
   black: "#000000",
   white: "#FFFFFF",
-  accent: "#4DA3FF",
-  accentBright: "#7BB8FF",
+  accent: "#60A5FA",
+  accentBright: "#93C5FD",
   accentCyan: "#00B8D9",
   muted: "#94A3B8",
 } as const;
