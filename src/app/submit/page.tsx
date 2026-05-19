@@ -29,6 +29,7 @@ import {
 } from "@/lib/constants";
 import { SCORE_POINTS } from "@/lib/participants";
 import type { ImpactLevel, EffortLevel, UseCaseCategory } from "@/types";
+import { CONFETTI_COLORS } from "@/lib/brand-colors";
 
 export default function SubmitPage() {
   const router = useRouter();
@@ -89,7 +90,7 @@ export default function SubmitPage() {
       submitterName: currentUser.name,
     });
 
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, colors: ["#8DC63F", "#1F6F78", "#A8E063"] });
+    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, colors: [...CONFETTI_COLORS] });
 
     toast({
       title: `+${SCORE_POINTS.submit} points`,

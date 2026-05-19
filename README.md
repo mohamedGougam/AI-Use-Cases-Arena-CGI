@@ -1,6 +1,6 @@
 # AI Use Cases Arena
 
-A gamified collaborative platform for Invest-NL business users to submit, browse, vote on, and prioritize AI use cases.
+A gamified collaborative platform for 7X business users to submit, browse, vote on, and prioritize AI use cases.
 
 ## Tech Stack
 
@@ -120,8 +120,8 @@ Suggested schema columns align with the `User`, `UseCase`, `Vote`, and `Comment`
 
 ## Design
 
-Visual identity inspired by [Invest-NL](https://www.invest-nl.nl/en): dark premium UI, green accent `#8DC63F`, glassmorphism cards, and smooth motion.
+Visual identity inspired by [7X](https://www.7x.ae/): dark premium UI, navy `#001A33`, blue accent `#4DA3FF`, glassmorphism cards, and smooth motion.
 
 ## License
 
-Private — Invest-NL internal use.
+Private — 7X internal use.

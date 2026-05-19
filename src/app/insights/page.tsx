@@ -52,7 +52,7 @@ export default function InsightsPage() {
     <div className="space-y-8">
       <PageHeader
         title="Insights & Analytics"
-        subtitle="Data-driven view of AI innovation across Invest-NL."
+        subtitle="Data-driven view of AI innovation across 7X."
         icon={BarChart3}
         action={
           <Button onClick={handleGenerateSummary} disabled={generating} className="gap-2">

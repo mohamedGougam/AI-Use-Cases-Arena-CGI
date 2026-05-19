@@ -10,12 +10,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Use Cases Arena | Invest-NL",
+  title: "AI Use Cases Arena | 7X",
   description:
-    "Submit, explore, vote, and prioritize AI use cases that transform Invest-NL.",
+    "Submit, explore, vote, and prioritize AI use cases that transform 7X.",
   icons: {
-    icon: "/invest-nl-logo.png",
-    apple: "/invest-nl-logo.png",
+    icon: "/7x-logo.png",
+    apple: "/7x-logo.png",
   },
 };
 

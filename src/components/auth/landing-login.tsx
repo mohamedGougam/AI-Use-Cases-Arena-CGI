@@ -17,7 +17,7 @@ const highlights = [
   {
     icon: FileText,
     title: "Submit ideas",
-    description: "Share AI use cases from your team at Invest-NL.",
+    description: "Share AI use cases from your team at 7X.",
   },
   {
     icon: ThumbsUp,
@@ -66,12 +66,12 @@ export function LandingLogin() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white p-2.5 shadow-glow-sm dark:bg-white"
+            className="mb-6 inline-flex h-20 w-28 items-center justify-center rounded-2xl border border-white/10 bg-black p-3 shadow-glow-sm"
           >
             <Image
-              src="/invest-nl-logo.png"
-              alt="Invest-NL"
-              width={48}
+              src="/7x-logo.png"
+              alt="7X"
+              width={96}
               height={48}
               className="h-full w-full object-contain"
               priority
@@ -82,7 +82,7 @@ export function LandingLogin() {
             animate={{ opacity: 1 }}
             className="mb-3 text-sm font-medium uppercase tracking-widest text-primary"
           >
-            Invest-NL Innovation Arena
+            7X Innovation Arena
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -90,7 +90,7 @@ export function LandingLogin() {
             className="text-3xl font-bold tracking-tight xs:text-4xl md:text-5xl lg:text-6xl"
           >
             Shape the future of{" "}
-            <span className="text-gradient">AI at Invest-NL</span>
+            <span className="text-gradient">AI at 7X</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -150,7 +150,7 @@ export function LandingLogin() {
                       type="text"
                       inputMode="email"
                       autoComplete="username"
-                      placeholder="you@invest-nl.nl or Admin"
+                      placeholder="you@7x.ae or Admin"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
@@ -163,7 +163,7 @@ export function LandingLogin() {
                     votes, and comments within this tool). It is not used for
                     marketing, is not sold to third parties, and is retained only
                     for as long as needed for this initiative. You may request
-                    access to or deletion of your data by contacting your Invest-NL
+                    access to or deletion of your data by contacting your 7X
                     programme administrator.
                   </p>
                 </div>

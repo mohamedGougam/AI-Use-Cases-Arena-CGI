@@ -188,7 +188,7 @@ export function DashboardHome() {
                 key={d.department}
                 className="rounded-lg p-4 text-center transition-transform hover:scale-105"
                 style={{
-                  background: `rgba(141, 198, 63, ${Math.min(0.4, d.innovationScore / 500)})`,
+                  background: `rgba(77, 163, 255, ${Math.min(0.4, d.innovationScore / 500)})`,
                   border: "1px solid rgb(var(--border) / 0.15)",
                 }}
               >

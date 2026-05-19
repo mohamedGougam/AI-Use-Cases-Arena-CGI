@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,7 +11,6 @@ import {
   BarChart3,
   Trophy,
   Swords,
-  Sparkles,
   Menu,
   X,
 } from "lucide-react";
@@ -43,8 +43,14 @@ export function Navigation() {
   const navContent = (
     <>
       <div className="mb-6 flex shrink-0 items-center gap-3 px-1 lg:mb-8 lg:px-2">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 shadow-glow-sm">
-          <Sparkles className="h-5 w-5 text-primary" />
+        <div className="relative flex h-10 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black shadow-glow-sm">
+          <Image
+            src="/7x-logo.png"
+            alt="7X"
+            width={40}
+            height={20}
+            className="h-5 w-auto object-contain"
+          />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-bold leading-tight">AI Use Cases</p>
@@ -75,7 +81,7 @@ export function Navigation() {
               {active && (
                 <motion.div
                   layoutId="nav-active"
-                  className="absolute inset-0 rounded-lg border border-primary/20 bg-primary/10"
+                  className="absolute inset-0 rounded-lg border border-primary/25 bg-primary/10"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -140,7 +146,15 @@ export function Navigation() {
     <>
       <header className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border/15 bg-background/90 px-3 backdrop-blur-xl sm:h-16 sm:px-4 lg:hidden">
         <div className="flex min-w-0 items-center gap-2">
-          <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+          <div className="relative flex h-8 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black">
+            <Image
+              src="/7x-logo.png"
+              alt="7X"
+              width={32}
+              height={16}
+              className="h-4 w-auto object-contain"
+            />
+          </div>
           <span className="truncate font-bold">AI Arena</span>
         </div>
         <div className="flex shrink-0 items-center gap-1">

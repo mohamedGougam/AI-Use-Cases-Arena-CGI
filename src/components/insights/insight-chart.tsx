@@ -15,8 +15,9 @@ import {
   Line,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BRAND, CHART_COLORS } from "@/lib/brand-colors";
 
-const COLORS = ["#8DC63F", "#1F6F78", "#A8E063", "#4A9BA5", "#6B8E23", "#2D5A63"];
+const COLORS = [...CHART_COLORS];
 
 interface ChartCardProps {
   title: string;
@@ -53,7 +54,7 @@ export function InsightBarChart({ data, dataKey = "value" }: { data: BarChartDat
             borderRadius: "8px",
           }}
         />
-        <Bar dataKey={dataKey} fill="#8DC63F" radius={[4, 4, 0, 0]} />
+        <Bar dataKey={dataKey} fill={BRAND.accent} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -106,7 +107,7 @@ export function InsightLineChart({
             borderRadius: "8px",
           }}
         />
-        <Line type="monotone" dataKey="votes" stroke="#8DC63F" strokeWidth={2} dot={{ fill: "#8DC63F" }} />
+        <Line type="monotone" dataKey="votes" stroke={BRAND.accent} strokeWidth={2} dot={{ fill: BRAND.accent }} />
       </LineChart>
     </ResponsiveContainer>
   );

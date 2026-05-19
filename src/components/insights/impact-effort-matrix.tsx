@@ -69,16 +69,16 @@ export function ImpactEffortMatrix({ data }: { data: MatrixPoint[] }) {
                 );
               }}
             />
-            <Scatter data={data} fill="#8DC63F">
+            <Scatter data={data} fill="#4DA3FF">
               {data.map((entry) => (
                 <Cell
                   key={entry.id}
                   fill={
                     entry.impact >= 3 && entry.effort <= 1.5
-                      ? "#8DC63F"
+                      ? "#4DA3FF"
                       : entry.impact >= 3 && entry.effort >= 2.5
-                        ? "#1F6F78"
-                        : "#A8E063"
+                        ? "#1E3A5F"
+                        : "#7BB8FF"
                   }
                   fillOpacity={0.8}
                 />

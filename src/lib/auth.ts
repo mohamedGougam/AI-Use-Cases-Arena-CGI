@@ -1,7 +1,7 @@
 export const AUTH_STORAGE_KEY = "ai-use-cases-arena-auth";
 
 /** Internal email used for admin sessions (type Admin on the login screen). */
-export const ADMIN_EMAIL = "arena-admin@invest-nl.nl";
+export const ADMIN_EMAIL = "arena-admin@7x.ae";
 export const ADMIN_DISPLAY_NAME = "Arena Admin";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

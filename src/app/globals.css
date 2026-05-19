@@ -5,38 +5,38 @@
 @layer base {
   :root {
     --background: 245 247 250;
-    --foreground: 7 26 29;
+    --foreground: 0 26 51;
     --card: 255 255 255;
-    --card-foreground: 7 26 29;
-    --primary: 100 150 40;
+    --card-foreground: 0 26 51;
+    --primary: 0 26 51;
     --primary-foreground: 255 255 255;
-    --secondary: 31 111 120;
+    --secondary: 10 40 71;
     --secondary-foreground: 245 247 250;
-    --muted: 90 106 115;
-    --muted-foreground: 90 106 115;
-    --accent: 31 111 120;
+    --muted: 100 116 139;
+    --muted-foreground: 100 116 139;
+    --accent: 30 58 95;
     --accent-foreground: 245 247 250;
-    --border: 0 0 0;
-    --input: 0 0 0;
-    --ring: 100 150 40;
+    --border: 0 26 51;
+    --input: 0 26 51;
+    --ring: 0 26 51;
   }
 
   .dark {
-    --background: 7 26 29;
-    --foreground: 245 247 250;
-    --card: 14 42 47;
-    --card-foreground: 245 247 250;
-    --primary: 141 198 63;
-    --primary-foreground: 7 26 29;
-    --secondary: 31 111 120;
-    --secondary-foreground: 245 247 250;
-    --muted: 183 196 200;
-    --muted-foreground: 183 196 200;
-    --accent: 31 111 120;
-    --accent-foreground: 245 247 250;
+    --background: 0 0 0;
+    --foreground: 255 255 255;
+    --card: 0 26 51;
+    --card-foreground: 255 255 255;
+    --primary: 77 163 255;
+    --primary-foreground: 0 0 0;
+    --secondary: 10 40 71;
+    --secondary-foreground: 255 255 255;
+    --muted: 148 163 184;
+    --muted-foreground: 148 163 184;
+    --accent: 30 58 95;
+    --accent-foreground: 255 255 255;
     --border: 255 255 255;
     --input: 255 255 255;
-    --ring: 141 198 63;
+    --ring: 77 163 255;
   }
 
   * {
@@ -58,7 +58,7 @@
     @apply rounded-xl border border-border/15 bg-card/90 shadow-card backdrop-blur-xl dark:border-border/10 dark:bg-card/80 dark:shadow-card-dark;
     background-image: radial-gradient(
       ellipse at top left,
-      rgba(141, 198, 63, 0.1),
+      rgba(0, 26, 51, 0.08),
       transparent 50%
     );
   }
@@ -66,7 +66,7 @@
   .dark .glass-card {
     background-image: radial-gradient(
       ellipse at top left,
-      rgba(141, 198, 63, 0.06),
+      rgba(77, 163, 255, 0.08),
       transparent 50%
     );
   }
@@ -78,16 +78,16 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-[#8DC63F] to-[#6fa82e] bg-clip-text text-transparent dark:to-[#A8E063];
+    @apply bg-gradient-to-r from-[#001A33] to-[#4DA3FF] bg-clip-text text-transparent dark:from-white dark:to-[#7BB8FF];
   }
 
   .glow-border {
-    box-shadow: 0 0 0 1px rgba(141, 198, 63, 0.2), 0 0 24px rgba(141, 198, 63, 0.08);
+    box-shadow: 0 0 0 1px rgba(77, 163, 255, 0.2), 0 0 24px rgba(77, 163, 255, 0.08);
   }
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(141, 198, 63, 0.3) transparent;
+    scrollbar-color: rgba(77, 163, 255, 0.35) transparent;
   }
 
   .surface-muted {
