@@ -1,98 +1,91 @@
 "use client";
 
-import { Trophy } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FileText, Shield, ThumbsUp, Trophy, Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { LeaderboardCard } from "@/components/gamification/leaderboard-card";
+import { StatCard } from "@/components/shared/stat-card";
 import { ScoreGuide } from "@/components/gamification/score-guide";
-import { LeaderScoreLabel } from "@/components/gamification/leader-score-label";
-import { AboutThisTool } from "@/components/shared/about-this-tool";
+import { AdminLeaderboardTable } from "@/components/gamification/admin-leaderboard-table";
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
-import { isParticipantScoreLeader } from "@/lib/participants";
+import { buildAdminContributorRows, getAdminTotals } from "@/lib/admin-leaderboard";
+import { getKnownUsers, type KnownUser } from "@/lib/login-registry";
 
 export default function LeaderboardPage() {
-  const { participantScores, myScore, useCases } = useApp();
-  const { email } = useAuth();
-  const isLeader = isParticipantScoreLeader(email, participantScores);
+  const router = useRouter();
+  const { useCases } = useApp();
+  const { isAdmin, isReady } = useAuth();
+  const [knownUsers, setKnownUsers] = useState<KnownUser[]>([]);
 
-  const topPeople = participantScores.slice(0, 10).map((p, i) => ({
-    rank: i + 1,
-    name: p.name,
-    subtitle: p.email,
-    score: p.score,
-    avatar: p.avatar,
-  }));
+  useEffect(() => {
+    if (!isReady) return;
+    if (!isAdmin) {
+      router.replace("/");
+    }
+  }, [isReady, isAdmin, router]);
 
-  const topIdeas = [...useCases]
-    .sort((a, b) => b.votes - a.votes)
-    .slice(0, 5)
-    .map((uc, i) => ({
-      rank: i + 1,
-      name: uc.title,
-      subtitle: uc.submitterEmail || uc.submitter,
-      score: uc.votes,
-    }));
+  useEffect(() => {
+    if (isAdmin) {
+      setKnownUsers(getKnownUsers());
+    }
+  }, [isAdmin, useCases]);
+
+  const totals = useMemo(() => getAdminTotals(useCases), [useCases]);
+  const contributors = useMemo(
+    () => buildAdminContributorRows(useCases, knownUsers),
+    [useCases, knownUsers]
+  );
+
+  if (!isReady || !isAdmin) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8">
       <PageHeader
-        title="Leaderboard"
-        subtitle="Everyone is ranked by email. Points come from submissions and engagement."
+        title="Admin Leaderboard"
+        subtitle="Overview of signed-in users and arena activity. Users are ranked by score, highest first."
         icon={Trophy}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="glass-card p-6 lg:col-span-1">
-          <p className="text-sm text-muted">Signed in as</p>
-          <p className="mt-1 truncate font-medium" title={email ?? ""}>
-            {email}
-          </p>
-          {myScore && (
-            <div className="mt-6 space-y-3 border-t border-border/15 pt-6">
-              <div>
-                <p className="text-sm text-muted">Your total score</p>
-                {isLeader && <LeaderScoreLabel className="mt-2" />}
-                <p className="text-4xl font-bold text-primary">{myScore.score}</p>
-              </div>
-              <dl className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <dt className="text-muted">Submitted</dt>
-                  <dd className="font-bold">{myScore.submissions}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted">Votes on your ideas</dt>
-                  <dd className="font-bold">{myScore.votesReceived}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted">Votes you cast</dt>
-                  <dd className="font-bold">{myScore.votesCast}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted">Comments</dt>
-                  <dd className="font-bold">{myScore.comments}</dd>
-                </div>
-              </dl>
-            </div>
-          )}
+      <div className="flex items-start gap-2 rounded-lg border border-primary/25 bg-primary/10 px-4 py-3 text-sm">
+        <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <p className="text-muted">
+          <span className="font-medium text-foreground">Admin only.</span> This page lists
+          users who have signed in on this arena instance, merged with their submissions,
+          votes, and scores.
+        </p>
+      </div>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          label="Total use cases"
+          value={totals.totalUseCases}
+          icon={FileText}
+        />
+        <StatCard label="Total votes" value={totals.totalVotes} icon={ThumbsUp} />
+        <StatCard
+          label="Users (signed in / active)"
+          value={contributors.length}
+          icon={Users}
+          className="sm:col-span-2 lg:col-span-1"
+        />
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="glass-card min-w-0 p-4 sm:p-6 xl:col-span-2">
+          <h2 className="mb-4 text-lg font-bold">All users by score</h2>
+          <AdminLeaderboardTable rows={contributors} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="min-w-0">
           <ScoreGuide />
         </div>
       </div>
-
-      <LeaderboardCard
-        title="Top contributors (by email)"
-        entries={topPeople}
-        valueLabel="pts"
-      />
-
-      <LeaderboardCard
-        title="Most voted use cases"
-        entries={topIdeas}
-        valueLabel="votes"
-      />
-
-      <AboutThisTool />
     </div>
   );
 }

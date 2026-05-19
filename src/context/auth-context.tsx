@@ -16,6 +16,7 @@ import {
   isValidEmail,
   normalizeEmail,
 } from "@/lib/auth";
+import { registerUserLogin } from "@/lib/login-registry";
 
 interface AuthSession {
   email: string;
@@ -74,6 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (session) {
       setEmail(session.email);
       setIsAdmin(session.isAdmin);
+      if (!session.isAdmin) {
+        registerUserLogin(session.email);
+      }
     }
     setIsReady(true);
   }, []);
@@ -92,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setEmail(normalized);
     setIsAdmin(false);
     saveSession({ email: normalized, isAdmin: false });
+    registerUserLogin(normalized);
     return true;
   }, []);
 

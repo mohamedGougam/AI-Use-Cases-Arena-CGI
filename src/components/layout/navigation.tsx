@@ -53,7 +53,7 @@ export function Navigation() {
       </div>
 
       <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => !("adminOnly" in item && item.adminOnly) || isAdmin).map((item) => {
           const Icon = iconMap[item.icon];
           const active = pathname === item.href;
           return (
