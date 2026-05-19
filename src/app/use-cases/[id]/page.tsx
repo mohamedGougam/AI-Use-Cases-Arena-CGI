@@ -13,6 +13,9 @@ import {
   Target,
 } from "lucide-react";
 import { useApp } from "@/context/app-context";
+import { useAuth } from "@/context/auth-context";
+import { CreatorMessagesSection } from "@/components/use-case/creator-messages-section";
+import { UseCaseDateBadge } from "@/components/use-case/use-case-date-badge";
 import { VoteButton } from "@/components/use-case/vote-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +32,7 @@ export default function UseCaseDetailPage({
 }) {
   const { id } = use(params);
   const { useCases, addComment } = useApp();
+  const { isAdmin } = useAuth();
   const [commentText, setCommentText] = useState("");
 
   const useCase = useCases.find((uc) => uc.id === id);
@@ -50,7 +54,7 @@ export default function UseCaseDetailPage({
     .slice(0, 3);
 
   const handleComment = () => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || isAdmin) return;
     addComment(id, commentText.trim());
     setCommentText("");
     toast({
@@ -78,6 +82,12 @@ export default function UseCaseDetailPage({
             {useCase.submitterEmail && (
               <p className="mt-1 text-sm text-primary">{useCase.submitterEmail}</p>
             )}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <UseCaseDateBadge createdAt={useCase.createdAt} />
+              <span className="text-xs text-muted">
+                Submitted {formatDate(useCase.createdAt)}
+              </span>
+            </div>
             <p className="mt-2 text-muted">{useCase.description}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge variant="secondary">{useCase.department}</Badge>
@@ -154,6 +164,8 @@ export default function UseCaseDetailPage({
         ))}
       </div>
 
+      <CreatorMessagesSection useCase={useCase} />
+
       <section className="glass-card p-6">
         <h2 className="text-xl font-bold flex items-center gap-2 mb-6">
           <MessageSquare className="h-5 w-5 text-primary" />
@@ -174,13 +186,21 @@ export default function UseCaseDetailPage({
             ))
           )}
         </div>
-        <Textarea
-          placeholder="Add your thoughts..."
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          className="mb-3"
-        />
-        <Button onClick={handleComment}>Post Comment</Button>
+        {!isAdmin ? (
+          <>
+            <Textarea
+              placeholder="Add your thoughts..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="mb-3"
+            />
+            <Button onClick={handleComment}>Post Comment</Button>
+          </>
+        ) : (
+          <p className="text-sm text-muted">
+            Administrators can vote and review activity but do not post public comments.
+          </p>
+        )}
       </section>
 
       {similar.length > 0 && (

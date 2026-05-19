@@ -30,6 +30,7 @@ import {
 } from "@/lib/scoring";
 import type {
   Comment,
+  CreatorMessage,
   SubmitUseCaseInput,
   UseCase,
   User,
@@ -52,6 +53,7 @@ interface AppContextValue {
   voteOnUseCase: (useCaseId: string) => boolean;
   unvoteOnUseCase: (useCaseId: string) => boolean;
   addComment: (useCaseId: string, text: string) => void;
+  addCreatorMessage: (useCaseId: string, text: string) => boolean;
   hasVoted: (useCaseId: string) => boolean;
   getUseCasesByEmail: (email: string) => UseCase[];
 }
@@ -62,6 +64,7 @@ function migrateUseCase(uc: UseCase): UseCase {
   return {
     ...uc,
     voterEmails: uc.voterEmails ?? [],
+    creatorMessages: uc.creatorMessages ?? [],
     submitterEmail:
       uc.submitterEmail ??
       (uc.submitterId?.includes("@") ? normalizeEmail(uc.submitterId) : ""),
@@ -89,7 +92,7 @@ function saveState(state: PersistedState) {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const { email } = useAuth();
+  const { email, isAdmin } = useAuth();
   const [useCases, setUseCases] = useState<UseCase[]>(
     initialUseCases.map(migrateUseCase)
   );
@@ -116,8 +119,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const myScore = useMemo(
-    () => getParticipantScore(useCases, email),
-    [useCases, email]
+    () => (isAdmin ? null : getParticipantScore(useCases, email)),
+    [useCases, email, isAdmin]
   );
 
   const currentUser = useMemo((): User => {
@@ -132,7 +135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       email: normalized,
       name: admin ? ADMIN_DISPLAY_NAME : (stats?.name ?? getDisplayNameFromEmail(normalized)),
       avatar: admin ? "AD" : (stats?.avatar ?? getAvatarFromEmail(normalized)),
-      points: stats?.score ?? 0,
+      points: admin ? 0 : (stats?.score ?? 0),
       badges: [],
       rank: "Explorer",
       votingStreak: 0,
@@ -160,6 +163,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         voterIds: [],
         voterEmails: [],
         comments: [],
+        creatorMessages: [],
         submitter: getDisplayNameFromEmail(normalized),
         submitterId: normalized,
         submitterEmail: normalized,
@@ -180,7 +184,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUseCases((prev) => [base, ...prev]);
       return base;
     },
-    [email]
+    [email, isAdmin]
   );
 
   const voteOnUseCase = useCallback(
@@ -261,7 +265,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addComment = useCallback(
     (useCaseId: string, text: string) => {
-      if (!email) return;
+      if (!email || isAdmin) return;
       const normalized = normalizeEmail(email);
       const comment: Comment = {
         id: `comment-${Date.now()}`,
@@ -293,7 +297,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
       );
     },
-    [email]
+    [email, isAdmin]
+  );
+
+  const addCreatorMessage = useCallback(
+    (useCaseId: string, text: string): boolean => {
+      if (!email || !text.trim()) return false;
+      const normalized = normalizeEmail(email);
+      const useCase = useCases.find((uc) => uc.id === useCaseId);
+      if (!useCase) return false;
+
+      const creatorEmail = normalizeEmail(useCase.submitterEmail || "");
+      if (!creatorEmail) return false;
+      if (normalized === creatorEmail) return false;
+
+      const message: CreatorMessage = {
+        id: `creator-msg-${Date.now()}`,
+        useCaseId,
+        fromEmail: normalized,
+        fromName: isAdminEmail(normalized)
+          ? ADMIN_DISPLAY_NAME
+          : getDisplayNameFromEmail(normalized),
+        text: text.trim(),
+        createdAt: new Date().toISOString(),
+      };
+
+      setUseCases((prev) =>
+        prev.map((uc) =>
+          uc.id === useCaseId
+            ? { ...uc, creatorMessages: [...uc.creatorMessages, message] }
+            : uc
+        )
+      );
+      return true;
+    },
+    [email, useCases]
   );
 
   const hasVoted = useCallback(
@@ -324,6 +362,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       voteOnUseCase,
       unvoteOnUseCase,
       addComment,
+      addCreatorMessage,
       hasVoted,
       getUseCasesByEmail,
     }),
@@ -337,6 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       voteOnUseCase,
       unvoteOnUseCase,
       addComment,
+      addCreatorMessage,
       hasVoted,
       getUseCasesByEmail,
     ]

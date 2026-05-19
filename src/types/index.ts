@@ -60,6 +60,16 @@ export interface Comment {
   createdAt: string;
 }
 
+/** Private feedback visible to the use case creator (and admin). */
+export interface CreatorMessage {
+  id: string;
+  useCaseId: string;
+  fromEmail: string;
+  fromName: string;
+  text: string;
+  createdAt: string;
+}
+
 export interface Vote {
   id: string;
   useCaseId: string;
@@ -89,6 +99,7 @@ export interface UseCase {
   voterIds: string[];
   voterEmails: string[];
   comments: Comment[];
+  creatorMessages: CreatorMessage[];
   submitter: string;
   submitterId: string;
   submitterEmail: string;

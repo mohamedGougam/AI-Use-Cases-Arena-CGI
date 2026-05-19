@@ -1,4 +1,8 @@
-import { getDisplayNameFromEmail, getAvatarFromEmail } from "@/lib/auth";
+import {
+  getDisplayNameFromEmail,
+  getAvatarFromEmail,
+  isAdminEmail,
+} from "@/lib/auth";
 import type { KnownUser } from "@/lib/login-registry";
 import {
   buildParticipantScores,
@@ -30,7 +34,9 @@ export function buildAdminContributorRows(
   }
 
   const emails = new Set<string>();
-  for (const u of knownUsers) emails.add(u.email);
+  for (const u of knownUsers) {
+    if (!isAdminEmail(u.email)) emails.add(u.email);
+  }
   for (const s of scores) emails.add(s.email);
 
   const lastSeen = new Map(knownUsers.map((u) => [u.email, u.lastSeenAt]));

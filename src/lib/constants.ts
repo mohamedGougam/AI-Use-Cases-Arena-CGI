@@ -57,7 +57,7 @@ export const GAMIFICATION_BADGES: Badge[] = [
 
 export const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: "layout-dashboard" },
-  { href: "/submit", label: "Submit Use Case", icon: "plus-circle" },
+  { href: "/submit", label: "Submit Use Case", icon: "plus-circle", hideForAdmin: true },
   { href: "/gallery", label: "Use Case Gallery", icon: "grid-3x3" },
   { href: "/insights", label: "Insights", icon: "bar-chart-3" },
   { href: "/leaderboard", label: "Leaderboard", icon: "trophy", adminOnly: true },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useApp } from "@/context/app-context";
+import { useAuth } from "@/context/auth-context";
 import { toast } from "@/hooks/use-toast";
 import { DEPARTMENTS, CATEGORIES, IMPACT_LEVELS, EFFORT_LEVELS } from "@/lib/constants";
 import { SCORE_POINTS } from "@/lib/participants";
@@ -26,6 +27,7 @@ import type { ImpactLevel, EffortLevel, UseCaseCategory } from "@/types";
 export default function SubmitPage() {
   const router = useRouter();
   const { submitUseCase, currentUser } = useApp();
+  const { isAdmin, isReady } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -38,6 +40,20 @@ export default function SubmitPage() {
     category: "" as UseCaseCategory | "",
     tags: "",
   });
+
+  useEffect(() => {
+    if (isReady && isAdmin) {
+      router.replace("/");
+    }
+  }, [isReady, isAdmin, router]);
+
+  if (!isReady || isAdmin) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -53,7 +53,11 @@ export function Navigation() {
       </div>
 
       <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.filter((item) => !("adminOnly" in item && item.adminOnly) || isAdmin).map((item) => {
+        {NAV_ITEMS.filter(
+          (item) =>
+            (!("adminOnly" in item && item.adminOnly) || isAdmin) &&
+            (!("hideForAdmin" in item && item.hideForAdmin) || !isAdmin)
+        ).map((item) => {
           const Icon = iconMap[item.icon];
           const active = pathname === item.href;
           return (
@@ -83,17 +87,26 @@ export function Navigation() {
       </nav>
 
       <div className="mt-6 shrink-0 rounded-xl border border-border/15 bg-background/60 p-3 sm:p-4 lg:mt-auto">
-        <p className="text-xs text-muted">Your score</p>
-        {isLeader && <LeaderScoreLabel />}
-        <p className="text-2xl font-bold text-primary">{myScore?.score ?? 0} pts</p>
-        {myScore && (
-          <p className="mt-2 text-[11px] leading-relaxed text-muted sm:text-xs">
-            <span className="block sm:inline">{myScore.submissions} submitted</span>
-            <span className="hidden sm:inline"> · </span>
-            <span className="block sm:inline">{myScore.votesReceived} votes on your ideas</span>
-            <span className="hidden sm:inline"> · </span>
-            <span className="block sm:inline">{myScore.votesCast} votes cast</span>
+        {isAdmin ? (
+          <p className="text-xs leading-relaxed text-muted">
+            Administrator mode: browse, vote, and review the admin leaderboard. No
+            submissions or personal scoring.
           </p>
+        ) : (
+          <>
+            <p className="text-xs text-muted">Your score</p>
+            {isLeader && <LeaderScoreLabel />}
+            <p className="text-2xl font-bold text-primary">{myScore?.score ?? 0} pts</p>
+            {myScore && (
+              <p className="mt-2 text-[11px] leading-relaxed text-muted sm:text-xs">
+                <span className="block sm:inline">{myScore.submissions} submitted</span>
+                <span className="hidden sm:inline"> · </span>
+                <span className="block sm:inline">{myScore.votesReceived} votes on your ideas</span>
+                <span className="hidden sm:inline"> · </span>
+                <span className="block sm:inline">{myScore.votesCast} votes cast</span>
+              </p>
+            )}
+          </>
         )}
         {email && (
           <div className="mt-3 space-y-1">

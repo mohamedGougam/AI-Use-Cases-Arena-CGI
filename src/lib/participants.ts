@@ -1,4 +1,10 @@
-import { getAvatarFromEmail, getDisplayNameFromEmail, normalizeEmail } from "@/lib/auth";
+import {
+  ADMIN_EMAIL,
+  getAvatarFromEmail,
+  getDisplayNameFromEmail,
+  isAdminEmail,
+  normalizeEmail,
+} from "@/lib/auth";
 import type { UseCase } from "@/types";
 
 /** Simple, transparent scoring — shown on the leaderboard help card. */
@@ -39,6 +45,7 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
   const ensure = (rawEmail: string): ParticipantScore | null => {
     if (!rawEmail?.includes("@")) return null;
     const email = normalizeEmail(rawEmail);
+    if (email === ADMIN_EMAIL || isAdminEmail(email)) return null;
     let entry = map.get(email);
     if (!entry) {
       entry = {
@@ -97,7 +104,7 @@ export function getParticipantScore(
   useCases: UseCase[],
   email: string | null
 ): ParticipantScore | null {
-  if (!email) return null;
+  if (!email || isAdminEmail(email)) return null;
   const normalized = normalizeEmail(email);
   return (
     buildParticipantScores(useCases).find((p) => p.email === normalized) ?? {

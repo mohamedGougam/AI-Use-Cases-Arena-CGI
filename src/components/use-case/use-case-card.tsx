@@ -7,6 +7,7 @@ import type { UseCase } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { VoteButton } from "./vote-button";
 import { formatRelativeDate } from "@/lib/utils";
+import { UseCaseDateBadge } from "./use-case-date-badge";
 
 interface UseCaseCardProps {
   useCase: UseCase;
@@ -32,9 +33,10 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
               <h3 className="min-w-0 text-base font-bold leading-tight break-words hover:text-primary transition-colors sm:text-lg">
                 {useCase.title}
               </h3>
-              <Badge variant="status" className="shrink-0">
-                {useCase.status}
-              </Badge>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <UseCaseDateBadge createdAt={useCase.createdAt} />
+                <Badge variant="status">{useCase.status}</Badge>
+              </div>
             </div>
             <p className="mb-3 line-clamp-2 text-sm text-muted">{useCase.description}</p>
             {useCase.votes >= 5 && (

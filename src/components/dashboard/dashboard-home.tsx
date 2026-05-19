@@ -29,7 +29,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 
 export function DashboardHome() {
   const { useCases } = useApp();
-  const { email } = useAuth();
+  const { email, isAdmin } = useAuth();
   const totalVotes = getTotalVotes(useCases);
   const topCase = getTopUseCase(useCases);
   const deptStats = getDepartmentStats(useCases);
@@ -49,13 +49,17 @@ export function DashboardHome() {
           )}
         </motion.div>
         <motion.div className="flex w-full flex-col gap-2 xs:flex-row xs:flex-wrap xs:gap-3 sm:w-auto">
-          <Button asChild size="lg" className="w-full xs:w-auto">
-            <Link href="/submit">
-              Submit Use Case <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          {!isAdmin && (
+            <Button asChild size="lg" className="w-full xs:w-auto">
+              <Link href="/submit">
+                Submit Use Case <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
           <Button asChild variant="outline" size="lg" className="w-full xs:w-auto">
-            <Link href="/gallery">Browse Gallery</Link>
+            <Link href={isAdmin ? "/leaderboard" : "/gallery"}>
+              {isAdmin ? "Admin Leaderboard" : "Browse Gallery"}
+            </Link>
           </Button>
         </motion.div>
       </section>
