@@ -12,6 +12,16 @@ A gamified collaborative platform for CGI teams to submit, browse, vote on, and 
 - **Lucide Icons**
 - **Recharts**
 - **Supabase-ready** architecture (mock data by default)
+- **OpenAI** (optional) for Insights executive summary — see below
+
+## AI executive summary (Insights)
+
+The **Generate AI Executive Summary** action calls a **Next.js API route** (`POST /api/executive-summary`) that sends **sanitized** programme metrics (no emails, voter lists, or comment bodies) to the OpenAI Chat Completions API. If `OPENAI_API_KEY` is not set, the UI falls back to the original template summary and explains why.
+
+1. Copy `.env.example` to `.env.local`
+2. Set `OPENAI_API_KEY` ([OpenAI API keys](https://platform.openai.com/api-keys))
+3. Optionally set `OPENAI_MODEL` (default `gpt-4o-mini`) or `OPENAI_BASE_URL` (e.g. Azure OpenAI endpoint)
+4. Restart the dev server
 
 ## Getting Started
 

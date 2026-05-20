@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { BarChart3, Bot, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { useApp } from "@/context/app-context";
+import { toast } from "@/hooks/use-toast";
+import { buildExecutiveSummaryPayload } from "@/lib/executive-summary-payload";
 import {
   ChartCard,
   InsightBarChart,
@@ -40,12 +42,53 @@ export default function InsightsPage() {
   const strategicBets = getStrategicBets(useCases);
   const votingTrendData = getVotingTrendData(useCases);
 
-  const handleGenerateSummary = () => {
+  const handleGenerateSummary = async () => {
     setGenerating(true);
-    setTimeout(() => {
+    setAiSummary(null);
+    try {
+      const payload = buildExecutiveSummaryPayload(useCases);
+      const res = await fetch("/api/executive-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as {
+        summary?: string | null;
+        fallback?: boolean;
+        error?: string;
+      };
+
+      if (data.summary) {
+        setAiSummary(data.summary);
+        return;
+      }
+
+      if (data.fallback) {
+        setAiSummary(generateExecutiveSummary(useCases));
+        toast({
+          title: "Template summary",
+          description:
+            "Set OPENAI_API_KEY (and optionally OPENAI_MODEL) to generate an AI executive summary. Showing the built-in summary for now.",
+        });
+        return;
+      }
+
+      toast({
+        title: "Summary unavailable",
+        description: data.error ?? `Request failed (${res.status}). Showing the built-in summary.`,
+        variant: "destructive",
+      });
       setAiSummary(generateExecutiveSummary(useCases));
+    } catch {
+      toast({
+        title: "Network error",
+        description: "Could not reach the summary service. Showing the built-in summary.",
+        variant: "destructive",
+      });
+      setAiSummary(generateExecutiveSummary(useCases));
+    } finally {
       setGenerating(false);
-    }, 1200);
+    }
   };
 
   return (
