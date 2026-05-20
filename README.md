@@ -1,6 +1,6 @@
 # AI Use Cases Arena
 
-A gamified collaborative platform for 7X business users to submit, browse, vote on, and prioritize AI use cases.
+A gamified collaborative platform for CGI teams to submit, browse, vote on, and prioritize AI use cases.
 
 ## Tech Stack
 
@@ -120,8 +120,8 @@ Suggested schema columns align with the `User`, `UseCase`, `Vote`, and `Comment`
 
 ## Design
 
-Visual identity inspired by [7X](https://www.7x.ae/): dark premium UI, navy `#001A33`, blue accent `#4DA3FF`, glassmorphism cards, and smooth motion.
+Visual identity aligned with [CGI](https://www.cgi.com/en): clean corporate UI, CGI red `#E31937`, neutral surfaces, glass-style cards, and smooth motion.
 
 ## License
 
-Private — 7X internal use.
+Private — CGI internal use.

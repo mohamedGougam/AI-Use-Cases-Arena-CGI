@@ -27,7 +27,7 @@ if not exist .git "!GIT!" init >> "%LOG%" 2>&1
 "!GIT!" add -A >> "%LOG%" 2>&1
 "!GIT!" diff --cached --quiet
 if errorlevel 1 (
-  "!GIT!" commit -m "feat: add AI Use Cases Arena web app" -m "Next.js app for Invest-NL to submit, vote, and prioritize AI use cases with gamification, insights, and Supabase-ready architecture." >> "%LOG%" 2>&1
+  "!GIT!" commit -m "feat: add AI Use Cases Arena web app" -m "Next.js app for CGI to submit, vote, and prioritize AI use cases with gamification, insights, and Supabase-ready architecture." >> "%LOG%" 2>&1
 ) else (
   echo Nothing new to commit. >> "%LOG%"
 )

@@ -1,8 +1,14 @@
 export const AUTH_STORAGE_KEY = "ai-use-cases-arena-auth";
 
 /** Internal email used for admin sessions (type Admin on the login screen). */
-export const ADMIN_EMAIL = "arena-admin@7x.ae";
-export const ADMIN_DISPLAY_NAME = "Arena Admin";
+export const ADMIN_EMAIL = "arena-admin@cgi.com";
+export const ADMIN_DISPLAY_NAME = "Administrator";
+
+/** Retired admin identities — excluded from scoring and user lists. */
+const LEGACY_ADMIN_EMAILS = new Set([
+  "arena-admin@invest-nl.nl",
+  "arena-admin@7x.ae",
+]);
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,7 +21,13 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isAdminEmail(email: string): boolean {
-  return normalizeEmail(email) === ADMIN_EMAIL;
+  const normalized = normalizeEmail(email);
+  return normalized === ADMIN_EMAIL || LEGACY_ADMIN_EMAILS.has(normalized);
+}
+
+/** True when the address is a retired @invest-nl.nl login (never scored). */
+export function isLegacyInvestNlEmail(email: string): boolean {
+  return normalizeEmail(email).endsWith("@invest-nl.nl");
 }
 
 export function normalizeEmail(email: string): string {

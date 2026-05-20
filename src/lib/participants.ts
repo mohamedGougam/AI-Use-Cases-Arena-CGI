@@ -1,8 +1,8 @@
 import {
-  ADMIN_EMAIL,
   getAvatarFromEmail,
   getDisplayNameFromEmail,
   isAdminEmail,
+  isLegacyInvestNlEmail,
   normalizeEmail,
 } from "@/lib/auth";
 import type { UseCase } from "@/types";
@@ -45,7 +45,7 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
   const ensure = (rawEmail: string): ParticipantScore | null => {
     if (!rawEmail?.includes("@")) return null;
     const email = normalizeEmail(rawEmail);
-    if (email === ADMIN_EMAIL || isAdminEmail(email)) return null;
+    if (isAdminEmail(email) || isLegacyInvestNlEmail(email)) return null;
     let entry = map.get(email);
     if (!entry) {
       entry = {

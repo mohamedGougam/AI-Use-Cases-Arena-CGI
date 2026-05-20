@@ -46,7 +46,7 @@ export function DashboardHome() {
           </h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
             {isAdmin
-              ? "Monitor submissions, votes, and engagement across 7X."
+              ? "Monitor submissions, votes, and engagement across CGI."
               : "Track your ideas, votes, and impact in the arena."}
           </p>
           {email && !isAdmin && (
@@ -193,7 +193,7 @@ export function DashboardHome() {
                 key={d.department}
                 className="rounded-lg p-4 text-center transition-transform hover:scale-105"
                 style={{
-                  background: `rgba(77, 163, 255, ${Math.min(0.4, d.innovationScore / 500)})`,
+                  background: `rgba(227, 25, 55, ${Math.min(0.38, d.innovationScore / 500)})`,
                   border: "1px solid rgb(var(--border) / 0.15)",
                 }}
               >

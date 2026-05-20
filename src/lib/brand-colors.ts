@@ -1,27 +1,23 @@
-/** 7X brand palette — aligned with https://www.7x.ae/ and official navy wordmark */
+/** CGI brand palette — [CGI.com](https://www.cgi.com/en), logo red #E31937 per CGI guidelines */
 export const BRAND = {
-  navy: "#001A33",
-  navyMid: "#0A2847",
-  navyLight: "#1E3A5F",
-  black: "#000000",
+  red: "#E31937",
+  redDark: "#B8142C",
+  charcoal: "#1F2937",
+  ink: "#111827",
   white: "#FFFFFF",
-  accent: "#60A5FA",
-  accentBright: "#93C5FD",
-  accentCyan: "#00B8D9",
-  muted: "#94A3B8",
+  surface: "#F8FAFC",
+  slate: "#64748B",
+  coral: "#FCA5A5",
+  roseDeep: "#881337",
 } as const;
 
 export const CHART_COLORS = [
-  BRAND.accent,
-  BRAND.navyLight,
-  BRAND.accentBright,
-  BRAND.accentCyan,
-  BRAND.navyMid,
-  BRAND.muted,
+  BRAND.red,
+  BRAND.charcoal,
+  BRAND.redDark,
+  BRAND.slate,
+  BRAND.coral,
+  BRAND.roseDeep,
 ] as const;
 
-export const CONFETTI_COLORS = [
-  BRAND.accent,
-  BRAND.navyLight,
-  BRAND.accentBright,
-] as const;
+export const CONFETTI_COLORS = [BRAND.red, BRAND.coral, BRAND.white] as const;

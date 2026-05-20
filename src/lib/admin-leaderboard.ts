@@ -2,6 +2,7 @@ import {
   getDisplayNameFromEmail,
   getAvatarFromEmail,
   isAdminEmail,
+  isLegacyInvestNlEmail,
 } from "@/lib/auth";
 import type { KnownUser } from "@/lib/login-registry";
 import {
@@ -37,11 +38,15 @@ export function buildAdminContributorRows(
   for (const u of knownUsers) {
     if (!isAdminEmail(u.email)) emails.add(u.email);
   }
-  for (const s of scores) emails.add(s.email);
+  for (const s of scores) {
+    if (!isAdminEmail(s.email)) emails.add(s.email);
+  }
 
   const lastSeen = new Map(knownUsers.map((u) => [u.email, u.lastSeenAt]));
 
-  const rows = [...emails].map((email) => {
+  const rows = [...emails]
+    .filter((email) => !isAdminEmail(email) && !isLegacyInvestNlEmail(email))
+    .map((email) => {
     const stats = byEmail.get(email);
     return {
       email,

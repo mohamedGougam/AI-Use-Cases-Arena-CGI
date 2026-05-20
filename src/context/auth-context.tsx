@@ -12,11 +12,12 @@ import {
 import {
   ADMIN_EMAIL,
   AUTH_STORAGE_KEY,
+  isAdminEmail,
   isAdminLogin,
   isValidEmail,
   normalizeEmail,
 } from "@/lib/auth";
-import { registerUserLogin } from "@/lib/login-registry";
+import { purgeNonParticipantAccounts, registerUserLogin } from "@/lib/login-registry";
 
 interface AuthSession {
   email: string;
@@ -41,11 +42,12 @@ function loadSession(): AuthSession | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { email?: string; isAdmin?: boolean };
     if (!parsed.email) return null;
-    if (parsed.isAdmin && parsed.email === ADMIN_EMAIL) {
+    const normalized = normalizeEmail(parsed.email);
+    if (parsed.isAdmin || isAdminEmail(normalized)) {
       return { email: ADMIN_EMAIL, isAdmin: true };
     }
-    if (isValidEmail(parsed.email)) {
-      return { email: normalizeEmail(parsed.email), isAdmin: false };
+    if (isValidEmail(normalized)) {
+      return { email: normalized, isAdmin: false };
     }
     return null;
   } catch {
@@ -71,10 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    purgeNonParticipantAccounts();
     const session = loadSession();
     if (session) {
       setEmail(session.email);
       setIsAdmin(session.isAdmin);
+      saveSession(session);
       if (!session.isAdmin) {
         registerUserLogin(session.email);
       }

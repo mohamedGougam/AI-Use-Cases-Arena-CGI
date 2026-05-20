@@ -4,39 +4,39 @@
 
 @layer base {
   :root {
-    --background: 245 247 250;
-    --foreground: 0 26 51;
+    --background: 255 255 255;
+    --foreground: 31 41 55;
     --card: 255 255 255;
-    --card-foreground: 0 26 51;
-    --primary: 0 26 51;
+    --card-foreground: 31 41 55;
+    --primary: 227 25 55;
     --primary-foreground: 255 255 255;
-    --secondary: 10 40 71;
-    --secondary-foreground: 245 247 250;
+    --secondary: 241 245 249;
+    --secondary-foreground: 31 41 55;
     --muted: 100 116 139;
     --muted-foreground: 100 116 139;
-    --accent: 30 58 95;
-    --accent-foreground: 245 247 250;
-    --border: 0 26 51;
-    --input: 0 26 51;
-    --ring: 0 26 51;
+    --accent: 254 226 226;
+    --accent-foreground: 127 29 29;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 227 25 55;
   }
 
   .dark {
-    --background: 8 16 28;
+    --background: 23 23 23;
     --foreground: 248 250 252;
-    --card: 15 35 58;
+    --card: 38 38 38;
     --card-foreground: 248 250 252;
-    --primary: 96 165 250;
-    --primary-foreground: 8 16 28;
-    --secondary: 30 58 95;
+    --primary: 227 25 55;
+    --primary-foreground: 255 255 255;
+    --secondary: 55 55 55;
     --secondary-foreground: 248 250 252;
     --muted: 148 163 184;
     --muted-foreground: 148 163 184;
-    --accent: 56 189 248;
-    --accent-foreground: 8 16 28;
-    --border: 255 255 255;
-    --input: 255 255 255;
-    --ring: 96 165 250;
+    --accent: 69 10 20;
+    --accent-foreground: 254 226 226;
+    --border: 64 64 64;
+    --input: 64 64 64;
+    --ring: 248 113 136;
   }
 
   * {
@@ -54,47 +54,53 @@
 
   .dark body {
     background-image:
-      radial-gradient(ellipse 100% 70% at 0% -10%, rgba(96, 165, 250, 0.14), transparent 55%),
-      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(56, 189, 248, 0.08), transparent 50%),
-      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0, 26, 51, 0.5), transparent);
+      radial-gradient(ellipse 90% 55% at 15% -5%, rgba(227, 25, 55, 0.12), transparent 52%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, rgba(255, 255, 255, 0.04), transparent 48%),
+      radial-gradient(ellipse 55% 35% at 50% 100%, rgba(0, 0, 0, 0.35), transparent);
+  }
+
+  :root:not(.dark) body {
+    background-image:
+      radial-gradient(ellipse 100% 60% at 0% 0%, rgba(227, 25, 55, 0.06), transparent 50%),
+      radial-gradient(ellipse 80% 50% at 100% 10%, rgba(241, 245, 249, 0.9), transparent);
   }
 }
 
 @layer components {
   .glass-card {
-    @apply rounded-xl border border-border/15 bg-card/90 shadow-card backdrop-blur-xl dark:border-border/10 dark:bg-card/80 dark:shadow-card-dark;
+    @apply rounded-xl border border-border/80 bg-card/95 shadow-card backdrop-blur-xl dark:border-border/40 dark:bg-card/90 dark:shadow-card-dark;
     background-image: radial-gradient(
       ellipse at top left,
-      rgba(0, 26, 51, 0.08),
-      transparent 50%
+      rgba(227, 25, 55, 0.04),
+      transparent 52%
     );
   }
 
   .dark .glass-card {
     background-image: radial-gradient(
       ellipse at top left,
-      rgba(96, 165, 250, 0.12),
+      rgba(227, 25, 55, 0.1),
       transparent 55%
     );
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:border-primary/30 hover:shadow-glow-sm;
+    @apply glass-card transition-all duration-300 hover:border-primary/35 hover:shadow-glow-sm;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-[#001A33] to-[#4DA3FF] bg-clip-text text-transparent dark:from-white dark:to-[#7BB8FF];
+    @apply bg-gradient-to-r from-[#1F2937] to-[#E31937] bg-clip-text text-transparent dark:from-white dark:to-[#FCA5A5];
   }
 
   .glow-border {
-    box-shadow: 0 0 0 1px rgba(77, 163, 255, 0.2), 0 0 24px rgba(77, 163, 255, 0.08);
+    box-shadow: 0 0 0 1px rgba(227, 25, 55, 0.25), 0 0 24px rgba(227, 25, 55, 0.1);
   }
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(77, 163, 255, 0.35) transparent;
+    scrollbar-color: rgba(227, 25, 55, 0.35) transparent;
   }
 
   .surface-muted {

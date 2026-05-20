@@ -1,6 +1,12 @@
 import { SCORE_RULES } from "@/lib/participants";
 
-export function ScoreGuide({ compact = false }: { compact?: boolean }) {
+export function ScoreGuide({
+  compact = false,
+  variant = "participant",
+}: {
+  compact?: boolean;
+  variant?: "participant" | "admin";
+}) {
   return (
     <div className={compact ? "text-sm" : "glass-card p-5"}>
       {!compact && <h3 className="mb-3 font-bold">How scoring works</h3>}
@@ -15,8 +21,9 @@ export function ScoreGuide({ compact = false }: { compact?: boolean }) {
         ))}
       </ul>
       <p className="mt-3 text-xs text-muted">
-        Your login email links every submission, vote, and comment to you on the
-        leaderboard.
+        {variant === "admin"
+          ? "Points apply to CGI participants only. Administrator accounts are not ranked or scored."
+          : "Your CGI work email links every submission, vote, and comment to you on the leaderboard."}
       </p>
     </div>
   );

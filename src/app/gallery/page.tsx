@@ -39,7 +39,7 @@ export default function GalleryPage() {
     <div className="min-w-0">
       <PageHeader
         title="Use Case Gallery"
-        subtitle="Discover, vote, and discuss AI ideas from across 7X."
+        subtitle="Discover, vote, and discuss AI ideas from across CGI."
         icon={Grid3X3}
       />
 

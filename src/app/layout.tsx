@@ -10,12 +10,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Use Cases Arena | 7X",
+  title: "AI Use Cases Arena | CGI",
   description:
-    "Submit, explore, vote, and prioritize AI use cases that transform 7X.",
+    "Submit, explore, vote, and prioritize AI use cases across CGI teams.",
   icons: {
-    icon: "/7x-logo.png",
-    apple: "/7x-logo.png",
+    icon: "/cgi-icon.svg",
+    apple: "/cgi-icon.svg",
   },
 };
 
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
           <AppLayout>{children}</AppLayout>

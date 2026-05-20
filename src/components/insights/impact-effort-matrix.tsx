@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BRAND } from "@/lib/brand-colors";
 
 interface MatrixPoint {
   id: string;
@@ -53,8 +54,8 @@ export function ImpactEffortMatrix({ data }: { data: MatrixPoint[] }) {
               label={{ value: "Impact →", angle: -90, position: "left", fill: "#B7C4C8" }}
             />
             <ZAxis type="number" dataKey="votes" range={[80, 400]} />
-            <ReferenceLine x={2} stroke="rgba(141,198,63,0.3)" />
-            <ReferenceLine y={2} stroke="rgba(141,198,63,0.3)" />
+            <ReferenceLine x={2} stroke={`${BRAND.red}4D`} />
+            <ReferenceLine y={2} stroke={`${BRAND.red}4D`} />
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
               content={({ payload }) => {
@@ -69,16 +70,16 @@ export function ImpactEffortMatrix({ data }: { data: MatrixPoint[] }) {
                 );
               }}
             />
-            <Scatter data={data} fill="#4DA3FF">
+            <Scatter data={data} fill={BRAND.red}>
               {data.map((entry) => (
                 <Cell
                   key={entry.id}
                   fill={
                     entry.impact >= 3 && entry.effort <= 1.5
-                      ? "#4DA3FF"
+                      ? BRAND.red
                       : entry.impact >= 3 && entry.effort >= 2.5
-                        ? "#1E3A5F"
-                        : "#7BB8FF"
+                        ? BRAND.charcoal
+                        : BRAND.coral
                   }
                   fillOpacity={0.8}
                 />

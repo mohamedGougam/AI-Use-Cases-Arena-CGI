@@ -49,7 +49,7 @@ export default function LeaderboardPage() {
     <div className="min-w-0 space-y-8">
       <PageHeader
         title="Admin Leaderboard"
-        subtitle="Overview of signed-in users and arena activity. Users are ranked by score, highest first."
+        subtitle="CGI participants ranked by score. Administrator accounts are excluded."
         icon={Trophy}
       />
 
@@ -57,8 +57,8 @@ export default function LeaderboardPage() {
         <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <p className="text-muted">
           <span className="font-medium text-foreground">Admin only.</span> This page lists
-          users who have signed in on this arena instance, merged with their submissions,
-          votes, and scores.
+          CGI participants who have signed in, with their submissions, votes, and scores.
+          Your administrator account is not included.
         </p>
       </div>
 
@@ -79,11 +79,11 @@ export default function LeaderboardPage() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="glass-card min-w-0 p-4 sm:p-6 xl:col-span-2">
-          <h2 className="mb-4 text-lg font-bold">All users by score</h2>
+          <h2 className="mb-4 text-lg font-bold">Participants by score</h2>
           <AdminLeaderboardTable rows={contributors} />
         </div>
         <div className="min-w-0">
-          <ScoreGuide />
+          <ScoreGuide variant="admin" />
         </div>
       </div>
     </div>

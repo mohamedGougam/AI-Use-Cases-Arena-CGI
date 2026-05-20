@@ -113,7 +113,7 @@ export function generateExecutiveSummary(useCases: UseCase[]): string {
   if (!useCases.length) {
     return `Executive Summary — AI Use Cases Arena
 
-No use cases have been submitted yet. Encourage teams across 7X to share their AI ideas in the arena. Once submissions and votes begin, this summary will highlight portfolio trends, quick wins, and department momentum.`;
+No use cases have been submitted yet. Encourage teams across CGI to share their AI ideas in the arena. Once submissions and votes begin, this summary will highlight portfolio trends, quick wins, and department momentum.`;
   }
 
   const total = useCases.length;
@@ -125,7 +125,7 @@ No use cases have been submitted yet. Encourage teams across 7X to share their A
 
   return `Executive Summary — AI Use Cases Arena
 
-Portfolio Overview: ${total} AI use cases have been submitted across 7X, generating ${votes} total votes and strong cross-department engagement.
+Portfolio Overview: ${total} AI use cases have been submitted across CGI, generating ${votes} total votes and strong cross-department engagement.
 
 Top Priority: "${top?.title ?? "N/A"}" leads the arena with ${top?.votes ?? 0} votes and an innovation score of ${top?.innovationScore ?? 0}, indicating strong organizational alignment.
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Logo7x } from "@/components/shared/logo-7x";
+import { LogoCgi } from "@/components/shared/logo-cgi";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -43,8 +43,8 @@ export function Navigation() {
   const navContent = (
     <>
       <div className="mb-6 flex shrink-0 items-center gap-3 px-1 lg:mb-8 lg:px-2">
-        <div className="relative flex h-10 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/25 bg-brand-navy shadow-glow-sm">
-          <Logo7x width={40} height={20} className="h-5 w-auto" />
+        <div className="flex h-10 min-w-[3.25rem] shrink-0 items-center justify-center rounded-xl border border-border/60 bg-white px-2 shadow-sm dark:border-white/20 dark:bg-white">
+          <LogoCgi className="scale-[0.72] origin-center sm:scale-75" />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-bold leading-tight">AI Use Cases</p>
@@ -140,8 +140,8 @@ export function Navigation() {
     <>
       <header className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border/15 bg-background/90 px-3 backdrop-blur-xl sm:h-16 sm:px-4 lg:hidden">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="relative flex h-8 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-primary/25 bg-brand-navy">
-            <Logo7x width={32} height={16} className="h-4 w-auto" />
+          <div className="flex h-8 min-w-[2.75rem] shrink-0 items-center justify-center rounded-lg border border-border/60 bg-white px-1.5 dark:border-white/20 dark:bg-white">
+            <LogoCgi className="scale-[0.62] origin-center" />
           </div>
           <span className="truncate font-bold">AI Arena</span>
         </div>

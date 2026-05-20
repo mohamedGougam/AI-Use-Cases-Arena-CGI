@@ -40,12 +40,11 @@ const config: Config = {
           foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
         brand: {
-          navy: "#001A33",
-          "navy-mid": "#0A2847",
-          "navy-light": "#1E3A5F",
-          accent: "#4DA3FF",
-          "accent-bright": "#7BB8FF",
-          cyan: "#00B8D9",
+          red: "#E31937",
+          "red-dark": "#B8142C",
+          charcoal: "#1F2937",
+          ink: "#111827",
+          surface: "#F8FAFC",
         },
       },
       fontFamily: {
@@ -54,17 +53,17 @@ const config: Config = {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "hero-glow":
-          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(77,163,255,0.14), transparent)",
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(227,25,55,0.1), transparent)",
         "hero-glow-dark":
-          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(96,165,250,0.22), transparent)",
+          "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(227,25,55,0.18), transparent)",
         "card-glow":
-          "radial-gradient(ellipse at top left, rgba(0,26,51,0.12), transparent 50%)",
+          "radial-gradient(ellipse at top left, rgba(227,25,55,0.06), transparent 50%)",
       },
       boxShadow: {
-        glow: "0 0 40px rgba(96, 165, 250, 0.22)",
-        "glow-sm": "0 0 20px rgba(96, 165, 250, 0.14)",
-        card: "0 4px 24px rgba(0, 26, 51, 0.1)",
-        "card-dark": "0 4px 24px rgba(0, 0, 0, 0.45)",
+        glow: "0 0 40px rgba(227, 25, 55, 0.2)",
+        "glow-sm": "0 0 20px rgba(227, 25, 55, 0.12)",
+        card: "0 4px 24px rgba(15, 23, 42, 0.08)",
+        "card-dark": "0 4px 24px rgba(0, 0, 0, 0.4)",
       },
       animation: {
         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",

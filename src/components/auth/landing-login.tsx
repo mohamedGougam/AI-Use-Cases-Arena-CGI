@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, FileText, ThumbsUp, Trophy } from "lucide-react";
-import { Logo7x } from "@/components/shared/logo-7x";
+import { LogoCgi } from "@/components/shared/logo-cgi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ const highlights = [
   {
     icon: FileText,
     title: "Submit ideas",
-    description: "Share AI use cases from your team at 7X.",
+    description: "Share AI use cases from your team at CGI.",
   },
   {
     icon: ThumbsUp,
@@ -66,16 +66,16 @@ export function LandingLogin() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="mb-6 inline-flex h-20 w-28 items-center justify-center rounded-2xl border border-primary/20 bg-brand-navy p-3 shadow-glow-sm"
+            className="mb-6 inline-flex items-center justify-center rounded-2xl border border-border/80 bg-white px-5 py-3 shadow-sm dark:border-white/15 dark:bg-white/95"
           >
-            <Logo7x width={96} height={48} className="h-full w-full" priority />
+            <LogoCgi className="text-3xl sm:text-4xl" />
           </motion.div>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mb-3 text-sm font-medium uppercase tracking-widest text-primary"
           >
-            7X Innovation Arena
+            CGI Innovation Arena
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -83,7 +83,7 @@ export function LandingLogin() {
             className="text-3xl font-bold tracking-tight xs:text-4xl md:text-5xl lg:text-6xl"
           >
             Shape the future of{" "}
-            <span className="text-gradient">AI at 7X</span>
+            <span className="text-gradient">AI at CGI</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -143,7 +143,7 @@ export function LandingLogin() {
                       type="text"
                       inputMode="email"
                       autoComplete="username"
-                      placeholder="you@7x.ae or Admin"
+                      placeholder="you@cgi.com or Admin"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
@@ -156,7 +156,7 @@ export function LandingLogin() {
                     votes, and comments within this tool). It is not used for
                     marketing, is not sold to third parties, and is retained only
                     for as long as needed for this initiative. You may request
-                    access to or deletion of your data by contacting your 7X
+                    access to or deletion of your data by contacting your CGI
                     programme administrator.
                   </p>
                 </div>

@@ -54,7 +54,7 @@ export function InsightBarChart({ data, dataKey = "value" }: { data: BarChartDat
             borderRadius: "8px",
           }}
         />
-        <Bar dataKey={dataKey} fill={BRAND.accent} radius={[4, 4, 0, 0]} />
+        <Bar dataKey={dataKey} fill={BRAND.red} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -107,7 +107,7 @@ export function InsightLineChart({
             borderRadius: "8px",
           }}
         />
-        <Line type="monotone" dataKey="votes" stroke={BRAND.accent} strokeWidth={2} dot={{ fill: BRAND.accent }} />
+        <Line type="monotone" dataKey="votes" stroke={BRAND.red} strokeWidth={2} dot={{ fill: BRAND.red }} />
       </LineChart>
     </ResponsiveContainer>
   );
