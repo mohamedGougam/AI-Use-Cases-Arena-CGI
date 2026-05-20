@@ -95,9 +95,8 @@ export function LandingLogin() {
             transition={{ delay: 0.08 }}
             className="mt-4 max-w-xl text-lg text-muted md:text-xl lg:mx-0 mx-auto"
           >
-            Invite your customers into the same arena as CGI practitioners—capture
-            use cases, pressure-test impact, and leave every working session with a
-            ranked backlog everyone actually believes in.
+            CGI and your customers in one place—collect AI ideas, vote on what
+            matters, and leave with a ranked backlog.
           </motion.p>
           <ul className="mt-8 grid gap-4 xs:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-1 lg:gap-5">
             {highlights.map((item, i) => (
