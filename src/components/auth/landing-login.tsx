@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, FileText, ThumbsUp, Trophy } from "lucide-react";
+import { Mail, Handshake, ThumbsUp, Sparkles } from "lucide-react";
 import { LogoCgi } from "@/components/shared/logo-cgi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,19 +15,22 @@ import { toast } from "@/hooks/use-toast";
 
 const highlights = [
   {
-    icon: FileText,
-    title: "Submit ideas",
-    description: "Share AI use cases from your team at CGI.",
+    icon: Handshake,
+    title: "Co-create with CGI",
+    description:
+      "Clients bring the domain; CGI brings the craft—everyone drops AI plays into one living backlog, not a forgotten slide deck.",
   },
   {
     icon: ThumbsUp,
-    title: "Vote and prioritize",
-    description: "Vote or change your mind — click again to remove a vote.",
+    title: "Make priorities visible",
+    description:
+      "Vote, re-vote, or step back—signals stay honest so the next workshop starts where the last one actually left off.",
   },
   {
-    icon: Trophy,
-    title: "Track contribution",
-    description: "See your impact on the leaderboard.",
+    icon: Sparkles,
+    title: "Stories for steering groups",
+    description:
+      "See what resonated, who leaned in, and which ideas earned momentum—ready-made narrative for sponsors and delivery teams.",
   },
 ];
 
@@ -44,7 +47,8 @@ export function LandingLogin() {
     if (!ok) {
       toast({
         title: "Sign in failed",
-        description: "Enter a valid work email or Admin for administrator access.",
+        description:
+          "Use the business email your CGI team shared for this program, or type Admin for facilitator access.",
         variant: "destructive",
       });
     }
@@ -75,15 +79,15 @@ export function LandingLogin() {
             animate={{ opacity: 1 }}
             className="mb-3 text-sm font-medium uppercase tracking-widest text-primary"
           >
-            CGI Innovation Arena
+            CGI × client co-innovation
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl font-bold tracking-tight xs:text-4xl md:text-5xl lg:text-6xl"
           >
-            Shape the future of{" "}
-            <span className="text-gradient">AI at CGI</span>
+            Where bold AI ideas meet{" "}
+            <span className="text-gradient">shared delivery</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -91,8 +95,9 @@ export function LandingLogin() {
             transition={{ delay: 0.08 }}
             className="mt-4 max-w-xl text-lg text-muted md:text-xl lg:mx-0 mx-auto"
           >
-            Submit, explore, vote, and prioritize the AI use cases that can
-            transform our organization.
+            Invite your customers into the same arena as CGI practitioners—capture
+            use cases, pressure-test impact, and leave every working session with a
+            ranked backlog everyone actually believes in.
           </motion.p>
           <ul className="mt-8 grid gap-4 xs:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-1 lg:gap-5">
             {highlights.map((item, i) => (
@@ -127,15 +132,16 @@ export function LandingLogin() {
             <div className="absolute inset-0 bg-hero-glow pointer-events-none" aria-hidden />
 
             <div className="relative z-10">
-              <h2 className="text-xl font-bold tracking-tight">Sign in to continue</h2>
+              <h2 className="text-xl font-bold tracking-tight">Step into your program space</h2>
               <p className="mt-2 text-sm text-muted">
-                Use your work email, or type <span className="font-medium text-foreground">Admin</span> for
-                administrator access.
+                Sign in with the business email your CGI engagement lead shared—or type{" "}
+                <span className="font-medium text-foreground">Admin</span> if you are facilitating the session for
+                clients and CGI teams.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Work email or Admin</Label>
+                  <Label htmlFor="email">Business email or Admin</Label>
                   <motion.div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
                     <Input
@@ -143,7 +149,7 @@ export function LandingLogin() {
                       type="text"
                       inputMode="email"
                       autoComplete="username"
-                      placeholder="you@cgi.com or Admin"
+                      placeholder="you@client.com or you@cgi.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
@@ -151,18 +157,18 @@ export function LandingLogin() {
                     />
                   </motion.div>
                   <p className="text-[11px] leading-relaxed text-muted">
-                    GDPR notice: your email address is collected and used solely to
-                    operate the AI Use Cases Arena (identifying your submissions,
-                    votes, and comments within this tool). It is not used for
-                    marketing, is not sold to third parties, and is retained only
-                    for as long as needed for this initiative. You may request
-                    access to or deletion of your data by contacting your CGI
-                    programme administrator.
+                    Privacy: your email is used only to attribute submissions, votes,
+                    and comments inside this arena for the duration of the CGI-led
+                    program. It is not used for unsolicited marketing, is not sold to
+                    third parties, and is kept only as long as the initiative requires.
+                    For access or deletion requests, contact your CGI programme owner
+                    or your organisation&apos;s data protection contact named in the
+                    engagement letter.
                   </p>
                 </div>
 
                 <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Continue to Arena"}
+                  {loading ? "Opening the arena..." : "Enter the arena"}
                 </Button>
               </form>
             </div>

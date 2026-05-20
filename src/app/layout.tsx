@@ -12,7 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "AI Use Cases Arena | CGI",
   description:
-    "Submit, explore, vote, and prioritize AI use cases across CGI teams.",
+    "A CGI-led arena for you and your customers to capture, debate, and prioritize AI use cases together—with clear signals and a ranked backlog.",
   icons: {
     icon: "/cgi-icon.svg",
     apple: "/cgi-icon.svg",

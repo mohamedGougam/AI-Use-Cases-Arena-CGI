@@ -20,8 +20,8 @@ export function AboutThisTool({
       >
         <p className="text-xs font-semibold text-foreground">About this tool</p>
         <p className="mt-1.5 text-[10px] leading-relaxed text-muted">
-          Internal arena to submit, vote on, and prioritize AI use cases across
-          CGI.
+          Shared arena for CGI and client teams to submit, vote on, and prioritize AI
+          use cases during an engagement.
         </p>
         <p className="mt-2 text-[10px] leading-relaxed text-muted/80">
           {CREDIT}
@@ -35,10 +35,11 @@ export function AboutThisTool({
     <section className={cn("glass-card p-5 md:p-6", className)}>
       <h3 className="text-base font-bold tracking-tight">About this tool</h3>
       <p className="mt-3 text-sm leading-relaxed text-muted">
-        The AI Use Cases Arena is an internal CGI application for collecting,
-        discussing, and prioritizing AI ideas. Teams submit use cases, colleagues vote
-        and comment, and leaderboards surface the most engaged contributors and
-        ideas.
+        The AI Use Cases Arena is a lightweight collaboration space for CGI-led
+        programs with customers. Both sides capture AI opportunities, debate impact
+        and effort in the open, and leave every touchpoint with a transparent backlog
+        sponsors can trust—without losing the nuance in email threads or workshop
+        flip charts.
       </p>
       <p className="mt-4 text-xs leading-relaxed text-muted/80">
         {CREDIT}
