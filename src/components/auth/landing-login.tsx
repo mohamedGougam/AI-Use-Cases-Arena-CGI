@@ -16,9 +16,9 @@ import { toast } from "@/hooks/use-toast";
 const highlights = [
   {
     icon: Handshake,
-    title: "Co-create with CGI",
+    title: "CGI-led client programmes",
     description:
-      "Clients bring the domain; CGI brings the craft—everyone drops AI plays into one living backlog, not a forgotten slide deck.",
+      "Our consultants and client SMEs share one pipeline—AI ideas land in the same backlog instead of vanishing after the workshop.",
   },
   {
     icon: ThumbsUp,
@@ -95,8 +95,8 @@ export function LandingLogin() {
             transition={{ delay: 0.08 }}
             className="mt-4 max-w-xl text-lg text-muted md:text-xl lg:mx-0 mx-auto"
           >
-            Built for CGI to use with clients—one place to collect AI ideas, vote on
-            priorities, and leave with a ranked backlog.
+            CGI&apos;s collaboration arena for client programmes—collect AI ideas
+            together, vote on priorities, and leave with a ranked backlog.
           </motion.p>
           <ul className="mt-8 grid gap-4 xs:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-1 lg:gap-5">
             {highlights.map((item, i) => (
@@ -133,9 +133,9 @@ export function LandingLogin() {
             <div className="relative z-10">
               <h2 className="text-xl font-bold tracking-tight">Join this engagement</h2>
               <p className="mt-2 text-sm text-muted">
-                Sign in with the business email CGI shared for this program—or type{" "}
-                <span className="font-medium text-foreground">Admin</span> if you are the CGI facilitator running the
-                session for client and CGI participants.
+                Sign in with the business email the CGI team issued for this programme—or type{" "}
+                <span className="font-medium text-foreground">Admin</span> if you are the CGI facilitator hosting
+                client and CGI participants in this workspace.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -156,12 +156,12 @@ export function LandingLogin() {
                     />
                   </motion.div>
                   <p className="text-[11px] leading-relaxed text-muted">
-                    Privacy: your email is used only to attribute submissions, votes,
-                    and comments in this arena for the duration of the engagement. It is
-                    not used for unsolicited marketing, is not sold to third parties,
-                    and is kept only as long as the programme requires. For access or
-                    deletion, contact the CGI engagement lead or the data protection
-                    contact named in the client agreement.
+                    Privacy: CGI processes your email only to attribute activity in this
+                    CGI-hosted arena for the life of the engagement. It is not used for
+                    unsolicited marketing, is not sold to third parties, and is retained
+                    only as long as the programme requires. For access or deletion, contact
+                    the CGI engagement lead or the data protection contact named in the
+                    client agreement.
                   </p>
                 </div>
 
