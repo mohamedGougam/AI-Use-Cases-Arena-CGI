@@ -689,6 +689,34 @@ const ARCHITECTURE_RULES: PatternRule[] = [
 
 
 
+function buildArchitectureRationale(
+  uc: UseCase,
+  pattern: string,
+  technologies: string[],
+  patternSummary: string
+): string {
+  const problem = uc.businessProblem.trim() || uc.description.trim();
+  const solution = uc.proposedSolution.trim();
+  const dept = uc.department?.trim() || "telecom operations";
+  const stack = technologies.join(", ");
+
+  const parts = [
+    `Source systems from ${dept} and adjacent network or customer platforms feed ingestion pipelines into Microsoft Fabric and Azure Data Lake Storage with cataloguing and lineage.`,
+    problem
+      ? `This architecture addresses: ${problem.length > 180 ? `${problem.slice(0, 180)}…` : problem}`
+      : `The design targets the ${uc.title} use case within ${uc.category}.`,
+    solution
+      ? `The proposed solution is realized through ${pattern}: ${solution.length > 140 ? `${solution.slice(0, 140)}…` : solution}`
+      : patternSummary,
+    `Processing, feature engineering, and model workflows run on Databricks and Azure Machine Learning; generative or copilot scenarios use Azure OpenAI with governed prompts and content safety.`,
+    `Outputs integrate with OSS/BSS, CRM, or field operations via APIs and event streams; Power BI and operational dashboards expose KPIs to business and engineering stakeholders.`,
+    `Security applies Azure AD, private networking, encryption, and role-based access aligned to subscriber and network data classification.`,
+    `Recommended stack: ${stack}.`,
+  ];
+
+  return parts.filter(Boolean).join(" ");
+}
+
 function recommendArchitecture(uc: UseCase): ArchitectureRecommendation {
 
   const text = analysisText(uc);
@@ -699,7 +727,12 @@ function recommendArchitecture(uc: UseCase): ArchitectureRecommendation {
 
       const confidence = 75 + Math.min(20, rule.patterns.filter((p) => text.includes(p)).length * 5);
 
-      return { ...rule, confidence: Math.min(95, confidence) };
+      return {
+        pattern: rule.pattern,
+        technologies: rule.technologies,
+        confidence: Math.min(95, confidence),
+        rationale: buildArchitectureRationale(uc, rule.pattern, rule.technologies, rule.rationale),
+      };
 
     }
 
@@ -707,29 +740,45 @@ function recommendArchitecture(uc: UseCase): ArchitectureRecommendation {
 
   if (uc.category === "Generative AI" || uc.category === "AI Agents") {
 
+    const pattern = "Generative AI Platform";
+    const technologies = ["Azure OpenAI", "Azure AI Search", "API Management"];
+
     return {
 
-      pattern: "Generative AI Platform",
+      pattern,
 
-      technologies: ["Azure OpenAI", "Azure AI Search", "API Management"],
+      technologies,
 
       confidence: 78,
 
-      rationale: "Generative workloads benefit from a managed LLM platform with retrieval, guardrails, and API governance.",
+      rationale: buildArchitectureRationale(
+        uc,
+        pattern,
+        technologies,
+        "Generative workloads use a managed LLM platform with retrieval, guardrails, and API governance."
+      ),
 
     };
 
   }
 
+  const pattern = "Enterprise AI Foundation";
+  const technologies = ["Microsoft Fabric", "Azure OpenAI", "Power BI"];
+
   return {
 
-    pattern: "Enterprise AI Foundation",
+    pattern,
 
-    technologies: ["Microsoft Fabric", "Azure OpenAI", "Power BI"],
+    technologies,
 
     confidence: 72,
 
-    rationale: "A modular data + AI foundation supports iterative delivery while aligning with CGI's Microsoft-centric telecom practice.",
+    rationale: buildArchitectureRationale(
+      uc,
+      pattern,
+      technologies,
+      "A modular data and AI foundation supports iterative delivery aligned to CGI's Microsoft-centric telecom practice."
+    ),
 
   };
 

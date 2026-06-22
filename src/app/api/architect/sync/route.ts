@@ -17,7 +17,7 @@ Respond ONLY with valid JSON:
 {
   "architecture": {
     "pattern": "string — architecture pattern name",
-    "rationale": "string — 2-5 sentences: AI and data architecture narrative for this use case",
+    "rationale": "string — 5-8 sentences: structured AI and data architecture narrative for this use case (data sources/ingestion, processing layer, AI/ML components, telecom integrations, security/governance, delivery to users). Reference submission specifics.",
     "technologies": ["string — 3-6 Microsoft/telecom technologies"],
     "confidence": number 1-100
   },
@@ -40,8 +40,8 @@ Respond ONLY with valid JSON:
 }
 
 Rules:
-- Honor the architect's edit and note — treat them as authoritative workshop judgment.
-- Keep rationale as the primary AI & data architecture narrative (integrations, data flows, model approach).
+- Honor the architect's edit and note — treat them as authoritative workshop judgment. Never overwrite the meaning of the field they edited.
+- Keep rationale as the primary AI & data architecture narrative with concrete components, data flows, integrations, and delivery — not generic summaries of readiness gaps.
 - Align pattern, technology stack, and confidence with the rationale.
 - Refresh criterion explanations only where the architect's change affects them; keep others consistent with submission evidence.
 - Adjust met/not met flags and dimension scores only when clearly implied by the architect edit.

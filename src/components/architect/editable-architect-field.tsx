@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pencil, RotateCcw, Info } from "lucide-react";
 import type { ArchitectFieldMeta } from "@/lib/architect-field-meta";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface EditableArchitectFieldProps {
   hideCalculation?: boolean;
   multiline?: boolean;
   className?: string;
-  onSave: (value: string | number | boolean, architectNote?: string) => void;
+  onSave: (value: string | number | boolean, architectNote?: string) => void | Promise<void>;
   onReset?: () => void;
 }
 
@@ -44,17 +44,30 @@ export function EditableArchitectField({
   onReset,
 }: EditableArchitectFieldProps) {
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const [note, setNote] = useState(overrideNote ?? "");
 
+  useEffect(() => {
+    if (!editing) {
+      setDraft(type === "boolean" ? String(value) : String(value));
+      setNote(overrideNote ?? "");
+    }
+  }, [value, overrideNote, editing, type]);
+
   const shown = displayValue ?? (type === "boolean" ? (value ? "Yes" : "No") : String(value));
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let parsed: string | number | boolean = draft;
     if (type === "number") parsed = Number(draft) || 0;
     if (type === "boolean") parsed = draft === "true" || draft === "yes" || draft === "1";
-    onSave(parsed, note);
-    setEditing(false);
+    setSaving(true);
+    try {
+      await Promise.resolve(onSave(parsed, note));
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -68,7 +81,8 @@ export function EditableArchitectField({
                 "mt-0.5 font-semibold",
                 multiline || type === "textarea"
                   ? "whitespace-pre-wrap text-sm font-normal leading-relaxed"
-                  : "tabular-nums"
+                  : "tabular-nums",
+                !String(value).trim() && displayValue ? "text-muted font-normal italic" : ""
               )}
             >
               {shown}
@@ -156,19 +170,26 @@ export function EditableArchitectField({
           )}
           <Textarea
             aria-label="Architect experience note"
+            placeholder={
+              type === "boolean"
+                ? "Optional: why you changed this status based on workshop discussion."
+                : "Optional: professional context for this change."
+            }
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             className="text-sm"
           />
           <p className="text-[11px] text-muted">
-            Optional: your professional judgment — related fields will align automatically when possible.
+            {type === "boolean"
+              ? "Edit the assessment detail below to change the visible explanation text."
+              : "Optional note — related fields will align automatically when possible."}
           </p>
           <div className="flex gap-2">
-            <Button type="button" size="sm" onClick={handleSave}>
-              Save
+            <Button type="button" size="sm" onClick={() => void handleSave()} disabled={saving}>
+              {saving ? "Saving…" : "Save"}
             </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => setEditing(false)}>
+            <Button type="button" size="sm" variant="outline" onClick={() => setEditing(false)} disabled={saving}>
               Cancel
             </Button>
           </div>

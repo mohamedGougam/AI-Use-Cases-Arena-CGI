@@ -20,6 +20,9 @@ export function useArchitectSync(
         ...(architectNote?.trim() ? { architectNote: architectNote.trim() } : {}),
       };
 
+      // Persist the architect's edit immediately so the UI reflects their change.
+      setFieldOverrides({ [fieldKey]: entry });
+
       setSyncing(true);
       try {
         const res = await fetch("/api/architect/sync", {
@@ -36,10 +39,9 @@ export function useArchitectSync(
         const data = await res.json();
 
         if (data.fallback || !res.ok || !data.updates) {
-          setFieldOverrides({ [fieldKey]: entry });
           if (!data.fallback && !res.ok) {
             toast({
-              title: "Saved locally",
+              title: "Saved your edit",
               description: data.error ?? "Related fields were not synced.",
               variant: "destructive",
             });
@@ -47,19 +49,21 @@ export function useArchitectSync(
           return;
         }
 
-        const batch: Record<string, ArchitectOverrideEntry | null> = {};
-        for (const [key, val] of Object.entries(data.updates.fields as Record<string, string | number | boolean>)) {
-          batch[key] = {
-            value: val,
-            ...(key === fieldKey && architectNote?.trim()
-              ? { architectNote: architectNote.trim() }
-              : {}),
-          };
+        const batch: Record<string, ArchitectOverrideEntry | null> = {
+          [fieldKey]: entry,
+        };
+
+        for (const [key, val] of Object.entries(
+          data.updates.fields as Record<string, string | number | boolean>
+        )) {
+          if (key === fieldKey) continue;
+          batch[key] = { value: val };
         }
 
         if (data.updates.criterionExplanations) {
           const explanationFields = flattenCriterionExplanations(data.updates.criterionExplanations);
           for (const [key, text] of Object.entries(explanationFields)) {
+            if (key === fieldKey) continue;
             batch[key] = { value: text };
           }
         }
@@ -67,13 +71,12 @@ export function useArchitectSync(
         setFieldOverrides(batch);
         toast({
           title: "Assessment updated",
-          description: "Related architecture and readiness fields were aligned to your edit.",
+          description: "Related fields were aligned to your edit.",
         });
       } catch {
-        setFieldOverrides({ [fieldKey]: entry });
         toast({
-          title: "Saved locally",
-          description: "Could not reach sync service. Only this field was updated.",
+          title: "Saved your edit",
+          description: "Could not reach sync service. Your change was kept locally.",
           variant: "destructive",
         });
       } finally {

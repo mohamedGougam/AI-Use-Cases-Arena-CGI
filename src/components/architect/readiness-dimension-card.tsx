@@ -48,9 +48,10 @@ export function ReadinessDimensionCard({
       <ul className="space-y-3">
         {dimension.criteria.map((c, i) => {
           const criterionKey = `dimension.${dimension.key}.criteria.${i}`;
+          const explanationKey = `${criterionKey}.explanation`;
           const meta = getCriterionMeta(dimension.key, i, c.label, source);
           return (
-            <li key={criterionKey}>
+            <li key={criterionKey} className="space-y-2">
               <EditableArchitectField
                 fieldKey={criterionKey}
                 label={c.label}
@@ -58,15 +59,32 @@ export function ReadinessDimensionCard({
                 displayValue={c.met ? "Met" : "Not met"}
                 meta={meta}
                 type="boolean"
-                explanation={c.explanation}
-                hideCalculation={Boolean(c.explanation)}
+                hideCalculation
                 isOverridden={overrides.isOverridden(criterionKey)}
                 overrideNote={overrides.getNote(criterionKey)}
                 onSave={saveField(criterionKey)}
                 onReset={() => overrides.onReset(criterionKey)}
                 className="!p-2"
               />
-              <div className="mt-1 flex items-center gap-2 pl-1 text-xs">
+              <EditableArchitectField
+                fieldKey={explanationKey}
+                label="Assessment detail"
+                value={c.explanation ?? ""}
+                displayValue={c.explanation || "No detail yet — click edit to add."}
+                meta={{
+                  meaning: "How this criterion was judged for this use case.",
+                  calculation: "Grounded in the business submission and architect workshop input.",
+                }}
+                type="textarea"
+                multiline
+                hideCalculation
+                isOverridden={overrides.isOverridden(explanationKey)}
+                overrideNote={overrides.getNote(explanationKey)}
+                onSave={saveField(explanationKey)}
+                onReset={() => overrides.onReset(explanationKey)}
+                className="!p-2"
+              />
+              <div className="flex items-center gap-2 pl-1 text-xs">
                 {c.met ? (
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                 ) : (

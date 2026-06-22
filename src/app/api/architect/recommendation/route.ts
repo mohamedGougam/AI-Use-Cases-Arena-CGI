@@ -19,7 +19,7 @@ Respond ONLY with valid JSON matching this schema:
   "pattern": "string — architecture pattern name (e.g. RAG Knowledge Assistant, Agentic AI, Predictive Analytics)",
   "technologies": ["string — 3 to 6 Microsoft/telecom technologies"],
   "confidence": number — integer 1-100,
-  "rationale": "string — 2-4 sentences grounded in the provided use case text and readiness gaps"
+  "rationale": "string — 5-8 sentences: structured AI & data architecture narrative (data sources/ingestion, processing, AI/ML components, telecom integrations, security, delivery). Reference submission specifics — no generic filler."
 }
 
 Rules:

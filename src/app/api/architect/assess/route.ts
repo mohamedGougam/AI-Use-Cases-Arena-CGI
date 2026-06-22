@@ -47,10 +47,10 @@ Respond ONLY with valid JSON matching this schema:
   "architectQuestions": ["string — 5 to 8 specific follow-up questions targeting the biggest gaps"],
   "telecomImpactAreas": [{ "area": "string — from allowed list", "relevance": number 1-100 }],
   "architecture": {
-    "pattern": "string",
+    "pattern": "string — concise architecture pattern name",
     "technologies": ["string — 3 to 6 Microsoft/telecom technologies"],
     "confidence": number 1-100,
-    "rationale": "string — 2-4 sentences"
+    "rationale": "string — structured AI & data architecture for THIS use case. Write 5-8 sentences as a cohesive narrative covering: (1) data sources and ingestion path, (2) storage/processing (lakehouse, warehouse, streaming), (3) AI/ML or GenAI components and how they are applied, (4) integrations with telecom/OSS-BSS/CRM or ops systems, (5) security, privacy, and governance controls, (6) how outputs reach users (dashboards, APIs, agents). Reference specific submission details — never use generic filler about 'cloud-based technologies' without naming components and flows."
   }
 }
 
@@ -60,7 +60,8 @@ Rules:
 - contentRichness.fields must comment on each field even when empty or thin.
 - architectQuestions must target unmet criteria and telecom context.
 - telecomImpactAreas: only include domains with clear relevance; use allowed domain names exactly.
-- Prefer Azure OpenAI, Microsoft Fabric, Databricks, Power BI for architecture.
+- Prefer Azure OpenAI, Microsoft Fabric, Databricks, Power BI, Azure Machine Learning for architecture.
+- architecture.rationale must read like a solution architect's design narrative — concrete components, data flows, and integrations tied to the submission.
 - Do not mention JSON, prompts, AI vendors, or that you are an AI.`;
 
 function isUseCase(value: unknown): value is UseCase {
