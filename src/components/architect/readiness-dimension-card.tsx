@@ -2,45 +2,81 @@
 
 import { CheckCircle2, Circle, HelpCircle } from "lucide-react";
 import type { ReadinessDimension } from "@/lib/architect-engine";
+import { getCriterionMeta, getDimensionMeta, getQuestionMeta } from "@/lib/architect-field-meta";
+import { EditableArchitectField } from "@/components/architect/editable-architect-field";
+import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-export function ReadinessDimensionCard({ dimension }: { dimension: ReadinessDimension }) {
+export function ReadinessDimensionCard({
+  dimension,
+  overrides,
+}: {
+  dimension: ReadinessDimension;
+  overrides: ArchitectOverrideContext;
+}) {
+  const scoreKey = `dimension.${dimension.key}.score`;
+  const dimMeta = getDimensionMeta(dimension.key);
+
   return (
-    <div className="rounded-xl border border-border/20 bg-card/60 p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="font-semibold">{dimension.title}</h3>
-        <span
-          className={cn(
-            "text-lg font-bold tabular-nums",
-            dimension.score >= 75
-              ? "text-emerald-500"
-              : dimension.score >= 50
-                ? "text-amber-500"
-                : "text-primary"
-          )}
-        >
-          {dimension.score}%
-        </span>
-      </div>
-      <Progress value={dimension.score} className="mb-4 h-2" />
-      <ul className="space-y-2">
-        {dimension.criteria.map((c) => (
-          <li key={c.label} className="flex items-start gap-2 text-sm">
-            {c.met ? (
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-            ) : (
-              <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted/50" />
-            )}
-            <span className={c.met ? "text-foreground" : "text-muted"}>{c.label}</span>
-          </li>
-        ))}
+    <div className="rounded-xl border border-border/20 bg-card/60 p-5 space-y-4">
+      <EditableArchitectField
+        fieldKey={scoreKey}
+        label={dimension.title}
+        value={dimension.score}
+        displayValue={`${dimension.score}%`}
+        meta={dimMeta}
+        type="number"
+        isOverridden={overrides.isOverridden(scoreKey)}
+        overrideNote={overrides.getNote(scoreKey)}
+        onSave={(v, note) => overrides.onSave(scoreKey, v, note)}
+        onReset={() => overrides.onReset(scoreKey)}
+      />
+      <Progress value={dimension.score} className="h-2" />
+      <ul className="space-y-3">
+        {dimension.criteria.map((c, i) => {
+          const criterionKey = `dimension.${dimension.key}.criteria.${i}`;
+          const meta = getCriterionMeta(dimension.key, i, c.label);
+          return (
+            <li key={criterionKey}>
+              <EditableArchitectField
+                fieldKey={criterionKey}
+                label={c.label}
+                value={c.met}
+                displayValue={c.met ? "Met" : "Not met"}
+                meta={meta}
+                type="boolean"
+                isOverridden={overrides.isOverridden(criterionKey)}
+                overrideNote={overrides.getNote(criterionKey)}
+                onSave={(v, note) => overrides.onSave(criterionKey, v, note)}
+                onReset={() => overrides.onReset(criterionKey)}
+                className="!p-2"
+              />
+              <div className="mt-1 flex items-center gap-2 pl-1 text-xs">
+                {c.met ? (
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                ) : (
+                  <Circle className="h-3.5 w-3.5 text-muted/50" />
+                )}
+                <span className={cn(c.met ? "text-foreground" : "text-muted")}>
+                  {c.met ? "Criterion satisfied" : "Gap identified"}
+                </span>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
 }
 
-export function ArchitectQuestions({ questions }: { questions: string[] }) {
+export function ArchitectQuestions({
+  questions,
+  overrides,
+}: {
+  questions: string[];
+  overrides: ArchitectOverrideContext;
+}) {
   return (
     <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-5">
       <div className="mb-4 flex items-center gap-2">
@@ -48,17 +84,32 @@ export function ArchitectQuestions({ questions }: { questions: string[] }) {
         <h3 className="font-semibold">Architect Questions</h3>
       </div>
       <p className="mb-4 text-sm text-muted">
-        The AI Architect continuously challenges this use case until sufficient information exists for estimation.
+        Follow-up questions until sufficient information exists for estimation. Edit to reflect your workshop discussion.
       </p>
       <ol className="space-y-3">
-        {questions.map((q, i) => (
-          <li key={q} className="flex gap-3 text-sm">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-              {i + 1}
-            </span>
-            <span>{q}</span>
-          </li>
-        ))}
+        {questions.map((q, i) => {
+          const key = `question.${i}`;
+          return (
+            <li key={key} className="flex gap-3">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary mt-2">
+                {i + 1}
+              </span>
+              <div className="flex-1">
+                <EditableArchitectField
+                  fieldKey={key}
+                  label={`Question ${i + 1}`}
+                  value={q}
+                  meta={getQuestionMeta(i)}
+                  type="textarea"
+                  isOverridden={overrides.isOverridden(key)}
+                  overrideNote={overrides.getNote(key)}
+                  onSave={(v, note) => overrides.onSave(key, v, note)}
+                  onReset={() => overrides.onReset(key)}
+                />
+              </div>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

@@ -120,6 +120,30 @@ export interface ArchitectDocumentBrief {
   analysisSummary?: string;
 }
 
+/** Architect adjustments based on workshop experience (persisted per use case). */
+export interface ArchitectOverrideEntry {
+  value: string | number | boolean;
+  architectNote?: string;
+}
+
+export interface ArchitectOverrides {
+  fields: Record<string, ArchitectOverrideEntry>;
+  updatedAt: string;
+  updatedByEmail: string;
+  updatedByName: string;
+}
+
+/** OpenAI-generated architecture recommendation cached per use case. */
+export interface ArchitectAiRecommendation {
+  pattern: string;
+  technologies: string[];
+  confidence: number;
+  rationale: string;
+  model: string;
+  generatedAt: string;
+  inputFingerprint: string;
+}
+
 export interface UseCase {
   id: string;
   title: string;
@@ -144,6 +168,8 @@ export interface UseCase {
   status: UseCaseStatus;
   badges: UseCaseBadge[];
   architectBrief?: ArchitectDocumentBrief;
+  architectOverrides?: ArchitectOverrides;
+  architectAiRecommendation?: ArchitectAiRecommendation;
 }
 
 export interface DepartmentStats {

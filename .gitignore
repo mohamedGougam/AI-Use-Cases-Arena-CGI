@@ -18,6 +18,13 @@
 # production
 /build
 
+# vercel
+.vercel
+
+# local arena database files (auto-created)
+/data/arena-state.json
+/data/arena-history.json
+
 # misc
 .DS_Store
 *.pem

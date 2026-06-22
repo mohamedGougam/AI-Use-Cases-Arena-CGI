@@ -39,16 +39,27 @@ import {
   getDaysSinceCreated,
 } from "@/lib/scoring";
 import type {
+  ArchitectAiRecommendation,
   ArchitectDocumentBrief,
+  ArchitectOverrideEntry,
   Comment,
   CreatorMessage,
   SubmitUseCaseInput,
   UseCase,
   User,
 } from "@/types";
+import {
+  fetchArenaState,
+  pushArenaState,
+  recordArenaSnapshot,
+} from "@/lib/arena-db/client-sync";
+import type { ArenaDbStatus } from "@/lib/arena-db/types";
 
-const STORAGE_KEY = "ai-use-cases-arena-state-v5";
-const LEGACY_STORAGE_KEY = "ai-use-cases-arena-state-v4";
+const STORAGE_KEY = "ai-use-cases-arena-state-v6";
+const LEGACY_STORAGE_KEYS = [
+  "ai-use-cases-arena-state-v5",
+  "ai-use-cases-arena-state-v4",
+];
 
 interface PersistedState {
   useCases: UseCase[];
@@ -68,8 +79,19 @@ interface AppContextValue {
   addCreatorMessage: (useCaseId: string, text: string) => boolean;
   setArchitectBrief: (useCaseId: string, brief: ArchitectDocumentBrief) => void;
   clearArchitectBrief: (useCaseId: string) => void;
+  setArchitectFieldOverride: (
+    useCaseId: string,
+    fieldKey: string,
+    entry: ArchitectOverrideEntry | null
+  ) => void;
+  setArchitectAiRecommendation: (
+    useCaseId: string,
+    recommendation: ArchitectAiRecommendation
+  ) => void;
+  clearArchitectOverrides: (useCaseId: string) => void;
   hasVoted: (useCaseId: string) => boolean;
   getUseCasesByEmail: (email: string) => UseCase[];
+  dbStatus: ArenaDbStatus | null;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -92,7 +114,8 @@ function loadState(): PersistedState | null {
   if (typeof window === "undefined") return null;
   try {
     const raw =
-      localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+      localStorage.getItem(STORAGE_KEY) ??
+      LEGACY_STORAGE_KEYS.map((k) => localStorage.getItem(k)).find(Boolean);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedState;
     return {
@@ -116,17 +139,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [votedUseCaseIds, setVotedUseCaseIds] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [dbStatus, setDbStatus] = useState<ArenaDbStatus | null>(null);
 
   useEffect(() => {
-    const saved = loadState();
-    if (saved) {
-      setUseCases(saved.useCases);
-      setVotedUseCaseIds(saved.votedUseCaseIds);
+    async function hydrate() {
+      const local = loadState();
+      const remote = await fetchArenaState();
+
+      if (remote?.status) setDbStatus(remote.status);
+
+      const remoteState = remote?.state;
+      const useRemote =
+        remoteState &&
+        remoteState.useCases.length > 0 &&
+        (!local ||
+          new Date(remoteState.updatedAt).getTime() >=
+            new Date(local.useCases[0]?.createdAt ?? 0).getTime() ||
+          remoteState.useCases.length >= local.useCases.length);
+
+      if (useRemote && remoteState) {
+        setUseCases(remoteState.useCases.map(migrateUseCase));
+        setVotedUseCaseIds(remoteState.votedUseCaseIds ?? []);
+        saveState({
+          useCases: remoteState.useCases.map(migrateUseCase),
+          votedUseCaseIds: remoteState.votedUseCaseIds ?? [],
+        });
+      } else if (local) {
+        setUseCases(local.useCases);
+        setVotedUseCaseIds(local.votedUseCaseIds);
+        void pushArenaState(local.useCases, local.votedUseCaseIds);
+      }
+
+      setHydrated(true);
     }
-    setHydrated(true);
+    void hydrate();
   }, []);
 
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dbSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -134,13 +185,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveTimeoutRef.current = setTimeout(() => {
       saveState({ useCases, votedUseCaseIds });
     }, 350);
+
+    if (dbSaveTimeoutRef.current) clearTimeout(dbSaveTimeoutRef.current);
+    dbSaveTimeoutRef.current = setTimeout(() => {
+      void pushArenaState(useCases, votedUseCaseIds);
+    }, 800);
+
     const flush = () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      if (dbSaveTimeoutRef.current) clearTimeout(dbSaveTimeoutRef.current);
       saveState({ useCases, votedUseCaseIds });
+      void pushArenaState(useCases, votedUseCaseIds);
     };
     window.addEventListener("beforeunload", flush);
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      if (dbSaveTimeoutRef.current) clearTimeout(dbSaveTimeoutRef.current);
       window.removeEventListener("beforeunload", flush);
     };
   }, [useCases, votedUseCaseIds, hydrated]);
@@ -182,6 +242,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [email, myScore]);
 
+  const actorInfo = useCallback(() => {
+    if (!email) return { actorEmail: undefined, actorName: undefined };
+    const normalized = normalizeEmail(email);
+    return {
+      actorEmail: normalized,
+      actorName: isAdminEmail(normalized)
+        ? ADMIN_DISPLAY_NAME
+        : isArchitectEmail(normalized)
+          ? ARCHITECT_DISPLAY_NAME
+          : isBusinessEmail(normalized)
+            ? BUSINESS_DISPLAY_NAME
+            : getDisplayNameFromEmail(normalized),
+    };
+  }, [email]);
+
   const submitUseCase = useCallback(
     (input: SubmitUseCaseInput): UseCase => {
       if (!email) throw new Error("Must be signed in to submit");
@@ -222,9 +297,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       base.badges = deriveUseCaseBadges(base);
 
       setUseCases((prev) => [base, ...prev]);
+      void recordArenaSnapshot({
+        useCase: base,
+        eventType: "use_case_submitted",
+        ...actorInfo(),
+      });
       return base;
     },
-    [email]
+    [email, actorInfo]
   );
 
   const updateUseCases = useCallback((updater: (prev: UseCase[]) => UseCase[]) => {
@@ -262,13 +342,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ),
           };
           updated.badges = deriveUseCaseBadges(updated);
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "vote_cast",
+            ...actorInfo(),
+            detail: `Vote count: ${updated.votes}`,
+          });
           return updated;
         })
       );
 
       return true;
     },
-    [email, votedUseCaseIds, updateUseCases]
+    [email, votedUseCaseIds, updateUseCases, actorInfo]
   );
 
   const unvoteOnUseCase = useCallback(
@@ -339,11 +425,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ),
           };
           updated.badges = deriveUseCaseBadges(updated);
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "comment_added",
+            ...actorInfo(),
+          });
           return updated;
         })
       );
     },
-    [email, canAccessArchitectTools, updateUseCases]
+    [email, canAccessArchitectTools, updateUseCases, actorInfo]
   );
 
   const addCreatorMessage = useCallback(
@@ -377,11 +468,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
 
         sent = true;
-        return prev.map((uc) =>
+        const updatedList = prev.map((uc) =>
           uc.id === useCaseId
             ? { ...uc, creatorMessages: [...(uc.creatorMessages ?? []), message] }
             : uc
         );
+        const updatedUseCase = updatedList.find((uc) => uc.id === useCaseId);
+        if (updatedUseCase) {
+          void recordArenaSnapshot({
+            useCase: updatedUseCase,
+            eventType: "creator_message",
+            actorEmail: normalized,
+            actorName: message.fromName,
+          });
+        }
+        return updatedList;
       });
 
       return sent;
@@ -393,10 +494,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (useCaseId: string, brief: ArchitectDocumentBrief) => {
       if (!canAccessArchitectTools) return;
       updateUseCases((prev) =>
-        prev.map((uc) => (uc.id === useCaseId ? { ...uc, architectBrief: brief } : uc))
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          const updated = { ...uc, architectBrief: brief };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "document_uploaded",
+            ...actorInfo(),
+            detail: brief.fileName,
+          });
+          return updated;
+        })
       );
     },
-    [canAccessArchitectTools, updateUseCases]
+    [canAccessArchitectTools, updateUseCases, actorInfo]
   );
 
   const clearArchitectBrief = useCallback(
@@ -405,11 +516,105 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
-          return { ...uc, architectBrief: undefined };
+          const updated = { ...uc, architectBrief: undefined };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "document_removed",
+            ...actorInfo(),
+          });
+          return updated;
         })
       );
     },
-    [canAccessArchitectTools, updateUseCases]
+    [canAccessArchitectTools, updateUseCases, actorInfo]
+  );
+
+  const setArchitectFieldOverride = useCallback(
+    (
+      useCaseId: string,
+      fieldKey: string,
+      entry: ArchitectOverrideEntry | null
+    ) => {
+      if (!email || !canAccessArchitectTools) return;
+      const normalized = normalizeEmail(email);
+      const editorName = isAdminEmail(normalized)
+        ? ADMIN_DISPLAY_NAME
+        : isArchitectEmail(normalized)
+          ? ARCHITECT_DISPLAY_NAME
+          : getDisplayNameFromEmail(normalized);
+
+      updateUseCases((prev) =>
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          const existing = { ...(uc.architectOverrides?.fields ?? {}) };
+          if (entry === null) {
+            delete existing[fieldKey];
+          } else {
+            existing[fieldKey] = entry;
+          }
+          const hasFields = Object.keys(existing).length > 0;
+          const updated: UseCase = {
+            ...uc,
+            architectOverrides: hasFields
+              ? {
+                  fields: existing,
+                  updatedAt: new Date().toISOString(),
+                  updatedByEmail: normalized,
+                  updatedByName: editorName,
+                }
+              : undefined,
+          };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: entry === null ? "overrides_updated" : "overrides_updated",
+            actorEmail: normalized,
+            actorName: editorName,
+            detail: entry === null ? `Reset field: ${fieldKey}` : `Updated field: ${fieldKey}`,
+          });
+          return updated;
+        })
+      );
+    },
+    [email, canAccessArchitectTools, updateUseCases]
+  );
+
+  const setArchitectAiRecommendation = useCallback(
+    (useCaseId: string, recommendation: ArchitectAiRecommendation) => {
+      if (!canAccessArchitectTools) return;
+      updateUseCases((prev) =>
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          const updated = { ...uc, architectAiRecommendation: recommendation };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "overrides_updated",
+            ...actorInfo(),
+            detail: `OpenAI architecture: ${recommendation.pattern}`,
+          });
+          return updated;
+        })
+      );
+    },
+    [canAccessArchitectTools, updateUseCases, actorInfo]
+  );
+
+  const clearArchitectOverrides = useCallback(
+    (useCaseId: string) => {
+      if (!canAccessArchitectTools) return;
+      updateUseCases((prev) =>
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          const updated = { ...uc, architectOverrides: undefined };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "overrides_cleared",
+            ...actorInfo(),
+          });
+          return updated;
+        })
+      );
+    },
+    [canAccessArchitectTools, updateUseCases, actorInfo]
   );
 
   const hasVoted = useCallback(
@@ -443,8 +648,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCreatorMessage,
       setArchitectBrief,
       clearArchitectBrief,
+      setArchitectFieldOverride,
+      setArchitectAiRecommendation,
+      clearArchitectOverrides,
       hasVoted,
       getUseCasesByEmail,
+      dbStatus,
     }),
     [
       useCases,
@@ -459,8 +668,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCreatorMessage,
       setArchitectBrief,
       clearArchitectBrief,
+      setArchitectFieldOverride,
+      setArchitectAiRecommendation,
+      clearArchitectOverrides,
       hasVoted,
       getUseCasesByEmail,
+      dbStatus,
     ]
   );
 

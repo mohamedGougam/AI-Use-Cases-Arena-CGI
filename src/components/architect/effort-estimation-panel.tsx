@@ -2,10 +2,19 @@
 
 import { Calculator, Users } from "lucide-react";
 import type { ArchitectAssessment } from "@/lib/architect-engine";
+import { ARCHITECT_FIELD_META, getDeliveryRoleMeta, getModelEstimateMeta } from "@/lib/architect-field-meta";
+import { EditableArchitectField } from "@/components/architect/editable-architect-field";
+import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-export function EffortEstimationPanel({ assessment }: { assessment: ArchitectAssessment }) {
+export function EffortEstimationPanel({
+  assessment,
+  overrides,
+}: {
+  assessment: ArchitectAssessment;
+  overrides: ArchitectOverrideContext;
+}) {
   const { modelEstimates, consensus } = assessment;
 
   return (
@@ -19,52 +28,104 @@ export function EffortEstimationPanel({ assessment }: { assessment: ArchitectAss
           Simulated timeline estimates from multiple AI models for workshop-grade planning.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
-          {modelEstimates.map((est) => (
-            <div
-              key={est.model}
-              className="rounded-lg border border-border/15 bg-background/50 p-4"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold">{est.model}</span>
-                <Badge variant="outline">{est.complexity}</Badge>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-primary">{est.weeks} weeks</p>
-              <div className="mt-3">
-                <div className="mb-1 flex justify-between text-xs text-muted">
-                  <span>Confidence</span>
-                  <span>{est.confidence}%</span>
+          {modelEstimates.map((est) => {
+            const weeksKey = `estimate.${est.model}.weeks`;
+            const confKey = `estimate.${est.model}.confidence`;
+            const meta = getModelEstimateMeta(est.model);
+            return (
+              <div
+                key={est.model}
+                className="rounded-lg border border-border/15 bg-background/50 p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold">{est.model}</span>
+                  <Badge variant="outline">{est.complexity}</Badge>
                 </div>
+                <EditableArchitectField
+                  fieldKey={weeksKey}
+                  label="Timeline (weeks)"
+                  value={est.weeks}
+                  displayValue={`${est.weeks} weeks`}
+                  meta={meta}
+                  type="number"
+                  isOverridden={overrides.isOverridden(weeksKey)}
+                  overrideNote={overrides.getNote(weeksKey)}
+                  onSave={(v, note) => overrides.onSave(weeksKey, v, note)}
+                  onReset={() => overrides.onReset(weeksKey)}
+                />
+                <EditableArchitectField
+                  fieldKey={confKey}
+                  label="Confidence"
+                  value={est.confidence}
+                  displayValue={`${est.confidence}%`}
+                  meta={meta}
+                  type="number"
+                  isOverridden={overrides.isOverridden(confKey)}
+                  overrideNote={overrides.getNote(confKey)}
+                  onSave={(v, note) => overrides.onSave(confKey, v, note)}
+                  onReset={() => overrides.onReset(confKey)}
+                />
                 <Progress value={est.confidence} className="h-1.5" />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      <div className="rounded-xl border border-primary/25 bg-primary/5 p-6">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-primary">
+      <div className="rounded-xl border border-primary/25 bg-primary/5 p-6 space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-primary">
           Consensus Estimate
         </h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-xs text-muted">Timeline</p>
-            <p className="text-xl font-bold">
-              {consensus.timelineMin}–{consensus.timelineMax} weeks
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted">Confidence</p>
-            <p className="text-xl font-bold text-primary">{consensus.confidence}%</p>
-          </div>
-        </div>
+        <EditableArchitectField
+          fieldKey="consensus.timelineMin"
+          label="Timeline (min weeks)"
+          value={consensus.timelineMin}
+          displayValue={`${consensus.timelineMin} weeks`}
+          meta={ARCHITECT_FIELD_META["consensus.timelineMin"]}
+          type="number"
+          isOverridden={overrides.isOverridden("consensus.timelineMin")}
+          overrideNote={overrides.getNote("consensus.timelineMin")}
+          onSave={(v, note) => overrides.onSave("consensus.timelineMin", v, note)}
+          onReset={() => overrides.onReset("consensus.timelineMin")}
+        />
+        <EditableArchitectField
+          fieldKey="consensus.timelineMax"
+          label="Timeline (max weeks)"
+          value={consensus.timelineMax}
+          displayValue={`${consensus.timelineMax} weeks`}
+          meta={ARCHITECT_FIELD_META["consensus.timelineMax"]}
+          type="number"
+          isOverridden={overrides.isOverridden("consensus.timelineMax")}
+          overrideNote={overrides.getNote("consensus.timelineMax")}
+          onSave={(v, note) => overrides.onSave("consensus.timelineMax", v, note)}
+          onReset={() => overrides.onReset("consensus.timelineMax")}
+        />
+        <EditableArchitectField
+          fieldKey="consensus.confidence"
+          label="Consensus confidence"
+          value={consensus.confidence}
+          displayValue={`${consensus.confidence}%`}
+          meta={ARCHITECT_FIELD_META["consensus.confidence"]}
+          type="number"
+          isOverridden={overrides.isOverridden("consensus.confidence")}
+          overrideNote={overrides.getNote("consensus.confidence")}
+          onSave={(v, note) => overrides.onSave("consensus.confidence", v, note)}
+          onReset={() => overrides.onReset("consensus.confidence")}
+        />
       </div>
 
-      <DeliveryTeamPanel assessment={assessment} />
+      <DeliveryTeamPanel assessment={assessment} overrides={overrides} />
     </div>
   );
 }
 
-function DeliveryTeamPanel({ assessment }: { assessment: ArchitectAssessment }) {
+function DeliveryTeamPanel({
+  assessment,
+  overrides,
+}: {
+  assessment: ArchitectAssessment;
+  overrides: ArchitectOverrideContext;
+}) {
   return (
     <div className="rounded-xl border border-border/20 bg-card/60 p-5">
       <div className="mb-4 flex items-center gap-2">
@@ -74,30 +135,50 @@ function DeliveryTeamPanel({ assessment }: { assessment: ArchitectAssessment }) 
       <p className="mb-4 text-sm text-muted">
         Recommended team composition and skills for delivery.
       </p>
-      <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {assessment.deliveryTeam.map((role) => (
-          <div
-            key={role.role}
-            className="flex items-center justify-between rounded-lg border border-border/15 bg-background/50 px-3 py-2"
-          >
-            <span className="text-sm">{role.role}</span>
-            <span className="font-bold text-primary">{role.days} days</span>
-          </div>
-        ))}
+      <div className="mb-4 grid gap-3 sm:grid-cols-2">
+        {assessment.deliveryTeam.map((role) => {
+          const key = `delivery.${role.role}.days`;
+          return (
+            <EditableArchitectField
+              key={role.role}
+              fieldKey={key}
+              label={role.role}
+              value={role.days}
+              displayValue={`${role.days} days`}
+              meta={getDeliveryRoleMeta(role.role)}
+              type="number"
+              isOverridden={overrides.isOverridden(key)}
+              overrideNote={overrides.getNote(key)}
+              onSave={(v, note) => overrides.onSave(key, v, note)}
+              onReset={() => overrides.onReset(key)}
+            />
+          );
+        })}
       </div>
-      <div className="mb-3 flex items-center justify-between rounded-lg bg-primary/10 px-4 py-3">
-        <span className="font-medium">Total Team Effort</span>
-        <span className="text-lg font-bold text-primary">{assessment.totalTeamDays} person-days</span>
-      </div>
-      <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Required Skills</p>
-        <div className="flex flex-wrap gap-2">
-          {assessment.requiredSkills.map((skill) => (
-            <Badge key={skill} variant="secondary">
-              {skill}
-            </Badge>
-          ))}
-        </div>
+      <EditableArchitectField
+        fieldKey="totalTeamDays"
+        label="Total team effort"
+        value={assessment.totalTeamDays}
+        displayValue={`${assessment.totalTeamDays} person-days`}
+        meta={ARCHITECT_FIELD_META.totalTeamDays}
+        type="number"
+        isOverridden={overrides.isOverridden("totalTeamDays")}
+        overrideNote={overrides.getNote("totalTeamDays")}
+        onSave={(v, note) => overrides.onSave("totalTeamDays", v, note)}
+        onReset={() => overrides.onReset("totalTeamDays")}
+      />
+      <div className="mt-4">
+        <EditableArchitectField
+          fieldKey="requiredSkills"
+          label="Required skills"
+          value={assessment.requiredSkills.join(", ")}
+          meta={ARCHITECT_FIELD_META.requiredSkills}
+          type="textarea"
+          isOverridden={overrides.isOverridden("requiredSkills")}
+          overrideNote={overrides.getNote("requiredSkills")}
+          onSave={(v, note) => overrides.onSave("requiredSkills", v, note)}
+          onReset={() => overrides.onReset("requiredSkills")}
+        />
       </div>
     </div>
   );

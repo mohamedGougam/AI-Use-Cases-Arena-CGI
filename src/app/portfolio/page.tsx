@@ -16,6 +16,7 @@ import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { buildPortfolioSummary, formatEur } from "@/lib/portfolio-analytics";
 import { PortfolioValueEffortMatrix } from "@/components/portfolio/portfolio-value-effort-matrix";
+import { PortfolioHistorySection } from "@/components/architect/arena-database-status";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -154,6 +155,8 @@ export default function PortfolioPage() {
           </div>
         </>
       )}
+
+      {portfolio.totalUseCases > 0 && <PortfolioHistorySection />}
 
       <p className="text-xs text-muted text-center">
         {isAdmin ? "Facilitator" : "AI Architect"} executive view · Telecom Edition 2.0

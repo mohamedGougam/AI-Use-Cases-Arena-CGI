@@ -6,6 +6,9 @@ import type { UseCase } from "@/types";
 import type { ArchitectDocumentBrief } from "@/types";
 import { useApp } from "@/context/app-context";
 import { DOCUMENT_MODEL_OPTIONS, CHOSEN_DOCUMENT_MODEL } from "@/lib/document-models";
+import { ARCHITECT_FIELD_META } from "@/lib/architect-field-meta";
+import { EditableArchitectField } from "@/components/architect/editable-architect-field";
+import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
@@ -19,9 +22,10 @@ interface ArchitectDocumentUploadProps {
     documentWords: number;
     hasDocument: boolean;
   };
+  overrides?: ArchitectOverrideContext;
 }
 
-export function ArchitectDocumentUpload({ useCase, wordCounts }: ArchitectDocumentUploadProps) {
+export function ArchitectDocumentUpload({ useCase, wordCounts, overrides }: ArchitectDocumentUploadProps) {
   const { setArchitectBrief, clearArchitectBrief } = useApp();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -83,23 +87,35 @@ export function ArchitectDocumentUpload({ useCase, wordCounts }: ArchitectDocume
         </Badge>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-white/5 p-3 text-center">
-          <p className="text-2xl font-bold text-primary">{wordCounts.titleWords}</p>
-          <p className="text-xs text-muted">Title words</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-3 text-center">
-          <p className="text-2xl font-bold text-primary">{wordCounts.descriptionWords}</p>
-          <p className="text-xs text-muted">Description words</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-3 text-center">
-          <p className="text-2xl font-bold">{wordCounts.businessUserTotal}</p>
-          <p className="text-xs text-muted">Business user total</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-3 text-center">
-          <p className="text-2xl font-bold">{wordCounts.documentWords || "—"}</p>
-          <p className="text-xs text-muted">Document words</p>
-        </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {(
+          [
+            ["wordCount.title", "Title words", wordCounts.titleWords],
+            ["wordCount.description", "Description words", wordCounts.descriptionWords],
+            ["wordCount.businessTotal", "Business user total", wordCounts.businessUserTotal],
+            ["wordCount.document", "Document words", wordCounts.documentWords || 0],
+          ] as const
+        ).map(([key, label, value]) =>
+          overrides ? (
+            <EditableArchitectField
+              key={key}
+              fieldKey={key}
+              label={label}
+              value={value}
+              meta={ARCHITECT_FIELD_META[key]}
+              type="number"
+              isOverridden={overrides.isOverridden(key)}
+              overrideNote={overrides.getNote(key)}
+              onSave={(v, note) => overrides.onSave(key, v, note)}
+              onReset={() => overrides.onReset(key)}
+            />
+          ) : (
+            <div key={key} className="rounded-lg bg-white/5 p-3 text-center">
+              <p className="text-2xl font-bold text-primary">{value}</p>
+              <p className="text-xs text-muted">{label}</p>
+            </div>
+          )
+        )}
       </div>
 
       {brief ? (
