@@ -45,6 +45,33 @@
 
   html {
     @apply overflow-x-hidden;
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  @media (min-width: 1280px) {
+    html {
+      font-size: 17.5px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    html {
+      font-size: 18.5px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    html {
+      font-size: 20px;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    html {
+      font-size: 22px;
+    }
   }
 
   body {
@@ -68,7 +95,7 @@
 
 @layer components {
   .glass-card {
-    @apply rounded-xl border border-border/80 bg-card/95 shadow-card backdrop-blur-xl dark:border-border/40 dark:bg-card/90 dark:shadow-card-dark;
+    @apply rounded-xl border border-border/80 bg-card/95 shadow-card backdrop-blur-xl dark:border-border/40 dark:bg-card/90 dark:shadow-card-dark xl:rounded-2xl;
     background-image: radial-gradient(
       ellipse at top left,
       rgba(227, 25, 55, 0.04),
@@ -92,6 +119,30 @@
 @layer utilities {
   .text-gradient {
     @apply bg-gradient-to-r from-[#1F2937] to-[#E31937] bg-clip-text text-transparent dark:from-white dark:to-[#FCA5A5];
+  }
+
+  .type-page-title {
+    @apply text-2xl font-bold tracking-tight xs:text-3xl sm:text-4xl xl:text-[2.75rem] 2xl:text-5xl;
+  }
+
+  .type-section-title {
+    @apply text-xl font-bold xl:text-2xl 2xl:text-3xl;
+  }
+
+  .type-body {
+    @apply text-sm leading-relaxed xl:text-base 2xl:text-lg;
+  }
+
+  .type-caption {
+    @apply text-xs leading-relaxed xl:text-sm;
+  }
+
+  .type-stat {
+    @apply text-3xl font-bold xl:text-4xl 2xl:text-5xl;
+  }
+
+  .shell-padding {
+    @apply px-4 pb-10 pt-[4.25rem] sm:px-6 sm:pb-12 sm:pt-20 lg:px-8 lg:pb-12 lg:pt-8 xl:px-10 2xl:px-12;
   }
 
   .glow-border {

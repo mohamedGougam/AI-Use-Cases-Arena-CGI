@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Handshake, ThumbsUp, Sparkles } from "lucide-react";
+import { User, Handshake, ThumbsUp, Sparkles } from "lucide-react";
 import { LogoCgi } from "@/components/shared/logo-cgi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,39 +16,39 @@ import { toast } from "@/hooks/use-toast";
 const highlights = [
   {
     icon: Handshake,
-    title: "CGI-led client programmes",
+    title: "Telecom AI discovery",
     description:
-      "Our consultants and client SMEs share one pipeline—AI ideas land in the same backlog instead of vanishing after the workshop.",
+      "CGI consultants and client SMEs move from raw ideas to assessed opportunities—readiness, architecture, and effort—in one workshop pipeline.",
   },
   {
     icon: ThumbsUp,
-    title: "Make priorities visible",
+    title: "Prioritize with confidence",
     description:
-      "Vote, re-vote, or step back—signals stay honest so the next workshop starts where the last one actually left off.",
+      "Vote on ideas while AI Architects score readiness, estimate delivery, and surface gaps before investment decisions.",
   },
   {
     icon: Sparkles,
-    title: "Stories for steering groups",
+    title: "Executive portfolio view",
     description:
-      "See what resonated, who leaned in, and which ideas earned momentum—ready-made narrative for sponsors and delivery teams.",
+      "Portfolio Analysis, value vs effort matrices, and consensus estimates—ready for steering groups and KPN-scale programmes.",
   },
 ];
 
 export function LandingLogin() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [loginInput, setLoginInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const ok = login(email);
+    const ok = login(loginInput);
     if (!ok) {
       toast({
         title: "Sign in failed",
         description:
-          "Use the email you were invited with for this engagement, or type Admin if you are the CGI facilitator.",
+          "Type Business (workshop participant), Admin (facilitator), or Architect (AI solutioning).",
         variant: "destructive",
       });
     }
@@ -79,15 +79,15 @@ export function LandingLogin() {
             animate={{ opacity: 1 }}
             className="mb-3 text-sm font-medium uppercase tracking-widest text-primary"
           >
-            CGI × client co-innovation
+            CGI × Telecom co-innovation
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl font-bold tracking-tight xs:text-4xl md:text-5xl lg:text-6xl"
           >
-            Where bold AI ideas meet{" "}
-            <span className="text-gradient">shared delivery</span>
+            Where telecom AI opportunities become{" "}
+            <span className="text-gradient">delivery-ready decisions</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -95,8 +95,8 @@ export function LandingLogin() {
             transition={{ delay: 0.08 }}
             className="mt-4 max-w-xl text-lg text-muted md:text-xl lg:mx-0 mx-auto"
           >
-            CGI&apos;s collaboration arena for client programmes—collect AI ideas
-            together, vote on priorities, and leave with a ranked backlog.
+            CGI&apos;s AI Opportunity Discovery platform for telecom clients—capture ideas,
+            assess readiness, recommend architecture, and estimate delivery in real time.
           </motion.p>
           <ul className="mt-8 grid gap-4 xs:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-1 lg:gap-5">
             {highlights.map((item, i) => (
@@ -133,35 +133,32 @@ export function LandingLogin() {
             <div className="relative z-10">
               <h2 className="text-xl font-bold tracking-tight">Join this engagement</h2>
               <p className="mt-2 text-sm text-muted">
-                Sign in with the business email the CGI team issued for this programme—or type{" "}
-                <span className="font-medium text-foreground">Admin</span> if you are the CGI facilitator hosting
-                client and CGI participants in this workspace.
+                Choose your role for this workshop—type{" "}
+                <span className="font-medium text-foreground">Business</span> (client participant),{" "}
+                <span className="font-medium text-foreground">Admin</span> (CGI facilitator), or{" "}
+                <span className="font-medium text-foreground">Architect</span> (CGI AI Architect).
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Business email or Admin</Label>
+                  <Label htmlFor="login">Role</Label>
                   <motion.div className="relative">
-                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
                     <Input
-                      id="email"
+                      id="login"
                       type="text"
-                      inputMode="email"
                       autoComplete="username"
-                      placeholder="you@client.com or you@cgi.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Business, Admin, or Architect"
+                      value={loginInput}
+                      onChange={(e) => setLoginInput(e.target.value)}
                       className="pl-10"
                       required
                     />
                   </motion.div>
                   <p className="text-[11px] leading-relaxed text-muted">
-                    Privacy: CGI processes your email only to attribute activity in this
-                    CGI-hosted arena for the life of the engagement. It is not used for
-                    unsolicited marketing, is not sold to third parties, and is retained
-                    only as long as the programme requires. For access or deletion, contact
-                    the CGI engagement lead or the data protection contact named in the
-                    client agreement.
+                    Workshop access only. Activity in this CGI-hosted arena is attributed to your
+                    selected role for the duration of the engagement—not used for marketing or sold
+                    to third parties.
                   </p>
                 </div>
 

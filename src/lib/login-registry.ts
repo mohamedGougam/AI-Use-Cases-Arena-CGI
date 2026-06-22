@@ -1,4 +1,4 @@
-import { isAdminEmail, isLegacyInvestNlEmail, normalizeEmail } from "@/lib/auth";
+import { isAdminEmail, isArchitectEmail, isLegacyInvestNlEmail, normalizeEmail } from "@/lib/auth";
 
 export const LOGIN_REGISTRY_KEY = "ai-use-cases-arena-known-users";
 
@@ -27,14 +27,21 @@ function saveRegistry(users: KnownUser[]) {
 
 /** Remove admin and retired Invest-NL accounts from the signed-in user registry. */
 export function purgeNonParticipantAccounts(): void {
-  const registry = loadRegistry().filter((u) => !isAdminEmail(u.email) && !isLegacyInvestNlEmail(u.email));
+  const registry = loadRegistry().filter(
+    (u) => !isAdminEmail(u.email) && !isArchitectEmail(u.email) && !isLegacyInvestNlEmail(u.email)
+  );
   saveRegistry(registry);
 }
 
 /** Record a participant sign-in for the admin leaderboard user list. */
 export function registerUserLogin(email: string): void {
   const normalized = normalizeEmail(email);
-  if (!normalized.includes("@") || isAdminEmail(normalized) || isLegacyInvestNlEmail(normalized)) {
+  if (
+    !normalized.includes("@") ||
+    isAdminEmail(normalized) ||
+    isArchitectEmail(normalized) ||
+    isLegacyInvestNlEmail(normalized)
+  ) {
     return;
   }
 
@@ -54,6 +61,8 @@ export function registerUserLogin(email: string): void {
 export function getKnownUsers(): KnownUser[] {
   purgeNonParticipantAccounts();
   return loadRegistry()
-    .filter((u) => !isAdminEmail(u.email) && !isLegacyInvestNlEmail(u.email))
+    .filter(
+      (u) => !isAdminEmail(u.email) && !isArchitectEmail(u.email) && !isLegacyInvestNlEmail(u.email)
+    )
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
 }

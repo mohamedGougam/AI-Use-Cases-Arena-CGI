@@ -7,14 +7,11 @@ import {
   ArrowLeft,
   Sparkles,
   MessageSquare,
-  Bot,
-  Lightbulb,
-  Copy,
-  Target,
 } from "lucide-react";
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { CreatorMessagesSection } from "@/components/use-case/creator-messages-section";
+import { ArchitectWorkspace } from "@/components/architect/architect-workspace";
 import { UseCaseDateBadge } from "@/components/use-case/use-case-date-badge";
 import { VoteButton } from "@/components/use-case/vote-button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UseCaseCard } from "@/components/use-case/use-case-card";
 import { formatDate, formatRelativeDate } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { getDisplayNameFromEmail } from "@/lib/auth";
 import { departmentsMatch, getDisplayDepartment } from "@/lib/constants";
 import { SCORE_POINTS } from "@/lib/participants";
 
@@ -33,7 +31,7 @@ export default function UseCaseDetailPage({
 }) {
   const { id } = use(params);
   const { useCases, addComment } = useApp();
-  const { isAdmin } = useAuth();
+  const { canAccessArchitectTools } = useAuth();
   const [commentText, setCommentText] = useState("");
 
   const useCase = useCases.find((uc) => uc.id === id);
@@ -59,19 +57,33 @@ export default function UseCaseDetailPage({
     .slice(0, 3);
 
   const handleComment = () => {
-    if (!commentText.trim() || isAdmin) return;
+    if (!commentText.trim() || canAccessArchitectTools) return;
     addComment(id, commentText.trim());
     setCommentText("");
     toast({
       title: `+${SCORE_POINTS.comment} point`,
-      description: "Your comment is linked to your email.",
+      description: "Your comment is linked to your session.",
     });
   };
 
-  const aiSummary = `This use case proposes leveraging AI to address "${useCase.businessProblem.slice(0, 80)}..." through ${useCase.proposedSolution.slice(0, 100)}... With ${useCase.impact} impact and ${useCase.effort} effort, it scores ${useCase.innovationScore} on the innovation index.`;
+  const summaryParts = [
+    useCase.description,
+    `${useCase.category} initiative with ${useCase.impact} impact and ${useCase.effort} implementation effort.`,
+    `Innovation score: ${useCase.innovationScore}.`,
+  ];
+  if (useCase.businessProblem.trim()) {
+    summaryParts.push(`Business problem: ${useCase.businessProblem}`);
+  }
+  if (useCase.proposedSolution.trim()) {
+    summaryParts.push(`Proposed approach: ${useCase.proposedSolution}`);
+  }
+  const useCaseSummary = summaryParts.join(" ");
+
+  const submitterLabel =
+    useCase.submitter || getDisplayNameFromEmail(useCase.submitterEmail || useCase.submitterId);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8 xl:max-w-5xl 2xl:max-w-6xl xl:space-y-10">
       <Link href="/gallery" className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary">
         <ArrowLeft className="h-4 w-4" /> Back to gallery
       </Link>
@@ -84,8 +96,8 @@ export default function UseCaseDetailPage({
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold">{useCase.title}</h1>
-            {useCase.submitterEmail && (
-              <p className="mt-1 text-sm text-primary">{useCase.submitterEmail}</p>
+            {submitterLabel && (
+              <p className="mt-1 text-sm text-primary">{submitterLabel}</p>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <UseCaseDateBadge createdAt={useCase.createdAt} />
@@ -122,17 +134,21 @@ export default function UseCaseDetailPage({
         <div className="mt-8 space-y-6">
           <section>
             <h2 className="text-lg font-semibold mb-2">Business Problem</h2>
-            <p className="text-muted">{useCase.businessProblem}</p>
+            <p className="text-muted">
+              {useCase.businessProblem.trim() || "Not provided by submitter."}
+            </p>
           </section>
           <section>
             <h2 className="text-lg font-semibold mb-2">Proposed AI Solution</h2>
-            <p className="text-muted">{useCase.proposedSolution}</p>
+            <p className="text-muted">
+              {useCase.proposedSolution.trim() || "Not provided by submitter."}
+            </p>
           </section>
           <section>
             <h2 className="text-lg font-semibold mb-2">Expected Value</h2>
             <p className="text-muted">
               {useCase.impact} business impact with {useCase.effort} implementation effort.
-              Submitted by {useCase.submitterEmail || useCase.submitter} on{" "}
+              Submitted by {submitterLabel} on{" "}
               {formatDate(useCase.createdAt)}.
             </p>
           </section>
@@ -146,28 +162,15 @@ export default function UseCaseDetailPage({
       </motion.article>
 
       <div className="glass-card p-6 border border-primary/20">
-        <div className="flex items-center gap-2 mb-3">
-          <Bot className="h-5 w-5 text-primary" />
-          <h2 className="font-bold">AI-Generated Summary</h2>
-          <Badge variant="outline" className="text-xs">Placeholder</Badge>
-        </div>
-        <p className="text-sm text-muted">{aiSummary}</p>
+        <h2 className="font-bold mb-3">Use Case Summary</h2>
+        <p className="text-sm text-muted">{useCaseSummary}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {[
-          { icon: Lightbulb, label: "Similar Use Cases", desc: "AI detection coming soon" },
-          { icon: Copy, label: "Duplicate Detection", desc: "Compare against portfolio" },
-          { icon: Target, label: "Impact Estimation", desc: "ML-based ROI forecast" },
-          { icon: Bot, label: "Suggested Next Steps", desc: "Automated recommendations" },
-        ].map((item) => (
-          <div key={item.label} className="glass-card p-4 opacity-70">
-            <item.icon className="h-5 w-5 text-primary mb-2" />
-            <p className="font-medium text-sm">{item.label}</p>
-            <p className="text-xs text-muted">{item.desc}</p>
-          </div>
-        ))}
-      </div>
+      {canAccessArchitectTools && (
+        <div className="glass-card p-6 border border-primary/20">
+          <ArchitectWorkspace useCase={useCase} />
+        </div>
+      )}
 
       <CreatorMessagesSection useCase={useCase} />
 
@@ -191,10 +194,10 @@ export default function UseCaseDetailPage({
             ))
           )}
         </div>
-        {!isAdmin ? (
+        {!canAccessArchitectTools ? (
           <>
             <Textarea
-              placeholder="Add your thoughts..."
+              aria-label="Comment"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               className="mb-3"
@@ -203,7 +206,7 @@ export default function UseCaseDetailPage({
           </>
         ) : (
           <p className="text-sm text-muted">
-            Administrators can vote and review activity but do not post public comments.
+            Facilitators and AI Architects can vote and review activity but do not post public comments.
           </p>
         )}
       </section>

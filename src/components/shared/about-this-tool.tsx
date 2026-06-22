@@ -18,12 +18,12 @@ export function AboutThisTool({
           className
         )}
       >
-        <p className="text-xs font-semibold text-foreground">About this tool</p>
-        <p className="mt-1.5 text-[10px] leading-relaxed text-muted">
-          CGI&apos;s arena for client programmes—submit, vote on, and prioritize AI
-          use cases alongside client teams.
+        <p className="type-caption font-semibold text-foreground">About this tool</p>
+        <p className="type-caption mt-1.5 text-muted">
+          CGI&apos;s telecom AI discovery arena—submit, assess, estimate, and prioritize
+          use cases with the AI Architect.
         </p>
-        <p className="mt-2 text-[10px] leading-relaxed text-muted/80">
+        <p className="type-caption mt-2 text-muted/80">
           {CREDIT}
           <span className="text-muted/60"> · {RELEASE}</span>
         </p>
@@ -33,14 +33,13 @@ export function AboutThisTool({
 
   return (
     <section className={cn("glass-card p-5 md:p-6", className)}>
-      <h3 className="text-base font-bold tracking-tight">About this tool</h3>
-      <p className="mt-3 text-sm leading-relaxed text-muted">
-        The AI Use Cases Arena is CGI-owned software for client programmes: our
-        consultants and client stakeholders capture AI opportunities in one place,
-        debate impact and effort openly, and leave each touchpoint with a backlog
-        sponsors can trust—without losing nuance in email or workshop notes.
+      <h3 className="text-base font-bold tracking-tight xl:text-lg 2xl:text-xl">About this tool</h3>
+      <p className="type-body mt-3 text-muted">
+        The AI Use Cases Arena is CGI&apos;s telecom-grade AI Opportunity Discovery platform:
+        consultants and client stakeholders capture ideas, assess readiness with the AI Architect
+        persona, estimate delivery effort, and prioritise investment—without leaving the workshop.
       </p>
-      <p className="mt-4 text-xs leading-relaxed text-muted/80">
+      <p className="type-caption mt-4 text-muted/80">
         {CREDIT}
         <span className="text-muted/60"> · {RELEASE}</span>
       </p>

@@ -6,6 +6,7 @@ import { MessageSquare } from "lucide-react";
 import type { UseCase } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { VoteButton } from "./vote-button";
+import { getDisplayNameFromEmail } from "@/lib/auth";
 import { getDisplayDepartment } from "@/lib/constants";
 import { formatRelativeDate } from "@/lib/utils";
 import { UseCaseDateBadge } from "./use-case-date-badge";
@@ -25,13 +26,13 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
       className="min-w-0"
     >
       <Link href={`/use-cases/${useCase.id}`} className="block min-w-0">
-        <article className="glass-card-hover flex min-w-0 flex-col gap-3 p-4 xs:flex-row xs:gap-4 sm:p-5">
+        <article className="glass-card-hover flex min-w-0 flex-col gap-3 p-4 xs:flex-row xs:gap-4 sm:p-5 xl:p-6">
           <div className="flex shrink-0 xs:block">
             <VoteButton useCaseId={useCase.id} votes={useCase.votes} compact />
           </div>
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-              <h3 className="min-w-0 text-base font-bold leading-tight break-words hover:text-primary transition-colors sm:text-lg">
+              <h3 className="min-w-0 text-base font-bold leading-tight break-words transition-colors hover:text-primary sm:text-lg xl:text-xl">
                 {useCase.title}
               </h3>
               <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -39,13 +40,13 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
                 <Badge variant="status">{useCase.status}</Badge>
               </div>
             </div>
-            <p className="mb-3 line-clamp-2 text-sm text-muted">{useCase.description}</p>
+            <p className="type-body mb-3 line-clamp-2 text-muted">{useCase.description}</p>
             {useCase.votes >= 5 && (
               <Badge variant="secondary" className="mb-2">
                 Popular · {useCase.votes} votes
               </Badge>
             )}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+            <div className="type-caption flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
               <span className="rounded-md bg-secondary/30 px-2 py-0.5">
                 {getDisplayDepartment(useCase.department)}
               </span>
@@ -59,8 +60,11 @@ export function UseCaseCard({ useCase, index = 0 }: UseCaseCardProps) {
               <span className="font-medium text-primary">{useCase.votes} votes</span>
             </div>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="min-w-0 truncate text-xs text-muted" title={useCase.submitterEmail || useCase.submitter}>
-                by {useCase.submitterEmail || useCase.submitter} ·{" "}
+              <span
+                className="min-w-0 truncate text-xs text-muted"
+                title={useCase.submitter || getDisplayNameFromEmail(useCase.submitterEmail)}
+              >
+                by {useCase.submitter || getDisplayNameFromEmail(useCase.submitterEmail)} ·{" "}
                 {formatRelativeDate(useCase.createdAt)}
               </span>
               <div className="flex min-w-0 flex-wrap gap-1">

@@ -45,7 +45,7 @@ export function VoteButton({ useCaseId, votes, compact }: VoteButtonProps) {
       setTimeout(() => setAnimating(false), 600);
       toast({
         title: "+1 point",
-        description: "Your vote is recorded under your email.",
+        description: "Your vote is recorded under your session.",
       });
     }
   };

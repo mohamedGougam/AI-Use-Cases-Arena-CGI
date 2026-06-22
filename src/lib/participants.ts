@@ -2,6 +2,7 @@ import {
   getAvatarFromEmail,
   getDisplayNameFromEmail,
   isAdminEmail,
+  isArchitectEmail,
   isLegacyInvestNlEmail,
   normalizeEmail,
 } from "@/lib/auth";
@@ -13,6 +14,11 @@ export const SCORE_POINTS = {
   voteReceived: 2,
   voteCast: 1,
   comment: 1,
+  businessCompleteness: 10,
+  dataCompleteness: 10,
+  architectureCompleteness: 10,
+  riskIdentification: 10,
+  estimationAccuracy: 10,
 } as const;
 
 export const SCORE_RULES = [
@@ -20,6 +26,11 @@ export const SCORE_RULES = [
   { label: "Each vote your idea receives", points: SCORE_POINTS.voteReceived },
   { label: "Vote on someone else's idea", points: SCORE_POINTS.voteCast },
   { label: "Leave a comment", points: SCORE_POINTS.comment },
+  { label: "Business completeness (rich problem & value)", points: SCORE_POINTS.businessCompleteness },
+  { label: "Data completeness (data sources documented)", points: SCORE_POINTS.dataCompleteness },
+  { label: "Architecture completeness (solution detail)", points: SCORE_POINTS.architectureCompleteness },
+  { label: "Risk identification (security & compliance)", points: SCORE_POINTS.riskIdentification },
+  { label: "Estimation readiness (delivery context)", points: SCORE_POINTS.estimationAccuracy },
 ] as const;
 
 export interface ParticipantScore {
@@ -30,6 +41,7 @@ export interface ParticipantScore {
   votesReceived: number;
   votesCast: number;
   comments: number;
+  completenessBonus: number;
   score: number;
 }
 
@@ -39,13 +51,47 @@ function resolveSubmitterEmail(uc: UseCase): string | null {
   return null;
 }
 
+function wordCount(value: string): number {
+  return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function computeSubmissionBonuses(uc: UseCase): number {
+  let bonus = 0;
+  const titleDesc = [uc.title, uc.description].join(" ").toLowerCase();
+  const analysis = uc.architectBrief?.extractedText
+    ? [titleDesc, uc.architectBrief.extractedText, ...uc.tags].join(" ").toLowerCase()
+    : [titleDesc, uc.category, uc.department, ...uc.tags].join(" ").toLowerCase();
+
+  if (wordCount(uc.title) >= 3 && wordCount(uc.description) >= 8) {
+    bonus += SCORE_POINTS.businessCompleteness;
+  }
+  if (/data|database|crm|oss|bss|warehouse|lake/.test(analysis)) {
+    bonus += SCORE_POINTS.dataCompleteness;
+  }
+  if (/solution|model|ai|llm|rag|agent|automation/.test(analysis)) {
+    bonus += SCORE_POINTS.architectureCompleteness;
+  }
+  if (/security|gdpr|privacy|pii|compliance|fraud/.test(analysis)) {
+    bonus += SCORE_POINTS.riskIdentification;
+  }
+  if (/timeline|budget|sponsor|team|roadmap|milestone/.test(analysis)) {
+    bonus += SCORE_POINTS.estimationAccuracy;
+  }
+
+  return bonus;
+}
+
+function isExcludedParticipant(email: string): boolean {
+  return isAdminEmail(email) || isArchitectEmail(email) || isLegacyInvestNlEmail(email);
+}
+
 export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] {
   const map = new Map<string, ParticipantScore>();
 
   const ensure = (rawEmail: string): ParticipantScore | null => {
     if (!rawEmail?.includes("@")) return null;
     const email = normalizeEmail(rawEmail);
-    if (isAdminEmail(email) || isLegacyInvestNlEmail(email)) return null;
+    if (isExcludedParticipant(email)) return null;
     let entry = map.get(email);
     if (!entry) {
       entry = {
@@ -56,6 +102,7 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
         votesReceived: 0,
         votesCast: 0,
         comments: 0,
+        completenessBonus: 0,
         score: 0,
       };
       map.set(email, entry);
@@ -70,6 +117,7 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
       if (p) {
         p.submissions += 1;
         p.votesReceived += uc.votes;
+        p.completenessBonus += computeSubmissionBonuses(uc);
       }
     }
 
@@ -94,7 +142,8 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
       p.submissions * SCORE_POINTS.submit +
       p.votesReceived * SCORE_POINTS.voteReceived +
       p.votesCast * SCORE_POINTS.voteCast +
-      p.comments * SCORE_POINTS.comment;
+      p.comments * SCORE_POINTS.comment +
+      p.completenessBonus;
   }
 
   return [...map.values()].sort((a, b) => b.score - a.score);
@@ -102,12 +151,14 @@ export function buildParticipantScores(useCases: UseCase[]): ParticipantScore[] 
 
 export function getParticipantScore(
   useCases: UseCase[],
-  email: string | null
+  email: string | null,
+  scores?: ParticipantScore[]
 ): ParticipantScore | null {
-  if (!email || isAdminEmail(email)) return null;
+  if (!email || isExcludedParticipant(email)) return null;
   const normalized = normalizeEmail(email);
+  const list = scores ?? buildParticipantScores(useCases);
   return (
-    buildParticipantScores(useCases).find((p) => p.email === normalized) ?? {
+    list.find((p) => p.email === normalized) ?? {
       email: normalized,
       name: getDisplayNameFromEmail(normalized),
       avatar: getAvatarFromEmail(normalized),
@@ -115,6 +166,7 @@ export function getParticipantScore(
       votesReceived: 0,
       votesCast: 0,
       comments: 0,
+      completenessBonus: 0,
       score: 0,
     }
   );

@@ -19,12 +19,12 @@ export function PageHeader({ title, subtitle, icon: Icon, action }: PageHeaderPr
     >
       <div>
         {Icon && (
-          <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-2">
-            <Icon className="h-6 w-6 text-primary" />
+          <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-2 xl:p-3">
+            <Icon className="h-6 w-6 text-primary xl:h-7 xl:w-7" />
           </div>
         )}
-        <h1 className="text-2xl font-bold tracking-tight xs:text-3xl sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-2 max-w-2xl text-muted">{subtitle}</p>}
+        <h1 className="type-page-title">{title}</h1>
+        {subtitle && <p className="type-body mt-2 max-w-3xl text-muted">{subtitle}</p>}
       </div>
       {action}
     </motion.div>

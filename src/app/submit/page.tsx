@@ -34,7 +34,7 @@ import { CONFETTI_COLORS } from "@/lib/brand-colors";
 export default function SubmitPage() {
   const router = useRouter();
   const { submitUseCase, currentUser } = useApp();
-  const { isAdmin, isReady } = useAuth();
+  const { isAdmin, isArchitect, isReady } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -49,12 +49,12 @@ export default function SubmitPage() {
   });
 
   useEffect(() => {
-    if (isReady && isAdmin) {
+    if (isReady && (isAdmin || isArchitect)) {
       router.replace("/");
     }
-  }, [isReady, isAdmin, router]);
+  }, [isReady, isAdmin, isArchitect, router]);
 
-  if (!isReady || isAdmin) {
+  if (!isReady || isAdmin || isArchitect) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -94,7 +94,7 @@ export default function SubmitPage() {
 
     toast({
       title: `+${SCORE_POINTS.submit} points`,
-      description: "Your use case is live and linked to your email.",
+      description: "Your use case is live and linked to your session.",
     });
 
     setLoading(false);
@@ -102,7 +102,7 @@ export default function SubmitPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl xl:max-w-4xl 2xl:max-w-5xl">
       <PageHeader
         title="Submit a Use Case"
         subtitle="Your idea is saved under your login email. You earn points when others vote."
@@ -117,22 +117,22 @@ export default function SubmitPage() {
       >
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
-          <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. AI-Powered Contract Review" required />
+          <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description *</Label>
-          <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief overview of the use case" required />
+          <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="businessProblem">Business Problem</Label>
-          <Textarea id="businessProblem" value={form.businessProblem} onChange={(e) => setForm({ ...form, businessProblem: e.target.value })} placeholder="What challenge does this solve?" />
+          <Textarea id="businessProblem" value={form.businessProblem} onChange={(e) => setForm({ ...form, businessProblem: e.target.value })} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="proposedSolution">Proposed AI Solution</Label>
-          <Textarea id="proposedSolution" value={form.proposedSolution} onChange={(e) => setForm({ ...form, proposedSolution: e.target.value })} placeholder="How would AI address this?" />
+          <Textarea id="proposedSolution" value={form.proposedSolution} onChange={(e) => setForm({ ...form, proposedSolution: e.target.value })} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -187,7 +187,7 @@ export default function SubmitPage() {
 
         <div className="space-y-2">
           <Label htmlFor="tags">Tags (comma-separated)</Label>
-          <Input id="tags" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="NLP, Automation, Quick Win" />
+          <Input id="tags" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
         </div>
 
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>

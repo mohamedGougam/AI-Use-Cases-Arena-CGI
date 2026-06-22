@@ -5,16 +5,30 @@ export type EffortLevel = "Low" | "Medium" | "High";
 export type UseCaseStatus = "Submitted" | "Under Review" | "Prioritized" | "In Progress" | "Completed";
 
 export type UseCaseCategory =
-  | "Productivity"
-  | "Risk"
+  | "Network Intelligence"
+  | "5G Innovation"
+  | "Fiber Expansion"
   | "Customer Experience"
-  | "Finance"
-  | "Operations"
-  | "ESG"
-  | "Investment Analysis"
-  | "Legal"
-  | "HR"
-  | "Other";
+  | "Contact Center AI"
+  | "Cybersecurity"
+  | "Fraud Detection"
+  | "Revenue Assurance"
+  | "Predictive Maintenance"
+  | "Field Technician Productivity"
+  | "Data & Analytics"
+  | "Generative AI"
+  | "AI Agents"
+  | "Document Intelligence"
+  | "Knowledge Management"
+  | "Sales Enablement"
+  | "Enterprise Solutions"
+  | "IoT"
+  | "Smart Cities"
+  | "Sustainability"
+  | "Operations Optimization"
+  | "Wholesale Services"
+  | "TV & Media Services"
+  | "Regulatory Compliance";
 
 export type GamificationBadgeId =
   | "ai-explorer"
@@ -24,7 +38,13 @@ export type GamificationBadgeId =
   | "popular-idea"
   | "arena-champion"
   | "strategic-thinker"
-  | "collaboration-hero";
+  | "collaboration-hero"
+  | "solution-architect"
+  | "data-champion"
+  | "ai-strategist"
+  | "telecom-innovator"
+  | "innovation-leader"
+  | "cgi-ai-master";
 
 export type RankLevel =
   | "Explorer"
@@ -86,6 +106,20 @@ export interface Badge {
   icon: string;
 }
 
+/** Detailed brief uploaded by the AI Architect for richer readiness analysis. */
+export interface ArchitectDocumentBrief {
+  fileName: string;
+  mimeType: string;
+  extractedText: string;
+  wordCount: number;
+  charCount: number;
+  analyzedAt: string;
+  modelId: string;
+  modelName: string;
+  extractionMethod: "local" | "hf-enhanced";
+  analysisSummary?: string;
+}
+
 export interface UseCase {
   id: string;
   title: string;
@@ -109,6 +143,7 @@ export interface UseCase {
   innovationScore: number;
   status: UseCaseStatus;
   badges: UseCaseBadge[];
+  architectBrief?: ArchitectDocumentBrief;
 }
 
 export interface DepartmentStats {

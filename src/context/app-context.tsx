@@ -6,17 +6,26 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  startTransition,
   type ReactNode,
 } from "react";
 import { initialUseCases, initialUsers } from "@/data/initial-data";
 import { useAuth } from "@/context/auth-context";
 import {
   ADMIN_DISPLAY_NAME,
+  ARCHITECT_DISPLAY_NAME,
+  BUSINESS_DISPLAY_NAME,
+  BUSINESS_EMAIL,
   getAvatarFromEmail,
   getDisplayNameFromEmail,
   isAdminEmail,
+  isArchitectEmail,
+  isBusinessEmail,
+  isSameIdentity,
   normalizeEmail,
+  resolveUseCaseCreatorEmail,
 } from "@/lib/auth";
 import {
   buildParticipantScores,
@@ -30,6 +39,7 @@ import {
   getDaysSinceCreated,
 } from "@/lib/scoring";
 import type {
+  ArchitectDocumentBrief,
   Comment,
   CreatorMessage,
   SubmitUseCaseInput,
@@ -37,7 +47,8 @@ import type {
   User,
 } from "@/types";
 
-const STORAGE_KEY = "ai-use-cases-arena-state-v4";
+const STORAGE_KEY = "ai-use-cases-arena-state-v5";
+const LEGACY_STORAGE_KEY = "ai-use-cases-arena-state-v4";
 
 interface PersistedState {
   useCases: UseCase[];
@@ -55,6 +66,8 @@ interface AppContextValue {
   unvoteOnUseCase: (useCaseId: string) => boolean;
   addComment: (useCaseId: string, text: string) => void;
   addCreatorMessage: (useCaseId: string, text: string) => boolean;
+  setArchitectBrief: (useCaseId: string, brief: ArchitectDocumentBrief) => void;
+  clearArchitectBrief: (useCaseId: string) => void;
   hasVoted: (useCaseId: string) => boolean;
   getUseCasesByEmail: (email: string) => UseCase[];
 }
@@ -70,14 +83,16 @@ function migrateUseCase(uc: UseCase): UseCase {
     creatorMessages: uc.creatorMessages ?? [],
     submitterEmail:
       uc.submitterEmail ??
-      (uc.submitterId?.includes("@") ? normalizeEmail(uc.submitterId) : ""),
+      (uc.submitterId?.includes("@") ? normalizeEmail(uc.submitterId) : "") ??
+      (uc.submitter === BUSINESS_DISPLAY_NAME ? BUSINESS_EMAIL : ""),
   };
 }
 
 function loadState(): PersistedState | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw =
+      localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedState;
     return {
@@ -95,7 +110,7 @@ function saveState(state: PersistedState) {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const { email, isAdmin } = useAuth();
+  const { email, canAccessArchitectTools } = useAuth();
   const [useCases, setUseCases] = useState<UseCase[]>(
     initialUseCases.map(migrateUseCase)
   );
@@ -111,18 +126,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    setUseCases((prev) => {
-      const next = prev.map(migrateUseCase);
-      if (next.every((uc, i) => uc.department === prev[i]?.department)) return prev;
-      return next;
-    });
-  }, [hydrated]);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!hydrated) return;
-    saveState({ useCases, votedUseCaseIds });
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveState({ useCases, votedUseCaseIds });
+    }, 350);
+    const flush = () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      saveState({ useCases, votedUseCaseIds });
+    };
+    window.addEventListener("beforeunload", flush);
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      window.removeEventListener("beforeunload", flush);
+    };
   }, [useCases, votedUseCaseIds, hydrated]);
 
   const participantScores = useMemo(
@@ -130,10 +150,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [useCases]
   );
 
-  const myScore = useMemo(
-    () => (isAdmin ? null : getParticipantScore(useCases, email)),
-    [useCases, email, isAdmin]
-  );
+  const myScore = useMemo(() => {
+    if (canAccessArchitectTools || !email) return null;
+    return getParticipantScore(useCases, email, participantScores);
+  }, [useCases, email, canAccessArchitectTools, participantScores]);
 
   const currentUser = useMemo((): User => {
     const base = initialUsers[0];
@@ -141,12 +161,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const normalized = normalizeEmail(email);
     const stats = myScore;
     const admin = isAdminEmail(normalized);
+    const architect = isArchitectEmail(normalized);
+    const business = isBusinessEmail(normalized);
     return {
       ...base,
       id: normalized,
       email: normalized,
-      name: admin ? ADMIN_DISPLAY_NAME : (stats?.name ?? getDisplayNameFromEmail(normalized)),
-      avatar: admin ? "AD" : (stats?.avatar ?? getAvatarFromEmail(normalized)),
+      name: admin
+        ? ADMIN_DISPLAY_NAME
+        : architect
+          ? ARCHITECT_DISPLAY_NAME
+          : business
+            ? BUSINESS_DISPLAY_NAME
+            : (stats?.name ?? getDisplayNameFromEmail(normalized)),
+      avatar: admin ? "AD" : architect ? "AR" : business ? "BU" : (stats?.avatar ?? getAvatarFromEmail(normalized)),
       points: admin ? 0 : (stats?.score ?? 0),
       badges: [],
       rank: "Explorer",
@@ -199,6 +227,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [email]
   );
 
+  const updateUseCases = useCallback((updater: (prev: UseCase[]) => UseCase[]) => {
+    startTransition(() => {
+      setUseCases(updater);
+    });
+  }, []);
+
   const voteOnUseCase = useCallback(
     (useCaseId: string): boolean => {
       if (!email || votedUseCaseIds.includes(useCaseId)) return false;
@@ -206,7 +240,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setVotedUseCaseIds((prev) => [...prev, useCaseId]);
 
-      setUseCases((prev) =>
+      updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
           if (uc.voterEmails.includes(normalized)) return uc;
@@ -234,7 +268,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return true;
     },
-    [email, votedUseCaseIds]
+    [email, votedUseCaseIds, updateUseCases]
   );
 
   const unvoteOnUseCase = useCallback(
@@ -244,7 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setVotedUseCaseIds((prev) => prev.filter((id) => id !== useCaseId));
 
-      setUseCases((prev) =>
+      updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
           if (!uc.voterEmails.includes(normalized)) return uc;
@@ -272,12 +306,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return true;
     },
-    [email, votedUseCaseIds]
+    [email, votedUseCaseIds, updateUseCases]
   );
 
   const addComment = useCallback(
     (useCaseId: string, text: string) => {
-      if (!email || isAdmin) return;
+      if (!email || canAccessArchitectTools) return;
       const normalized = normalizeEmail(email);
       const comment: Comment = {
         id: `comment-${Date.now()}`,
@@ -289,7 +323,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
       };
 
-      setUseCases((prev) =>
+      updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
           const comments = [...uc.comments, comment];
@@ -309,41 +343,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
       );
     },
-    [email, isAdmin]
+    [email, canAccessArchitectTools, updateUseCases]
   );
 
   const addCreatorMessage = useCallback(
     (useCaseId: string, text: string): boolean => {
       if (!email || !text.trim()) return false;
       const normalized = normalizeEmail(email);
-      const useCase = useCases.find((uc) => uc.id === useCaseId);
-      if (!useCase) return false;
+      let sent = false;
 
-      const creatorEmail = normalizeEmail(useCase.submitterEmail || "");
-      if (!creatorEmail) return false;
-      if (normalized === creatorEmail) return false;
+      setUseCases((prev) => {
+        const useCase = prev.find((uc) => uc.id === useCaseId);
+        if (!useCase) return prev;
 
-      const message: CreatorMessage = {
-        id: `creator-msg-${Date.now()}`,
-        useCaseId,
-        fromEmail: normalized,
-        fromName: isAdminEmail(normalized)
-          ? ADMIN_DISPLAY_NAME
-          : getDisplayNameFromEmail(normalized),
-        text: text.trim(),
-        createdAt: new Date().toISOString(),
-      };
+        const creatorEmail = resolveUseCaseCreatorEmail(useCase);
+        if (!creatorEmail || isSameIdentity(normalized, creatorEmail)) {
+          return prev;
+        }
 
-      setUseCases((prev) =>
-        prev.map((uc) =>
+        const message: CreatorMessage = {
+          id: `creator-msg-${Date.now()}`,
+          useCaseId,
+          fromEmail: normalized,
+          fromName: isAdminEmail(normalized)
+            ? ADMIN_DISPLAY_NAME
+            : isArchitectEmail(normalized)
+              ? ARCHITECT_DISPLAY_NAME
+              : isBusinessEmail(normalized)
+                ? BUSINESS_DISPLAY_NAME
+                : getDisplayNameFromEmail(normalized),
+          text: text.trim(),
+          createdAt: new Date().toISOString(),
+        };
+
+        sent = true;
+        return prev.map((uc) =>
           uc.id === useCaseId
-            ? { ...uc, creatorMessages: [...uc.creatorMessages, message] }
+            ? { ...uc, creatorMessages: [...(uc.creatorMessages ?? []), message] }
             : uc
-        )
-      );
-      return true;
+        );
+      });
+
+      return sent;
     },
-    [email, useCases]
+    [email]
+  );
+
+  const setArchitectBrief = useCallback(
+    (useCaseId: string, brief: ArchitectDocumentBrief) => {
+      if (!canAccessArchitectTools) return;
+      updateUseCases((prev) =>
+        prev.map((uc) => (uc.id === useCaseId ? { ...uc, architectBrief: brief } : uc))
+      );
+    },
+    [canAccessArchitectTools, updateUseCases]
+  );
+
+  const clearArchitectBrief = useCallback(
+    (useCaseId: string) => {
+      if (!canAccessArchitectTools) return;
+      updateUseCases((prev) =>
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          return { ...uc, architectBrief: undefined };
+        })
+      );
+    },
+    [canAccessArchitectTools, updateUseCases]
   );
 
   const hasVoted = useCallback(
@@ -375,6 +441,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unvoteOnUseCase,
       addComment,
       addCreatorMessage,
+      setArchitectBrief,
+      clearArchitectBrief,
       hasVoted,
       getUseCasesByEmail,
     }),
@@ -389,6 +457,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unvoteOnUseCase,
       addComment,
       addCreatorMessage,
+      setArchitectBrief,
+      clearArchitectBrief,
       hasVoted,
       getUseCasesByEmail,
     ]

@@ -25,12 +25,12 @@ export function StatCard({
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
-      className={cn("glass-card-hover p-5", className)}
+      className={cn("glass-card-hover p-5 xl:p-6 2xl:p-7", className)}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-muted">{label}</p>
-          <p className="mt-2 text-3xl font-bold">
+          <p className="type-body text-muted">{label}</p>
+          <p className="type-stat mt-2">
             {animate && typeof value === "number" ? (
               <AnimatedCounter value={value} />
             ) : (
@@ -38,11 +38,11 @@ export function StatCard({
             )}
           </p>
           {trend && (
-            <p className="mt-1 line-clamp-2 break-words text-xs text-primary">{trend}</p>
+            <p className="type-caption mt-1 line-clamp-2 break-words text-primary">{trend}</p>
           )}
         </div>
-        <div className="rounded-lg bg-primary/10 p-2.5">
-          <Icon className="h-5 w-5 text-primary" />
+        <div className="rounded-lg bg-primary/10 p-2.5 xl:p-3">
+          <Icon className="h-5 w-5 text-primary xl:h-6 xl:w-6" />
         </div>
       </div>
     </motion.div>

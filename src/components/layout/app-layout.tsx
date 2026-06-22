@@ -7,10 +7,10 @@ import { useAuth } from "@/context/auth-context";
 
 function AuthenticatedShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen min-w-0 bg-background lg:gap-6">
+    <div className="flex min-h-screen w-full min-w-0 bg-background lg:gap-6 xl:gap-8">
       <Navigation />
       <main className="min-w-0 flex-1">
-        <div className="mx-auto w-full min-w-0 max-w-[1600px] overflow-x-hidden px-4 pb-10 pt-[4.25rem] sm:px-6 sm:pb-12 sm:pt-20 lg:px-8 lg:pb-12 lg:pt-8">
+        <div className="shell-padding mx-auto w-full min-w-0 max-w-[min(100%,2200px)] overflow-x-hidden">
           {children}
         </div>
       </main>

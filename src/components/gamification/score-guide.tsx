@@ -23,7 +23,7 @@ export function ScoreGuide({
       <p className="mt-3 text-xs text-muted">
         {variant === "admin"
           ? "Points apply to CGI participants only. Administrator accounts are not ranked or scored."
-          : "Your CGI work email links every submission, vote, and comment to you on the leaderboard."}
+          : "Your session links every submission, vote, and comment to you on the leaderboard."}
       </p>
     </div>
   );

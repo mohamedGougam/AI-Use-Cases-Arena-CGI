@@ -6,7 +6,7 @@ export const initialUsers: User[] = [
   {
     id: CURRENT_USER_ID,
     name: "You",
-    department: "Operations",
+    department: "Network Operations",
     avatar: "YO",
     points: 0,
     badges: [],

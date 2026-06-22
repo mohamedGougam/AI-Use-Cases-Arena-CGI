@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
-import { normalizeEmail } from "@/lib/auth";
+import {
+  getDisplayNameFromEmail,
+  isSameIdentity,
+  normalizeEmail,
+  resolveUseCaseCreatorEmail,
+} from "@/lib/auth";
 import { formatRelativeDate } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,35 +20,48 @@ interface CreatorMessagesSectionProps {
   useCase: UseCase;
 }
 
-export function CreatorMessagesSection({ useCase }: CreatorMessagesSectionProps) {
-  const { addCreatorMessage } = useApp();
-  const { email, isAdmin } = useAuth();
+export function CreatorMessagesSection({ useCase: initialUseCase }: CreatorMessagesSectionProps) {
+  const { addCreatorMessage, useCases } = useApp();
+  const { email, canAccessArchitectTools } = useAuth();
   const [messageText, setMessageText] = useState("");
+  const [sending, setSending] = useState(false);
 
-  const creatorEmail = normalizeEmail(useCase.submitterEmail || "");
+  const useCase = useCases.find((uc) => uc.id === initialUseCase.id) ?? initialUseCase;
+
+  const creatorEmail = resolveUseCaseCreatorEmail(useCase);
   const viewerEmail = email ? normalizeEmail(email) : "";
-  const isCreator = Boolean(creatorEmail && viewerEmail === creatorEmail);
+  const isCreator = Boolean(creatorEmail && isSameIdentity(viewerEmail, creatorEmail));
   const canSend = Boolean(email && creatorEmail && !isCreator);
 
   const handleSend = () => {
-    if (!messageText.trim()) return;
-    const ok = addCreatorMessage(useCase.id, messageText.trim());
+    const text = messageText.trim();
+    if (!text || sending) return;
+
+    setSending(true);
+    const ok = addCreatorMessage(useCase.id, text);
+    setSending(false);
+
     if (ok) {
       setMessageText("");
       toast({
         title: "Message sent",
         description: "Only the use case creator can read this.",
       });
-    } else {
-      toast({
-        title: "Could not send message",
-        description: "You cannot message yourself on your own use case.",
-        variant: "destructive",
-      });
+      return;
     }
+
+    toast({
+      title: "Could not send message",
+      description: !creatorEmail
+        ? "This use case has no identifiable creator."
+        : isCreator
+          ? "You cannot message yourself on your own use case."
+          : "Please try again.",
+      variant: "destructive",
+    });
   };
 
-  if (!creatorEmail && !isAdmin) return null;
+  if (!creatorEmail && !canAccessArchitectTools) return null;
 
   return (
     <section className="glass-card border border-secondary/30 p-6">
@@ -55,10 +73,10 @@ export function CreatorMessagesSection({ useCase }: CreatorMessagesSectionProps)
         {isCreator
           ? "Private feedback from colleagues on this use case. Not shown in public discussion."
           : "Send a private note to the person who submitted this idea (e.g. request more detail). Only they can see it."}
-        {isAdmin && !isCreator && " As admin, you can read all messages below."}
+        {canAccessArchitectTools && !isCreator && " As facilitator or architect, you can read all messages below."}
       </p>
 
-      {(isCreator || isAdmin) && (
+      {(isCreator || canAccessArchitectTools) && (
         <div className="mb-6 space-y-3">
           {useCase.creatorMessages.length === 0 ? (
             <p className="text-sm text-muted">
@@ -74,7 +92,7 @@ export function CreatorMessagesSection({ useCase }: CreatorMessagesSectionProps)
                   <span className="text-sm font-medium">{m.fromName}</span>
                   <span className="text-xs text-muted">{formatRelativeDate(m.createdAt)}</span>
                 </div>
-                <p className="text-xs text-muted mb-2">{m.fromEmail}</p>
+                <p className="mb-2 text-xs text-muted">{getDisplayNameFromEmail(m.fromEmail)}</p>
                 <p className="text-sm leading-relaxed">{m.text}</p>
               </div>
             ))
@@ -85,12 +103,14 @@ export function CreatorMessagesSection({ useCase }: CreatorMessagesSectionProps)
       {canSend && (
         <>
           <Textarea
-            placeholder="e.g. This is great — can you please add more description on the expected ROI?"
+            aria-label="Private message to creator"
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             className="mb-3 min-h-[100px]"
           />
-          <Button onClick={handleSend}>Send to creator</Button>
+          <Button type="button" onClick={handleSend} disabled={sending || !messageText.trim()}>
+            {sending ? "Sending..." : "Send to creator"}
+          </Button>
         </>
       )}
     </section>
