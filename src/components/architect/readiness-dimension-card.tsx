@@ -14,13 +14,20 @@ export function ReadinessDimensionCard({
   dimension,
   overrides,
   source = "rules",
+  onSyncSave,
 }: {
   dimension: ReadinessDimension;
   overrides: ArchitectOverrideContext;
   source?: AiAssessmentSource;
+  onSyncSave?: (fieldKey: string, value: string | number | boolean, architectNote?: string) => void;
 }) {
   const scoreKey = `dimension.${dimension.key}.score`;
   const dimMeta = getDimensionMeta(dimension.key, source);
+
+  const saveField = (fieldKey: string) => (value: string | number | boolean, note?: string) => {
+    if (onSyncSave) onSyncSave(fieldKey, value, note);
+    else overrides.onSave(fieldKey, value, note);
+  };
 
   return (
     <div className="rounded-xl border border-border/20 bg-card/60 p-5 space-y-4">
@@ -34,7 +41,7 @@ export function ReadinessDimensionCard({
         hideCalculation={source === "openai"}
         isOverridden={overrides.isOverridden(scoreKey)}
         overrideNote={overrides.getNote(scoreKey)}
-        onSave={(v, note) => overrides.onSave(scoreKey, v, note)}
+        onSave={saveField(scoreKey)}
         onReset={() => overrides.onReset(scoreKey)}
       />
       <Progress value={dimension.score} className="h-2" />
@@ -55,7 +62,7 @@ export function ReadinessDimensionCard({
                 hideCalculation={Boolean(c.explanation)}
                 isOverridden={overrides.isOverridden(criterionKey)}
                 overrideNote={overrides.getNote(criterionKey)}
-                onSave={(v, note) => overrides.onSave(criterionKey, v, note)}
+                onSave={saveField(criterionKey)}
                 onReset={() => overrides.onReset(criterionKey)}
                 className="!p-2"
               />

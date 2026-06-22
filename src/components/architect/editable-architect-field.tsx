@@ -22,6 +22,7 @@ interface EditableArchitectFieldProps {
   overrideNote?: string;
   explanation?: string;
   hideCalculation?: boolean;
+  multiline?: boolean;
   className?: string;
   onSave: (value: string | number | boolean, architectNote?: string) => void;
   onReset?: () => void;
@@ -37,6 +38,7 @@ export function EditableArchitectField({
   overrideNote,
   explanation,
   hideCalculation = false,
+  multiline = false,
   className,
   onSave,
   onReset,
@@ -61,7 +63,16 @@ export function EditableArchitectField({
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium text-muted">{label}</p>
           {!editing ? (
-            <p className="mt-0.5 font-semibold tabular-nums">{shown}</p>
+            <p
+              className={cn(
+                "mt-0.5 font-semibold",
+                multiline || type === "textarea"
+                  ? "whitespace-pre-wrap text-sm font-normal leading-relaxed"
+                  : "tabular-nums"
+              )}
+            >
+              {shown}
+            </p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -126,7 +137,7 @@ export function EditableArchitectField({
       {editing && (
         <div className="mt-3 space-y-2 border-t border-border/10 pt-3">
           {type === "textarea" ? (
-            <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} />
+            <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={multiline ? 5 : 3} />
           ) : type === "boolean" ? (
             <select
               className="flex h-10 w-full rounded-lg border border-border/20 bg-background/50 px-3 text-sm"
@@ -150,7 +161,9 @@ export function EditableArchitectField({
             rows={2}
             className="text-sm"
           />
-          <p className="text-[11px] text-muted">Optional: why you changed this based on your experience.</p>
+          <p className="text-[11px] text-muted">
+            Optional: your professional judgment — related fields will align automatically when possible.
+          </p>
           <div className="flex gap-2">
             <Button type="button" size="sm" onClick={handleSave}>
               Save

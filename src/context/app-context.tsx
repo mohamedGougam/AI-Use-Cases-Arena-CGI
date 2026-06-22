@@ -85,6 +85,10 @@ interface AppContextValue {
     fieldKey: string,
     entry: ArchitectOverrideEntry | null
   ) => void;
+  setArchitectFieldOverrides: (
+    useCaseId: string,
+    updates: Record<string, ArchitectOverrideEntry | null>
+  ) => void;
   setArchitectAiAssessment: (
     useCaseId: string,
     assessment: ArchitectAiAssessment
@@ -535,13 +539,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [canAccessArchitectTools, updateUseCases, actorInfo]
   );
 
-  const setArchitectFieldOverride = useCallback(
-    (
-      useCaseId: string,
-      fieldKey: string,
-      entry: ArchitectOverrideEntry | null
-    ) => {
+  const setArchitectFieldOverrides = useCallback(
+    (useCaseId: string, updates: Record<string, ArchitectOverrideEntry | null>) => {
       if (!email || !canAccessArchitectTools) return;
+      const keys = Object.keys(updates);
+      if (!keys.length) return;
+
       const normalized = normalizeEmail(email);
       const editorName = isAdminEmail(normalized)
         ? ADMIN_DISPLAY_NAME
@@ -553,10 +556,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
           const existing = { ...(uc.architectOverrides?.fields ?? {}) };
-          if (entry === null) {
-            delete existing[fieldKey];
-          } else {
-            existing[fieldKey] = entry;
+          for (const [fieldKey, entry] of Object.entries(updates)) {
+            if (entry === null) delete existing[fieldKey];
+            else existing[fieldKey] = entry;
           }
           const hasFields = Object.keys(existing).length > 0;
           const updated: UseCase = {
@@ -572,16 +574,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
           };
           void recordArenaSnapshot({
             useCase: updated,
-            eventType: entry === null ? "overrides_updated" : "overrides_updated",
+            eventType: "overrides_updated",
             actorEmail: normalized,
             actorName: editorName,
-            detail: entry === null ? `Reset field: ${fieldKey}` : `Updated field: ${fieldKey}`,
+            detail: `Synced fields: ${keys.slice(0, 4).join(", ")}${keys.length > 4 ? "…" : ""}`,
           });
           return updated;
         })
       );
     },
     [email, canAccessArchitectTools, updateUseCases]
+  );
+
+  const setArchitectFieldOverride = useCallback(
+    (
+      useCaseId: string,
+      fieldKey: string,
+      entry: ArchitectOverrideEntry | null
+    ) => {
+      setArchitectFieldOverrides(useCaseId, { [fieldKey]: entry });
+    },
+    [setArchitectFieldOverrides]
   );
 
   const setArchitectAiAssessment = useCallback(
@@ -678,6 +691,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectBrief,
       clearArchitectBrief,
       setArchitectFieldOverride,
+      setArchitectFieldOverrides,
       setArchitectAiAssessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,
@@ -699,6 +713,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectBrief,
       clearArchitectBrief,
       setArchitectFieldOverride,
+      setArchitectFieldOverrides,
       setArchitectAiAssessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,

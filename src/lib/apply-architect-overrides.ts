@@ -48,6 +48,10 @@ export function applyArchitectOverrides(
       ...c,
       met: bool(`dimension.${dim.key}.criteria.${i}`, c.met),
       label: str(`dimension.${dim.key}.criteria.${i}.label`, c.label),
+      explanation: str(
+        `dimension.${dim.key}.criteria.${i}.explanation`,
+        c.explanation ?? ""
+      ) || undefined,
     })),
   }));
 

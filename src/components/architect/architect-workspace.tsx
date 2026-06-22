@@ -23,12 +23,13 @@ import { EvaluationHistoryPanel } from "@/components/architect/evaluation-histor
 import { ArenaDatabaseStatus } from "@/components/architect/arena-database-status";
 import { ArchitectAiReviewHeader } from "@/components/architect/architect-ai-review-header";
 import { useArchitectOverrideHandlers } from "@/components/architect/use-architect-overrides";
+import { useArchitectSync } from "@/components/architect/use-architect-sync";
 import { useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { getDimensionMeta } from "@/lib/architect-field-meta";
 
 export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
-  const { setArchitectFieldOverride, setArchitectAiAssessment } = useApp();
+  const { setArchitectFieldOverride, setArchitectFieldOverrides, setArchitectAiAssessment } = useApp();
   const { email } = useAuth();
 
   const ruleAssessment = useMemo(() => analyzeUseCase(useCase), [useCase]);
@@ -58,6 +59,15 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
     () => applyArchitectOverrides(baseAssessment, useCase.architectOverrides),
     [baseAssessment, useCase.architectOverrides]
   );
+
+  const setFieldOverrides = useCallback(
+    (updates: Parameters<typeof setArchitectFieldOverrides>[1]) => {
+      setArchitectFieldOverrides(useCase.id, updates);
+    },
+    [setArchitectFieldOverrides, useCase.id]
+  );
+
+  const { syncField, syncing } = useArchitectSync(useCase, assessment, setFieldOverrides);
 
   const setField = useCallback(
     (fieldKey: string, entry: Parameters<typeof setArchitectFieldOverride>[2]) => {
@@ -133,6 +143,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
                 dimension={d}
                 overrides={overrides}
                 source={openAi.source}
+                onSyncSave={syncField}
               />
             ))}
           </div>
@@ -142,7 +153,8 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
           <ArchitectureCard
             architecture={assessment.architecture}
             overrides={overrides}
-            source={openAi.source}
+            syncing={syncing}
+            onSyncSave={syncField}
           />
         </TabsContent>
 
