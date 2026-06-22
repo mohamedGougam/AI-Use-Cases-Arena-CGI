@@ -31,6 +31,7 @@ export function ReadinessDimensionCard({
         displayValue={`${dimension.score}%`}
         meta={dimMeta}
         type="number"
+        hideCalculation={source === "openai"}
         isOverridden={overrides.isOverridden(scoreKey)}
         overrideNote={overrides.getNote(scoreKey)}
         onSave={(v, note) => overrides.onSave(scoreKey, v, note)}
@@ -50,6 +51,8 @@ export function ReadinessDimensionCard({
                 displayValue={c.met ? "Met" : "Not met"}
                 meta={meta}
                 type="boolean"
+                explanation={c.explanation}
+                hideCalculation={Boolean(c.explanation)}
                 isOverridden={overrides.isOverridden(criterionKey)}
                 overrideNote={overrides.getNote(criterionKey)}
                 onSave={(v, note) => overrides.onSave(criterionKey, v, note)}

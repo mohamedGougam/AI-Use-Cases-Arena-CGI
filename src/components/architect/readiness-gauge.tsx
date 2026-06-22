@@ -124,7 +124,7 @@ export function OverallReadinessBanner({
       ? {
           meaning: ARCHITECT_FIELD_META.overallScore.meaning,
           calculation:
-            "Average of Business, Data, AI, Security, and Delivery scores — each scored by OpenAI from the business submission.",
+            "Average of Business, Data, AI, Security, and Delivery scores from the business submission.",
         }
       : ARCHITECT_FIELD_META.overallScore;
 

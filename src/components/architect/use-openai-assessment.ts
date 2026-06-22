@@ -24,6 +24,7 @@ interface OpenAiAssessmentState {
   overallScore: number | null;
   architectQuestions: string[] | null;
   telecomImpactAreas: TelecomImpactArea[] | null;
+  contentRichness: ArchitectAiAssessment["contentRichness"] | null;
   architecture: ArchitectureRecommendation;
 }
 
@@ -33,6 +34,7 @@ function fromCache(cached: ArchitectAiAssessment) {
     overallScore: cached.overallScore,
     architectQuestions: cached.architectQuestions,
     telecomImpactAreas: cached.telecomImpactAreas as TelecomImpactArea[],
+    contentRichness: cached.contentRichness ?? null,
     architecture: {
       pattern: cached.pattern,
       technologies: cached.technologies,
@@ -92,6 +94,7 @@ export function useOpenAiAssessment(
         overallScore: assessment.overallScore,
         architectQuestions: assessment.architectQuestions,
         telecomImpactAreas: assessment.telecomImpactAreas,
+        contentRichness: assessment.contentRichness ?? undefined,
         pattern: assessment.architecture.pattern,
         technologies: assessment.architecture.technologies,
         confidence: assessment.architecture.confidence,
@@ -132,6 +135,7 @@ export function useOpenAiAssessment(
           overallScore: a.overallScore,
           architectQuestions: a.architectQuestions,
           telecomImpactAreas: a.telecomImpactAreas,
+          contentRichness: a.contentRichness ?? null,
           architecture: a.architecture,
         },
         data.model,
@@ -172,6 +176,7 @@ export function useOpenAiAssessment(
     overallScore: aiData?.overallScore ?? null,
     architectQuestions: aiData?.architectQuestions ?? null,
     telecomImpactAreas: aiData?.telecomImpactAreas ?? null,
+    contentRichness: aiData?.contentRichness ?? null,
     architecture: aiData?.architecture ?? ruleAssessment.architecture,
     regenerate: () => void fetchAssessment(),
   };

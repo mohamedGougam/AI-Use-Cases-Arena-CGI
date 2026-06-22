@@ -20,6 +20,8 @@ interface EditableArchitectFieldProps {
   type?: EditableFieldType;
   isOverridden?: boolean;
   overrideNote?: string;
+  explanation?: string;
+  hideCalculation?: boolean;
   className?: string;
   onSave: (value: string | number | boolean, architectNote?: string) => void;
   onReset?: () => void;
@@ -33,6 +35,8 @@ export function EditableArchitectField({
   type = "text",
   isOverridden,
   overrideNote,
+  explanation,
+  hideCalculation = false,
   className,
   onSave,
   onReset,
@@ -99,13 +103,21 @@ export function EditableArchitectField({
         </div>
       </div>
 
-      <div className="mt-2 flex gap-2 text-xs text-muted">
-        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/70" />
-        <div>
-          <p>{meta.meaning}</p>
-          <p className="mt-1 italic opacity-90">How calculated: {meta.calculation}</p>
+      {(explanation || !hideCalculation) && (
+        <div className="mt-2 flex gap-2 text-xs text-muted">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/70" />
+          <div>
+            {explanation ? (
+              <p>{explanation}</p>
+            ) : (
+              <>
+                <p>{meta.meaning}</p>
+                <p className="mt-1 italic opacity-90">How calculated: {meta.calculation}</p>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {overrideNote && !editing && (
         <p className="mt-2 text-xs text-amber-600/90">Architect note: {overrideNote}</p>

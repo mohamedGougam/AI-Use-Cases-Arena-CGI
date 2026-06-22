@@ -97,14 +97,17 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
         </TabsList>
 
         <TabsContent value="review" className="space-y-6">
-          <ArchitectDocumentUpload useCase={useCase} wordCounts={assessment.wordCounts} overrides={overrides} />
+          <ArchitectDocumentUpload
+            useCase={useCase}
+            wordCounts={assessment.wordCounts}
+            contentRichness={openAi.contentRichness}
+          />
           <ArchitectAiReviewHeader
             source={openAi.source}
             loading={openAi.loading}
             error={openAi.error}
             missingApiKey={openAi.missingApiKey}
             stale={openAi.stale}
-            model={openAi.model}
             generatedAt={openAi.generatedAt}
             onRegenerate={openAi.regenerate}
           />

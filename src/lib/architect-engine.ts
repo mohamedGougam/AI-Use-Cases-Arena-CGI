@@ -7,11 +7,9 @@ import { countWords } from "@/lib/document-analysis";
 
 
 export interface ReadinessCriterion {
-
   label: string;
-
   met: boolean;
-
+  explanation?: string;
 }
 
 

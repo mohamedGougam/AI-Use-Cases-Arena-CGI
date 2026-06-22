@@ -133,13 +133,13 @@ export interface ArchitectOverrides {
   updatedByName: string;
 }
 
-/** OpenAI-generated readiness + architecture assessment cached per use case. */
+/** AI-generated readiness + architecture assessment cached per use case. */
 export interface ArchitectAiAssessment {
   dimensions: {
     key: string;
     title: string;
     score: number;
-    criteria: { label: string; met: boolean }[];
+    criteria: { label: string; met: boolean; explanation?: string }[];
   }[];
   overallScore: number;
   architectQuestions: string[];
@@ -148,6 +148,11 @@ export interface ArchitectAiAssessment {
   technologies: string[];
   confidence: number;
   rationale: string;
+  contentRichness?: {
+    score: number;
+    summary: string;
+    fields?: Record<string, string>;
+  };
   model: string;
   generatedAt: string;
   inputFingerprint: string;

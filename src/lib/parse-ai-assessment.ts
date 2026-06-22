@@ -4,6 +4,7 @@ import type {
   ReadinessDimension,
   TelecomImpactArea,
 } from "@/lib/architect-engine";
+import type { AiContentRichness } from "@/lib/content-richness";
 import { READINESS_DIMENSION_DEFS, scoreFromCriteria } from "@/lib/readiness-criteria";
 import { TELECOM_IMPACT_AREAS } from "@/lib/constants";
 
@@ -13,6 +14,7 @@ export interface ParsedAiAssessment {
   architectQuestions: string[];
   telecomImpactAreas: TelecomImpactArea[];
   architecture: ArchitectureRecommendation;
+  contentRichness?: AiContentRichness;
 }
 
 function parseArchitecture(raw: Record<string, unknown>): ArchitectureRecommendation | null {
@@ -30,10 +32,17 @@ function parseArchitecture(raw: Record<string, unknown>): ArchitectureRecommenda
   return { pattern, technologies, confidence, rationale };
 }
 
-function parseCriteria(
-  dimensionKey: string,
-  rawCriteria: unknown
-): ReadinessCriterion[] | null {
+function parseCriterionEntry(value: unknown): { met: boolean; explanation?: string } | null {
+  if (typeof value === "boolean") return { met: value };
+  if (!value || typeof value !== "object") return null;
+  const o = value as Record<string, unknown>;
+  if (typeof o.met !== "boolean") return null;
+  const explanation =
+    typeof o.explanation === "string" ? o.explanation.trim().slice(0, 160) : undefined;
+  return { met: o.met, explanation: explanation || undefined };
+}
+
+function parseCriteria(dimensionKey: string, rawCriteria: unknown): ReadinessCriterion[] | null {
   if (!rawCriteria || typeof rawCriteria !== "object") return null;
   const def = READINESS_DIMENSION_DEFS.find((d) => d.key === dimensionKey);
   if (!def) return null;
@@ -42,9 +51,13 @@ function parseCriteria(
   const criteria: ReadinessCriterion[] = [];
 
   for (const c of def.criteria) {
-    const met = map[c.id];
-    if (typeof met !== "boolean") return null;
-    criteria.push({ label: c.label, met });
+    const parsed = parseCriterionEntry(map[c.id]);
+    if (!parsed) return null;
+    criteria.push({
+      label: c.label,
+      met: parsed.met,
+      explanation: parsed.explanation,
+    });
   }
 
   return criteria;
@@ -70,6 +83,28 @@ function parseDimensions(raw: unknown): ReadinessDimension[] | null {
   }
 
   return dimensions;
+}
+
+function parseContentRichness(raw: unknown): AiContentRichness | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const score =
+    typeof o.score === "number" ? Math.min(100, Math.max(0, Math.round(o.score))) : undefined;
+  const summary = typeof o.summary === "string" ? o.summary.trim() : "";
+  if (score === undefined && !summary) return undefined;
+
+  const fields: Record<string, string> = {};
+  if (o.fields && typeof o.fields === "object") {
+    for (const [key, val] of Object.entries(o.fields as Record<string, unknown>)) {
+      if (typeof val === "string" && val.trim()) fields[key] = val.trim().slice(0, 120);
+    }
+  }
+
+  return {
+    score: score ?? 0,
+    summary,
+    fields: Object.keys(fields).length ? fields : undefined,
+  };
 }
 
 function parseTelecomAreas(raw: unknown): TelecomImpactArea[] | null {
@@ -134,6 +169,7 @@ export function parseAiAssessmentResponse(content: string): ParsedAiAssessment |
       architectQuestions,
       telecomImpactAreas,
       architecture,
+      contentRichness: parseContentRichness(raw.contentRichness),
     };
   } catch {
     return null;

@@ -10,7 +10,12 @@ export const maxDuration = 90;
 
 const CRITERIA_SCHEMA = READINESS_DIMENSION_DEFS.map((d) => ({
   key: d.key,
-  criteria: Object.fromEntries(d.criteria.map((c) => [c.id, "boolean — true if criterion is met"])),
+  criteria: Object.fromEntries(
+    d.criteria.map((c) => [
+      c.id,
+      '{ "met": boolean, "explanation": "8-18 words — why met or what is missing, citing submission evidence" }',
+    ])
+  ),
 }));
 
 const SYSTEM_PROMPT = `You are a senior CGI AI Solution Architect evaluating telecom AI use cases for a workshop.
@@ -21,12 +26,23 @@ Evaluate readiness honestly from the text provided. Do not invent facts. Mark a 
 
 Respond ONLY with valid JSON matching this schema:
 {
+  "contentRichness": {
+    "score": number 0-100,
+    "summary": "one sentence on overall submission depth",
+    "fields": {
+      "title": "8-15 words on title quality",
+      "description": "8-15 words on description quality",
+      "businessProblem": "8-15 words",
+      "proposedSolution": "8-15 words",
+      "document": "8-15 words on architect brief or note if absent"
+    }
+  },
   "dimensions": {
-    "business": { "criteria": { "objective": boolean, "problem": boolean, "value": boolean, "stakeholders": boolean, "success": boolean, "process": boolean } },
-    "data": { "criteria": { "source": boolean, "historical": boolean, "volume": boolean, "quality": boolean, "ownership": boolean, "gdpr": boolean } },
-    "ai": { "criteria": { "model": boolean, "finetuning": boolean, "human": boolean, "accuracy": boolean, "acceptance": boolean } },
-    "security": { "criteria": { "pii": boolean, "customer": boolean, "infrastructure": boolean, "network": boolean, "classification": boolean } },
-    "delivery": { "criteria": { "budget": boolean, "timeline": boolean, "team": boolean, "sponsor": boolean, "dependencies": boolean } }
+    "business": { "criteria": { "objective": { "met": boolean, "explanation": "string" }, ... } },
+    "data": { "criteria": { "source": { "met": boolean, "explanation": "string" }, ... } },
+    "ai": { "criteria": { ... } },
+    "security": { "criteria": { ... } },
+    "delivery": { "criteria": { ... } }
   },
   "architectQuestions": ["string — 5 to 8 specific follow-up questions targeting the biggest gaps"],
   "telecomImpactAreas": [{ "area": "string — from allowed list", "relevance": number 1-100 }],
@@ -39,11 +55,13 @@ Respond ONLY with valid JSON matching this schema:
 }
 
 Rules:
+- Every criterion needs a concise explanation grounded in the actual submission text.
 - Weight businessProblem and proposedSolution heavily alongside title and description.
-- architectQuestions must target unmet criteria and telecom context — not generic filler.
-- telecomImpactAreas: only include domains with clear relevance; use the allowed domain names exactly.
+- contentRichness.fields must comment on each field even when empty or thin.
+- architectQuestions must target unmet criteria and telecom context.
+- telecomImpactAreas: only include domains with clear relevance; use allowed domain names exactly.
 - Prefer Azure OpenAI, Microsoft Fabric, Databricks, Power BI for architecture.
-- Do not mention JSON, prompts, or that you are an AI.`;
+- Do not mention JSON, prompts, AI vendors, or that you are an AI.`;
 
 function isUseCase(value: unknown): value is UseCase {
   if (!value || typeof value !== "object") return false;
@@ -92,7 +110,7 @@ export async function POST(request: Request) {
     const completion = await client.chat.completions.create({
       model,
       temperature: 0.35,
-      max_tokens: 2200,
+      max_tokens: 3200,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
