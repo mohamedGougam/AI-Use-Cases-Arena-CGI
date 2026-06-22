@@ -63,10 +63,20 @@ function parseRecommendation(content: string): ArchitectureRecommendation | null
   }
 }
 
+export async function GET() {
+  return NextResponse.json({
+    openaiConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
+  });
+}
+
 export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json({ fallback: true, recommendation: null });
+    return NextResponse.json({
+      fallback: true,
+      recommendation: null,
+      reason: "missing_api_key",
+    });
   }
 
   let body: unknown;

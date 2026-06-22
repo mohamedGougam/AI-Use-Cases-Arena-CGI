@@ -123,6 +123,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
             source={openAi.source}
             loading={openAi.loading}
             error={openAi.error}
+            missingApiKey={openAi.missingApiKey}
             model={openAi.model}
             generatedAt={openAi.generatedAt}
             stale={openAi.stale}

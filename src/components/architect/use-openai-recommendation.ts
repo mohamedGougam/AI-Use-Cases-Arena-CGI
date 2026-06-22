@@ -10,6 +10,7 @@ interface OpenAiRecommendationState {
   source: "openai" | "rules";
   loading: boolean;
   error: string | null;
+  missingApiKey: boolean;
   model?: string;
   generatedAt?: string;
   stale: boolean;
@@ -26,6 +27,7 @@ export function useOpenAiArchitecture(
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [missingApiKey, setMissingApiKey] = useState(false);
   const [aiArch, setAiArch] = useState<ArchitectureRecommendation | null>(
     cacheValid ? cached : null
   );
@@ -52,6 +54,7 @@ export function useOpenAiArchitecture(
   const fetchRecommendation = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setMissingApiKey(false);
     try {
       const res = await fetch("/api/architect/recommendation", {
         method: "POST",
@@ -63,6 +66,7 @@ export function useOpenAiArchitecture(
       if (data.fallback) {
         setAiArch(null);
         setError(null);
+        setMissingApiKey(data.reason === "missing_api_key");
         fetchedRef.current = fingerprint;
         return;
       }
@@ -103,6 +107,7 @@ export function useOpenAiArchitecture(
     source: aiArch ? "openai" : "rules",
     loading,
     error,
+    missingApiKey,
     model: meta.model,
     generatedAt: meta.generatedAt,
     stale,

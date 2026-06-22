@@ -38,6 +38,7 @@ export function ArchitectureCard({
   source = "rules",
   loading = false,
   error = null,
+  missingApiKey = false,
   model,
   generatedAt,
   stale = false,
@@ -48,6 +49,7 @@ export function ArchitectureCard({
   source?: "openai" | "rules";
   loading?: boolean;
   error?: string | null;
+  missingApiKey?: boolean;
   model?: string;
   generatedAt?: string;
   stale?: boolean;
@@ -100,9 +102,14 @@ export function ArchitectureCard({
         </p>
       )}
 
-      {source === "rules" && !loading && !error && (
-        <p className="text-xs text-muted">
-          Set OPENAI_API_KEY in .env.local to generate recommendations from all use case text and readiness data.
+      {missingApiKey && !loading && (
+        <p className="text-xs text-amber-600 dark:text-amber-400">
+          OpenAI is not configured on this server. Add{" "}
+          <code className="rounded bg-muted px-1 py-0.5 text-[11px]">OPENAI_API_KEY</code> to{" "}
+          <code className="rounded bg-muted px-1 py-0.5 text-[11px]">.env.local</code> for local dev
+          (then restart <code className="rounded bg-muted px-1 py-0.5 text-[11px]">npm run dev</code>
+          ), or to Vercel → Settings → Environment Variables for production (then redeploy). Click
+          Regenerate after updating.
         </p>
       )}
 
