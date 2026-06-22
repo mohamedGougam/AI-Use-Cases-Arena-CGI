@@ -39,6 +39,7 @@ import {
   getDaysSinceCreated,
 } from "@/lib/scoring";
 import type {
+  ArchitectAiAssessment,
   ArchitectAiRecommendation,
   ArchitectDocumentBrief,
   ArchitectOverrideEntry,
@@ -84,6 +85,11 @@ interface AppContextValue {
     fieldKey: string,
     entry: ArchitectOverrideEntry | null
   ) => void;
+  setArchitectAiAssessment: (
+    useCaseId: string,
+    assessment: ArchitectAiAssessment
+  ) => void;
+  /** @deprecated use setArchitectAiAssessment */
   setArchitectAiRecommendation: (
     useCaseId: string,
     recommendation: ArchitectAiRecommendation
@@ -578,24 +584,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [email, canAccessArchitectTools, updateUseCases]
   );
 
-  const setArchitectAiRecommendation = useCallback(
-    (useCaseId: string, recommendation: ArchitectAiRecommendation) => {
+  const setArchitectAiAssessment = useCallback(
+    (useCaseId: string, assessment: ArchitectAiAssessment) => {
       if (!canAccessArchitectTools) return;
       updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
-          const updated = { ...uc, architectAiRecommendation: recommendation };
+          const updated = {
+            ...uc,
+            architectAiAssessment: assessment,
+            architectAiRecommendation: undefined,
+          };
           void recordArenaSnapshot({
             useCase: updated,
             eventType: "overrides_updated",
             ...actorInfo(),
-            detail: `OpenAI architecture: ${recommendation.pattern}`,
+            detail: `OpenAI assessment: ${assessment.pattern} (${assessment.overallScore}% readiness)`,
           });
           return updated;
         })
       );
     },
     [canAccessArchitectTools, updateUseCases, actorInfo]
+  );
+
+  const setArchitectAiRecommendation = useCallback(
+    (useCaseId: string, recommendation: ArchitectAiRecommendation) => {
+      setArchitectAiAssessment(useCaseId, {
+        dimensions: [],
+        overallScore: 0,
+        architectQuestions: [],
+        telecomImpactAreas: [],
+        pattern: recommendation.pattern,
+        technologies: recommendation.technologies,
+        confidence: recommendation.confidence,
+        rationale: recommendation.rationale,
+        model: recommendation.model,
+        generatedAt: recommendation.generatedAt,
+        inputFingerprint: recommendation.inputFingerprint,
+      });
+    },
+    [setArchitectAiAssessment]
   );
 
   const clearArchitectOverrides = useCallback(
@@ -649,6 +678,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectBrief,
       clearArchitectBrief,
       setArchitectFieldOverride,
+      setArchitectAiAssessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,
       hasVoted,
@@ -669,6 +699,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectBrief,
       clearArchitectBrief,
       setArchitectFieldOverride,
+      setArchitectAiAssessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,
       hasVoted,

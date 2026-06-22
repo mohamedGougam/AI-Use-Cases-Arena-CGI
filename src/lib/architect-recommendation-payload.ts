@@ -1,5 +1,6 @@
 import type { ArchitectAssessment } from "@/lib/architect-engine";
 import type { UseCase } from "@/types";
+import { assessmentInputFingerprint } from "@/lib/architect-assessment-payload";
 
 export interface ArchitectRecommendationPayload {
   useCase: {
@@ -88,17 +89,5 @@ export function buildRecommendationPayload(
 }
 
 export function recommendationInputFingerprint(useCase: UseCase): string {
-  return [
-    useCase.title,
-    useCase.description,
-    useCase.businessProblem,
-    useCase.proposedSolution,
-    useCase.category,
-    useCase.department,
-    useCase.impact,
-    useCase.effort,
-    useCase.tags.join(","),
-    useCase.architectBrief?.wordCount ?? 0,
-    useCase.architectBrief?.analyzedAt ?? "",
-  ].join("|");
+  return assessmentInputFingerprint(useCase);
 }

@@ -113,11 +113,20 @@ export function ReadinessGauge({
 export function OverallReadinessBanner({
   score,
   overrides,
+  source = "rules",
 }: {
   score: number;
   overrides?: ArchitectOverrideContext;
+  source?: "openai" | "rules";
 }) {
-  const meta = ARCHITECT_FIELD_META.overallScore;
+  const meta =
+    source === "openai"
+      ? {
+          meaning: ARCHITECT_FIELD_META.overallScore.meaning,
+          calculation:
+            "Average of Business, Data, AI, Security, and Delivery scores — each scored by OpenAI from the business submission.",
+        }
+      : ARCHITECT_FIELD_META.overallScore;
 
   return (
     <div className="rounded-xl border border-primary/25 bg-gradient-to-br from-primary/10 via-background to-background p-6">

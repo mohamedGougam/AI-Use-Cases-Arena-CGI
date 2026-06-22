@@ -8,15 +8,19 @@ import type { ArchitectOverrideContext } from "@/components/architect/use-archit
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
+import type { AiAssessmentSource } from "@/components/architect/use-openai-assessment";
+
 export function ReadinessDimensionCard({
   dimension,
   overrides,
+  source = "rules",
 }: {
   dimension: ReadinessDimension;
   overrides: ArchitectOverrideContext;
+  source?: AiAssessmentSource;
 }) {
   const scoreKey = `dimension.${dimension.key}.score`;
-  const dimMeta = getDimensionMeta(dimension.key);
+  const dimMeta = getDimensionMeta(dimension.key, source);
 
   return (
     <div className="rounded-xl border border-border/20 bg-card/60 p-5 space-y-4">
@@ -36,7 +40,7 @@ export function ReadinessDimensionCard({
       <ul className="space-y-3">
         {dimension.criteria.map((c, i) => {
           const criterionKey = `dimension.${dimension.key}.criteria.${i}`;
-          const meta = getCriterionMeta(dimension.key, i, c.label);
+          const meta = getCriterionMeta(dimension.key, i, c.label, source);
           return (
             <li key={criterionKey}>
               <EditableArchitectField
@@ -73,9 +77,11 @@ export function ReadinessDimensionCard({
 export function ArchitectQuestions({
   questions,
   overrides,
+  source = "rules",
 }: {
   questions: string[];
   overrides: ArchitectOverrideContext;
+  source?: AiAssessmentSource;
 }) {
   return (
     <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-5">
@@ -99,7 +105,7 @@ export function ArchitectQuestions({
                   fieldKey={key}
                   label={`Question ${i + 1}`}
                   value={q}
-                  meta={getQuestionMeta(i)}
+                  meta={getQuestionMeta(i, source)}
                   type="textarea"
                   isOverridden={overrides.isOverridden(key)}
                   overrideNote={overrides.getNote(key)}

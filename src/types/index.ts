@@ -133,7 +133,27 @@ export interface ArchitectOverrides {
   updatedByName: string;
 }
 
-/** OpenAI-generated architecture recommendation cached per use case. */
+/** OpenAI-generated readiness + architecture assessment cached per use case. */
+export interface ArchitectAiAssessment {
+  dimensions: {
+    key: string;
+    title: string;
+    score: number;
+    criteria: { label: string; met: boolean }[];
+  }[];
+  overallScore: number;
+  architectQuestions: string[];
+  telecomImpactAreas: { area: string; relevance: number }[];
+  pattern: string;
+  technologies: string[];
+  confidence: number;
+  rationale: string;
+  model: string;
+  generatedAt: string;
+  inputFingerprint: string;
+}
+
+/** @deprecated Use architectAiAssessment */
 export interface ArchitectAiRecommendation {
   pattern: string;
   technologies: string[];
@@ -169,6 +189,8 @@ export interface UseCase {
   badges: UseCaseBadge[];
   architectBrief?: ArchitectDocumentBrief;
   architectOverrides?: ArchitectOverrides;
+  architectAiAssessment?: ArchitectAiAssessment;
+  /** @deprecated migrated to architectAiAssessment */
   architectAiRecommendation?: ArchitectAiRecommendation;
 }
 

@@ -5,6 +5,7 @@ import type { TelecomImpactArea } from "@/lib/architect-engine";
 import { getTelecomAreaMeta } from "@/lib/architect-field-meta";
 import { EditableArchitectField } from "@/components/architect/editable-architect-field";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
+import type { AiAssessmentSource } from "@/components/architect/use-openai-assessment";
 import { Progress } from "@/components/ui/progress";
 
 const AREA_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -24,9 +25,11 @@ const AREA_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 export function TelecomImpactAnalysis({
   areas,
   overrides,
+  source = "rules",
 }: {
   areas: TelecomImpactArea[];
   overrides: ArchitectOverrideContext;
+  source?: AiAssessmentSource;
 }) {
   return (
     <div className="rounded-xl border border-border/20 bg-card/60 p-5">
@@ -53,7 +56,7 @@ export function TelecomImpactAnalysis({
                 label={`${area.area} relevance`}
                 value={area.relevance}
                 displayValue={`${area.relevance}%`}
-                meta={getTelecomAreaMeta(area.area)}
+                meta={getTelecomAreaMeta(area.area, source)}
                 type="number"
                 isOverridden={overrides.isOverridden(fieldKey)}
                 overrideNote={overrides.getNote(fieldKey)}

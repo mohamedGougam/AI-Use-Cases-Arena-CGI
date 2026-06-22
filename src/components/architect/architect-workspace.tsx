@@ -21,29 +21,37 @@ import { EffortEstimationPanel } from "@/components/architect/effort-estimation-
 import { ArchitectExportPanel } from "@/components/architect/architect-export-panel";
 import { EvaluationHistoryPanel } from "@/components/architect/evaluation-history-panel";
 import { ArenaDatabaseStatus } from "@/components/architect/arena-database-status";
+import { ArchitectAiReviewHeader } from "@/components/architect/architect-ai-review-header";
 import { useArchitectOverrideHandlers } from "@/components/architect/use-architect-overrides";
-import { useOpenAiArchitecture } from "@/components/architect/use-openai-recommendation";
+import { useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { getDimensionMeta } from "@/lib/architect-field-meta";
 
 export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
-  const { setArchitectFieldOverride, setArchitectAiRecommendation } = useApp();
+  const { setArchitectFieldOverride, setArchitectAiAssessment } = useApp();
   const { email } = useAuth();
 
   const ruleAssessment = useMemo(() => analyzeUseCase(useCase), [useCase]);
 
-  const onAiRecommendation = useCallback(
-    (rec: Parameters<typeof setArchitectAiRecommendation>[1]) => {
-      setArchitectAiRecommendation(useCase.id, rec);
+  const onAiAssessment = useCallback(
+    (assessment: Parameters<typeof setArchitectAiAssessment>[1]) => {
+      setArchitectAiAssessment(useCase.id, assessment);
     },
-    [setArchitectAiRecommendation, useCase.id]
+    [setArchitectAiAssessment, useCase.id]
   );
 
-  const openAi = useOpenAiArchitecture(useCase, ruleAssessment, onAiRecommendation);
+  const openAi = useOpenAiAssessment(useCase, ruleAssessment, onAiAssessment);
 
   const baseAssessment = useMemo(
-    () => ({ ...ruleAssessment, architecture: openAi.architecture }),
-    [ruleAssessment, openAi.architecture]
+    () => ({
+      ...ruleAssessment,
+      dimensions: openAi.dimensions ?? ruleAssessment.dimensions,
+      overallScore: openAi.overallScore ?? ruleAssessment.overallScore,
+      architectQuestions: openAi.architectQuestions ?? ruleAssessment.architectQuestions,
+      telecomImpactAreas: openAi.telecomImpactAreas ?? ruleAssessment.telecomImpactAreas,
+      architecture: openAi.architecture,
+    }),
+    [ruleAssessment, openAi]
   );
 
   const assessment = useMemo(
@@ -90,7 +98,17 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
 
         <TabsContent value="review" className="space-y-6">
           <ArchitectDocumentUpload useCase={useCase} wordCounts={assessment.wordCounts} overrides={overrides} />
-          <OverallReadinessBanner score={assessment.overallScore} overrides={overrides} />
+          <ArchitectAiReviewHeader
+            source={openAi.source}
+            loading={openAi.loading}
+            error={openAi.error}
+            missingApiKey={openAi.missingApiKey}
+            stale={openAi.stale}
+            model={openAi.model}
+            generatedAt={openAi.generatedAt}
+            onRegenerate={openAi.regenerate}
+          />
+          <OverallReadinessBanner score={assessment.overallScore} overrides={overrides} source={openAi.source} />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {assessment.dimensions.map((d) => (
@@ -99,7 +117,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
                 label={d.title.replace(" Readiness", "").replace(" Understanding", "")}
                 score={d.score}
                 fieldKey={`dimension.${d.key}.score`}
-                meta={getDimensionMeta(d.key)}
+                meta={getDimensionMeta(d.key, openAi.source)}
                 overrides={overrides}
               />
             ))}
@@ -111,23 +129,17 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
                 key={d.key}
                 dimension={d}
                 overrides={overrides}
+                source={openAi.source}
               />
             ))}
           </div>
 
-          <ArchitectQuestions questions={assessment.architectQuestions} overrides={overrides} />
-          <TelecomImpactAnalysis areas={assessment.telecomImpactAreas} overrides={overrides} />
+          <ArchitectQuestions questions={assessment.architectQuestions} overrides={overrides} source={openAi.source} />
+          <TelecomImpactAnalysis areas={assessment.telecomImpactAreas} overrides={overrides} source={openAi.source} />
           <ArchitectureCard
             architecture={assessment.architecture}
             overrides={overrides}
             source={openAi.source}
-            loading={openAi.loading}
-            error={openAi.error}
-            missingApiKey={openAi.missingApiKey}
-            model={openAi.model}
-            generatedAt={openAi.generatedAt}
-            stale={openAi.stale}
-            onRegenerate={openAi.regenerate}
           />
         </TabsContent>
 
