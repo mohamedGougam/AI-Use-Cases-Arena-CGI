@@ -124,8 +124,8 @@ export function DashboardHome() {
                 title="No use cases yet"
                 description={
                   canAccessArchitectTools
-                    ? "Use cases submitted by participants will appear here for review and assessment."
-                    : "Be the first to submit an AI use case for your team."
+                    ? "Open the Gallery to review participant submissions."
+                    : "Submit the first AI use case for your team."
                 }
                 action={
                   !canAccessArchitectTools ? (
@@ -212,7 +212,7 @@ export function DashboardHome() {
         <h2 className="type-section-title mb-4">AI Opportunity Heatmap</h2>
         {deptStats.length === 0 ? (
           <p className="type-body text-muted">
-            Department activity will appear here once use cases are submitted.
+            Department activity is shown after the first use case is submitted.
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-5 xl:gap-3">

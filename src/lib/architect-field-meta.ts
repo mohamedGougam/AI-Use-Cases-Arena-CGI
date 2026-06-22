@@ -1,3 +1,5 @@
+import { READINESS_DIMENSION_DEFS } from "@/lib/readiness-criteria";
+
 export interface ArchitectFieldMeta {
   meaning: string;
   calculation: string;
@@ -56,6 +58,90 @@ const CRITERION_META: Record<string, ArchitectFieldMeta> = {
     meaning: "The current or as-is process is described enough to scope change.",
     calculation: "Combined title + description ≥25 words, or process/workflow keywords present.",
   },
+  "data.source": {
+    meaning: "Required data sources or systems of record are named.",
+    calculation: "Evidence of databases, CRM, OSS/BSS, data lake, or APIs in the submission.",
+  },
+  "data.historical": {
+    meaning: "Historical records exist to train or benchmark the solution.",
+    calculation: "References to archives, logs, transactions, or multi-period data.",
+  },
+  "data.volume": {
+    meaning: "Scale of data (records, users, throughput) is described.",
+    calculation: "Volume, scale, or magnitude indicators in the submission text.",
+  },
+  "data.quality": {
+    meaning: "Data quality, labelling, or validation is addressed.",
+    calculation: "Quality, accuracy, labelling, or validation language in the submission.",
+  },
+  "data.ownership": {
+    meaning: "Data owners, stewards, or governance roles are identified.",
+    calculation: "Ownership, stewardship, or governance references in the submission.",
+  },
+  "data.gdpr": {
+    meaning: "Privacy classification and GDPR considerations are stated.",
+    calculation: "GDPR, PII, privacy, consent, or retention language in the submission.",
+  },
+  "ai.model": {
+    meaning: "An existing or foundation model approach is identified.",
+    calculation: "References to models, LLMs, Copilot, or pre-trained capabilities.",
+  },
+  "ai.finetuning": {
+    meaning: "Need for domain-specific training or fine-tuning is clear.",
+    calculation: "Fine-tuning, custom training, or domain-specific model language.",
+  },
+  "ai.human": {
+    meaning: "Human review or validation in the loop is specified.",
+    calculation: "Human-in-the-loop, review, supervision, or approval workflow language.",
+  },
+  "ai.accuracy": {
+    meaning: "Target accuracy, precision, or quality thresholds are defined.",
+    calculation: "Accuracy, precision, recall, F1, threshold, or % targets in the submission.",
+  },
+  "ai.acceptance": {
+    meaning: "Acceptance criteria for go-live are described.",
+    calculation: "Acceptance, UAT, pilot, benchmark, or SLA criteria in the submission.",
+  },
+  "security.pii": {
+    meaning: "Personal or subscriber-identifiable information is in scope.",
+    calculation: "PII, personal data, subscriber, or identity references.",
+  },
+  "security.customer": {
+    meaning: "Customer or subscriber data processing is involved.",
+    calculation: "Customer, subscriber, consumer, CRM, or billing data references.",
+  },
+  "security.infrastructure": {
+    meaning: "Critical telecom infrastructure is affected.",
+    calculation: "Network core, infrastructure, OSS, RAN, 5G, or fiber references.",
+  },
+  "security.network": {
+    meaning: "Network operational or telemetry data is used.",
+    calculation: "RAN, OSS, NMS, topology, alarms, or network KPI references.",
+  },
+  "security.classification": {
+    meaning: "Security or compliance classification is documented.",
+    calculation: "Security classification, ISO, SOC, NIST, or compliance language.",
+  },
+  "delivery.budget": {
+    meaning: "Budget or investment envelope is known.",
+    calculation: "Budget, cost, investment, CAPEX, or OPEX references.",
+  },
+  "delivery.timeline": {
+    meaning: "Delivery timeline or phasing is described.",
+    calculation: "Timeline, quarter, phase, roadmap, or milestone language.",
+  },
+  "delivery.team": {
+    meaning: "Team capacity or availability is addressed.",
+    calculation: "Team, capacity, resource, FTE, or availability references.",
+  },
+  "delivery.sponsor": {
+    meaning: "Executive or business sponsor is identified.",
+    calculation: "Sponsor, executive, director, steering, or owner references.",
+  },
+  "delivery.dependencies": {
+    meaning: "Technical or organisational dependencies are listed.",
+    calculation: "Dependencies, integration, legacy, vendor, or platform references.",
+  },
 };
 
 export const ARCHITECT_FIELD_META: Record<string, ArchitectFieldMeta> = {
@@ -89,18 +175,18 @@ export const ARCHITECT_FIELD_META: Record<string, ArchitectFieldMeta> = {
   },
   "architecture.rationale": {
     meaning: "Consulting narrative explaining why this architecture fits the use case.",
-    calculation: "Template rationale tied to the selected architecture pattern rule.",
+    calculation: "Narrative aligned to the matched architecture pattern and use case signals.",
   },
   "architecture.technologies": {
     meaning: "Suggested Microsoft / telecom technology stack for delivery.",
     calculation: "Predefined technology list per matched architecture pattern.",
   },
   "consensus.timelineMin": {
-    meaning: "Optimistic delivery timeline in weeks across simulated model estimates.",
+    meaning: "Optimistic delivery timeline in weeks across multi-model estimates.",
     calculation: "Minimum weeks from GPT, Claude, Gemini, and DeepSeek estimate variance.",
   },
   "consensus.timelineMax": {
-    meaning: "Conservative delivery timeline in weeks across simulated model estimates.",
+    meaning: "Conservative delivery timeline in weeks across multi-model estimates.",
     calculation: "Maximum weeks from the multi-model estimation engine.",
   },
   "consensus.confidence": {
@@ -131,24 +217,12 @@ export function getCriterionMeta(
   label: string,
   source: "openai" | "rules" = "rules"
 ): ArchitectFieldMeta {
-  const ids: Record<string, string[]> = {
-    business: [
-      "business.objective",
-      "business.problem",
-      "business.value",
-      "business.stakeholders",
-      "business.success",
-      "business.process",
-    ],
-    data: [],
-    ai: [],
-    security: [],
-    delivery: [],
-  };
+  const def = READINESS_DIMENSION_DEFS.find((d) => d.key === dimensionKey);
+  const criterionId = def?.criteria[index]?.id;
+  const metaKey = criterionId ? `${dimensionKey}.${criterionId}` : null;
 
-  const id = ids[dimensionKey]?.[index];
-  if (id && CRITERION_META[id]) {
-    const base = CRITERION_META[id];
+  if (metaKey && CRITERION_META[metaKey]) {
+    const base = CRITERION_META[metaKey];
     if (source === "openai") {
       return {
         meaning: base.meaning,
@@ -160,7 +234,7 @@ export function getCriterionMeta(
   }
 
   return {
-    meaning: `Checklist item: ${label}`,
+    meaning: label,
     calculation:
       source === "openai"
         ? "OpenAI judges whether this criterion is evidenced in the business user's submitted text."
@@ -183,7 +257,7 @@ export function getTelecomAreaMeta(
 
 export function getModelEstimateMeta(model: string): ArchitectFieldMeta {
   return {
-    meaning: `Simulated ${model} timeline view for workshop discussion (not a live API call).`,
+    meaning: `${model} delivery timeline estimate for workshop planning.`,
     calculation:
       "Base weeks from architecture pattern × impact/effort multiplier, with per-model variance.",
   };

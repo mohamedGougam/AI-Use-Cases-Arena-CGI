@@ -1,13 +1,13 @@
 import type { User, UseCase } from "@/types";
 import { CURRENT_USER_ID } from "@/lib/constants";
 
-/** Default user profile for local/demo mode until auth is connected. */
+/** Default local user profile until the session assigns a display name. */
 export const initialUsers: User[] = [
   {
     id: CURRENT_USER_ID,
-    name: "You",
+    name: "Workshop Participant",
     department: "Network Operations",
-    avatar: "YO",
+    avatar: "WP",
     points: 0,
     badges: [],
     rank: "Explorer",

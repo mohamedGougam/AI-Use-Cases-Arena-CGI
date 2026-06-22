@@ -132,18 +132,18 @@ export default function UseCaseDetailPage({
         </div>
 
         <div className="mt-8 space-y-6">
-          <section>
-            <h2 className="text-lg font-semibold mb-2">Business Problem</h2>
-            <p className="text-muted">
-              {useCase.businessProblem.trim() || "Not provided by submitter."}
-            </p>
-          </section>
-          <section>
-            <h2 className="text-lg font-semibold mb-2">Proposed AI Solution</h2>
-            <p className="text-muted">
-              {useCase.proposedSolution.trim() || "Not provided by submitter."}
-            </p>
-          </section>
+          {useCase.businessProblem.trim() && (
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Business Problem</h2>
+              <p className="text-muted">{useCase.businessProblem}</p>
+            </section>
+          )}
+          {useCase.proposedSolution.trim() && (
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Proposed AI Solution</h2>
+              <p className="text-muted">{useCase.proposedSolution}</p>
+            </section>
+          )}
           <section>
             <h2 className="text-lg font-semibold mb-2">Expected Value</h2>
             <p className="text-muted">

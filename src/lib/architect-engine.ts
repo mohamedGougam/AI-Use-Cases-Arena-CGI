@@ -499,14 +499,6 @@ function generateQuestions(uc: UseCase, dimensions: ReadinessDimension[]): strin
 
 
 
-  if (!uc.architectBrief) {
-
-    questions.push("Upload a detailed architect brief document to enrich readiness scoring beyond the business title and description.");
-
-  }
-
-
-
   if (questions.length === 0) {
 
     questions.push("What is the minimum viable scope for a pilot?");

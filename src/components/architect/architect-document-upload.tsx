@@ -79,7 +79,7 @@ export function ArchitectDocumentUpload({ useCase, wordCounts, overrides }: Arch
           </h3>
           <p className="text-sm text-muted mt-1">
             Upload a detailed brief (PDF, DOCX, TXT, MD). Word counts for business users use title and description only;
-            the document enriches keyword-based readiness analysis.
+            the document enriches OpenAI readiness assessment and architect review.
           </p>
         </div>
         <Badge variant="outline" className="border-primary/40">

@@ -20,7 +20,7 @@ const OPENAI_FIELD_META = {
   rationale: {
     meaning: ARCHITECT_FIELD_META["architecture.rationale"].meaning,
     calculation:
-      "Narrative produced by OpenAI grounded in submitted content — not a fixed template.",
+      "Narrative produced by OpenAI grounded in the business submission and readiness context.",
   },
   technologies: {
     meaning: ARCHITECT_FIELD_META["architecture.technologies"].meaning,

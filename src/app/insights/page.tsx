@@ -66,23 +66,23 @@ export default function InsightsPage() {
       if (data.fallback) {
         setAiSummary(generateExecutiveSummary(useCases));
         toast({
-          title: "Template summary",
+          title: "Portfolio summary",
           description:
-            "Set OPENAI_API_KEY (and optionally OPENAI_MODEL) to generate an AI executive summary. Showing the built-in summary for now.",
+            "Set OPENAI_API_KEY to generate an AI executive summary. Showing a data summary from the current portfolio.",
         });
         return;
       }
 
       toast({
         title: "Summary unavailable",
-        description: data.error ?? `Request failed (${res.status}). Showing the built-in summary.`,
+        description: data.error ?? `Request failed (${res.status}). Showing a data summary from the current portfolio.`,
         variant: "destructive",
       });
       setAiSummary(generateExecutiveSummary(useCases));
     } catch {
       toast({
         title: "Network error",
-        description: "Could not reach the summary service. Showing the built-in summary.",
+        description: "Could not reach the summary service. Showing a data summary from the current portfolio.",
         variant: "destructive",
       });
       setAiSummary(generateExecutiveSummary(useCases));

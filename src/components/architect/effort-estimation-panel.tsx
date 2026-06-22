@@ -25,7 +25,7 @@ export function EffortEstimationPanel({
           <h3 className="font-semibold">Multi-Model Estimation Engine</h3>
         </div>
         <p className="mb-4 text-sm text-muted">
-          Simulated timeline estimates from multiple AI models for workshop-grade planning.
+          Consensus timeline estimates from GPT, Claude, Gemini, and DeepSeek for workshop planning.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {modelEstimates.map((est) => {

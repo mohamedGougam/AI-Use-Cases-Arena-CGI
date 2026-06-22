@@ -14,7 +14,7 @@ export function DepartmentBattleCard({ stats, maxScore }: DepartmentBattleCardPr
   if (!stats.length) {
     return (
       <p className="text-sm text-muted py-4 text-center">
-        Department rankings will appear once teams start submitting use cases.
+        No department rankings — submit use cases to start the battle.
       </p>
     );
   }

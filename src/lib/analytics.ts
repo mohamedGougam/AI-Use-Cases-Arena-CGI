@@ -113,25 +113,49 @@ export function generateExecutiveSummary(useCases: UseCase[]): string {
   if (!useCases.length) {
     return `Executive Summary — AI Use Cases Arena
 
-No use cases have been submitted yet. Encourage teams across CGI to share their AI ideas in the arena. Once submissions and votes begin, this summary will highlight portfolio trends, quick wins, and department momentum.`;
+Portfolio size: 0 use cases.
+Total votes: 0.
+Quick wins: 0.
+Strategic bets: 0.`;
   }
 
   const total = useCases.length;
   const votes = getTotalVotes(useCases);
   const top = getTopUseCase(useCases);
   const quickWins = getQuickWins(useCases).length;
+  const strategicBets = getStrategicBets(useCases).length;
   const depts = getDepartmentStats(useCases);
-  const topDept = depts[0]?.department ?? "N/A";
+  const topDept = depts[0];
 
-  return `Executive Summary — AI Use Cases Arena
+  const lines = [
+    "Executive Summary — AI Use Cases Arena",
+    "",
+    `Portfolio size: ${total} use case${total === 1 ? "" : "s"}.`,
+    `Total votes: ${votes}.`,
+    `Quick wins (high impact, low effort): ${quickWins}.`,
+    `Strategic bets (high impact, high effort): ${strategicBets}.`,
+  ];
 
-Portfolio Overview: ${total} AI use cases have been submitted across CGI, generating ${votes} total votes and strong cross-department engagement.
+  if (top) {
+    lines.push(
+      `Highest-voted use case: "${top.title}" (${top.votes} votes, innovation score ${top.innovationScore}).`
+    );
+  }
 
-Top Priority: "${top?.title ?? "N/A"}" leads the arena with ${top?.votes ?? 0} votes and an innovation score of ${top?.innovationScore ?? 0}, indicating strong organizational alignment.
+  if (topDept) {
+    lines.push(
+      `Leading department by innovation score: ${topDept.department} (${topDept.useCaseCount} use case${topDept.useCaseCount === 1 ? "" : "s"}, score ${topDept.innovationScore}).`
+    );
+  }
 
-Quick Wins: ${quickWins} high-impact, low-effort opportunities are ready for rapid pilot deployment.
+  const categories = getCategoryDistribution(useCases)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
+  if (categories.length) {
+    lines.push(
+      `Top categories: ${categories.map((c) => `${c.name} (${c.value})`).join(", ")}.`
+    );
+  }
 
-Department Leadership: ${topDept} is currently leading innovation momentum with the highest combined innovation score.
-
-Recommendation: Prioritize quick wins for Q2 pilots while advancing strategic bets through structured feasibility assessments. Continue voting and commentary to refine the portfolio.`;
+  return lines.join("\n");
 }

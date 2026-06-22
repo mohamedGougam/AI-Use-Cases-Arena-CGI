@@ -59,7 +59,7 @@ export function EvaluationHistoryPanel({ useCaseId }: { useCaseId?: string }) {
       {loading ? (
         <p className="text-sm text-muted">Loading history…</p>
       ) : history.length === 0 ? (
-        <p className="text-sm text-muted">No history recorded yet. Events appear here as the workshop progresses.</p>
+        <p className="text-sm text-muted">No history recorded yet.</p>
       ) : (
         <ul className="max-h-80 space-y-3 overflow-y-auto pr-1">
           {history.map((entry) => (
