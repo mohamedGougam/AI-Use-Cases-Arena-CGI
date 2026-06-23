@@ -11,9 +11,11 @@ import { Progress } from "@/components/ui/progress";
 export function EffortEstimationPanel({
   assessment,
   overrides,
+  includeDeliveryTeam = true,
 }: {
   assessment: ArchitectAssessment;
   overrides: ArchitectOverrideContext;
+  includeDeliveryTeam?: boolean;
 }) {
   const locked = assessment.estimation.locked || !assessment.estimationUnlocked;
 
@@ -138,12 +140,12 @@ export function EffortEstimationPanel({
         />
       </div>
 
-      <DeliveryTeamPanel assessment={assessment} overrides={overrides} />
+      {includeDeliveryTeam ? <DeliveryTeamPanel assessment={assessment} overrides={overrides} /> : null}
     </div>
   );
 }
 
-function ArchitectGovernanceEstimationHints({ assessment }: { assessment: ArchitectAssessment }) {
+export function ArchitectGovernanceEstimationHints({ assessment }: { assessment: ArchitectAssessment }) {
   const missing = assessment.governance.missingInformation;
   if (!missing.length) return null;
   return (
@@ -158,7 +160,7 @@ function ArchitectGovernanceEstimationHints({ assessment }: { assessment: Archit
   );
 }
 
-function DeliveryTeamPanel({
+export function DeliveryTeamPanel({
   assessment,
   overrides,
 }: {
