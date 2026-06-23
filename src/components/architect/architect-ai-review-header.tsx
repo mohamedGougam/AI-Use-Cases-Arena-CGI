@@ -12,6 +12,7 @@ export function ArchitectAiReviewHeader({
   error,
   missingApiKey,
   stale,
+  needsCitationRefresh = false,
   generatedAt,
   onRegenerate,
 }: {
@@ -20,6 +21,7 @@ export function ArchitectAiReviewHeader({
   error: string | null;
   missingApiKey: boolean;
   stale: boolean;
+  needsCitationRefresh?: boolean;
   generatedAt?: string;
   onRegenerate: () => void;
 }) {
@@ -39,6 +41,11 @@ export function ArchitectAiReviewHeader({
           {stale && (
             <Badge variant="outline" className="border-amber-500/40 text-amber-600">
               Content changed — regenerate
+            </Badge>
+          )}
+          {needsCitationRefresh && !loading && (
+            <Badge variant="outline" className="border-sky-500/40 text-sky-400">
+              Regenerate for source quotes in assessment details
             </Badge>
           )}
         </div>

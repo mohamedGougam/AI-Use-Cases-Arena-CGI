@@ -58,6 +58,9 @@ export function migrateLegacyQuestions(
   }));
 }
 
+/** Bump when assessment prompt/output rules change — invalidates cached assessments. */
+export const ASSESSMENT_PROMPT_VERSION = "v2-evidence-citations";
+
 export function workshopFingerprint(
   useCase: {
     title: string;
@@ -91,5 +94,5 @@ export function workshopFingerprint(
     .map((q) => `${q.id}:${q.answer ?? ""}`)
     .join("|");
 
-  return `${base}::${answers}`;
+  return `${ASSESSMENT_PROMPT_VERSION}|${base}::${answers}`;
 }

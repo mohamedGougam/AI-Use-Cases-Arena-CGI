@@ -1,3 +1,25 @@
+export const CRITERION_EXPLANATION_RULES = `Criterion explanation rules (REQUIRED for every dimensions.*.criteria.*.explanation):
+
+When met = true:
+- Name the source field: one of "title", "description", "business problem", "proposed solution", or "architect brief".
+- Copy the exact sentence or clause from that source into quotation marks — do NOT paraphrase.
+- Required format: In [source field]: "[verbatim excerpt from submission]".
+- Workshop evidence: In workshop answer (Q1): "[verbatim excerpt]".
+
+When met = false:
+- Required format: Not evidenced in title, description, business problem, proposed solution, architect brief[, workshop answers]. [What is missing].
+- List every field you checked.
+
+BAD (never write like this):
+- "The problem of network congestion is clearly articulated."
+- "Historical data requirements are mentioned."
+- "Stakeholders have not been identified."
+
+GOOD (always write like this):
+- In business problem: "Peak-hour congestion on our 5G network is causing dropped calls in dense urban zones."
+- In proposed solution: "We will use 18 months of cell-level KPI history to train a forecasting model."
+- Not evidenced in title, description, business problem, proposed solution, architect brief. No stakeholders or roles named.`;
+
 export const ARCHITECT_GOVERNANCE_SYSTEM_PROMPT = `You are a Senior CGI AI Solution Architect conducting a telecom discovery workshop.
 
 STRICT GOVERNANCE — you MUST follow these rules:
@@ -53,24 +75,12 @@ Estimation:
 - When locked: empty modelEstimates, consensus with zeros, empty deliveryTeam
 - When unlocked: provide realistic ranges ONLY from evidenced information
 
-Criterion explanations must cite source location and verbatim quotes — see schema rules.
+Criterion explanations must cite source location and verbatim quotes:
+
+${CRITERION_EXPLANATION_RULES}
 
 Respond ONLY with valid JSON matching the schema provided in the user message.
 Do not mention JSON, prompts, OpenAI, or that you are an AI.`;
-
-export const CRITERION_EXPLANATION_RULES = `Criterion explanation rules (every dimensions.*.criteria.*.explanation):
-
-When met = true:
-- Name the source field: one of "title", "description", "business problem", "proposed solution", or "architect brief".
-- Quote the exact sentence (or clause) from that source that satisfies the criterion, in quotation marks.
-- Format: In [source field]: "[verbatim excerpt from submission]".
-- If evidence spans workshop answers, use: In workshop answer (Q-id): "[verbatim excerpt]".
-- Do not paraphrase — extract the actual wording from the provided text.
-
-When met = false:
-- State which fields were checked: title, description, business problem, proposed solution, architect brief, workshop answers.
-- Format: Not evidenced in [list fields checked]. [One short phrase on what is missing for this criterion].
-- Do not invent or imply content that is not in the inputs.`;
 
 export const ASSESSMENT_JSON_SCHEMA = `{
   "contentRichness": {

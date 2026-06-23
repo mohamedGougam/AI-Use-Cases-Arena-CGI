@@ -26,6 +26,7 @@ import { useArchitectSync } from "@/components/architect/use-architect-sync";
 import { reassessAfterAnswer, useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { getDimensionMeta } from "@/lib/architect-field-meta";
+import { assessmentNeedsCitationRefresh } from "@/lib/criterion-evidence";
 import { migrateLegacyQuestions } from "@/lib/discovery-questions";
 
 export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
@@ -117,6 +118,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
     (email ? email.split("@")[0] : "CGI AI Architect");
 
   const workshopLoading = openAi.loading || reassessing;
+  const needsCitationRefresh = assessmentNeedsCitationRefresh(assessment.dimensions);
 
   return (
     <section className="space-y-4">
@@ -154,6 +156,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
             error={openAi.error}
             missingApiKey={openAi.missingApiKey}
             stale={openAi.stale}
+            needsCitationRefresh={needsCitationRefresh}
             generatedAt={openAi.generatedAt}
             onRegenerate={openAi.regenerate}
           />

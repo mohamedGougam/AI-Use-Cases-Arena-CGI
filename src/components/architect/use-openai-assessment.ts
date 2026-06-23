@@ -133,6 +133,7 @@ export function useOpenAiAssessment(
     setLoading(true);
     setError(null);
     setMissingApiKey(false);
+    fetchedRef.current = null;
     try {
       const res = await fetch("/api/architect/assess", {
         method: "POST",
