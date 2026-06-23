@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ArchitectAssessment } from "@/lib/architect-engine";
 import { workshopFingerprint, migrateLegacyQuestions } from "@/lib/discovery-questions";
+import { EMPTY_MASTER_DISCOVERY_CONTEXT } from "@/lib/master-discovery-context";
 import { mapAiToArchitectAssessment } from "@/lib/map-ai-assessment";
 import type { ArchitectAiAssessment, ArchitectDiscoveryQuestion, UseCase } from "@/types";
 
@@ -30,6 +31,8 @@ function fromCachedAssessment(
 
   return mapAiToArchitectAssessment(
     {
+      masterDiscoveryContext:
+        cached.masterDiscoveryContext ?? { ...EMPTY_MASTER_DISCOVERY_CONTEXT },
       dimensions: cached.dimensions as ArchitectAssessment["dimensions"],
       overallScore: cached.overallScore,
       discoveryQuestions,
@@ -97,11 +100,16 @@ export function useOpenAiAssessment(
       generatedAt: string;
       assessment: {
         contentRichness?: ArchitectAiAssessment["contentRichness"];
+        masterDiscoveryContext?: ArchitectAiAssessment["masterDiscoveryContext"];
       };
     }) => {
       const mapped = mapAiToArchitectAssessment(
         {
           ...data.assessment,
+          masterDiscoveryContext:
+            data.assessment.masterDiscoveryContext ??
+            data.architectAiAssessment.masterDiscoveryContext ??
+            EMPTY_MASTER_DISCOVERY_CONTEXT,
           discoveryQuestions: data.discoveryQuestions,
           architecture: {
             pattern: data.architectAiAssessment.pattern,

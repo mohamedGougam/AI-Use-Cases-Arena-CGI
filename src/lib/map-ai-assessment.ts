@@ -1,7 +1,8 @@
 import type { ArchitectAssessment } from "@/lib/architect-engine";
-import type { ParsedAiAssessment } from "@/lib/parse-ai-assessment";
-import type { ArchitectDiscoveryQuestion, UseCase } from "@/types";
 import { getWordCountStats } from "@/lib/architect-engine";
+import type { ParsedAiAssessment } from "@/lib/parse-ai-assessment";
+import { EMPTY_MASTER_DISCOVERY_CONTEXT } from "@/lib/master-discovery-context";
+import type { ArchitectDiscoveryQuestion, UseCase } from "@/types";
 
 export function mapAiToArchitectAssessment(
   parsed: ParsedAiAssessment,
@@ -11,6 +12,7 @@ export function mapAiToArchitectAssessment(
   const { estimation } = parsed;
 
   return {
+    masterDiscoveryContext: parsed.masterDiscoveryContext,
     dimensions: parsed.dimensions,
     overallScore: parsed.overallScore,
     architectQuestions: discoveryQuestions.map((q) => q.question),
@@ -32,6 +34,7 @@ export function mapAiToArchitectAssessment(
 
 export function emptyArchitectAssessment(useCase: UseCase): ArchitectAssessment {
   return {
+    masterDiscoveryContext: { ...EMPTY_MASTER_DISCOVERY_CONTEXT },
     dimensions: [],
     overallScore: 0,
     architectQuestions: [],

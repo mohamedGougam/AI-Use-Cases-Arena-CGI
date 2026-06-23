@@ -146,6 +146,8 @@ export interface ArchitectDiscoveryQuestion {
   status: ArchitectQuestionStatus;
 }
 
+import type { MasterDiscoveryContext } from "@/lib/master-discovery-context";
+
 export interface ArchitectGovernance {
   evidenceUsed: string[];
   missingInformation: string[];
@@ -171,11 +173,20 @@ export interface ArchitectAiEstimation {
 
 /** AI-generated readiness + architecture assessment cached per use case. */
 export interface ArchitectAiAssessment {
+  masterDiscoveryContext?: MasterDiscoveryContext;
   dimensions: {
     key: string;
     title: string;
     score: number;
-    criteria: { label: string; met: boolean; explanation?: string }[];
+    criteria: {
+      label: string;
+      met: boolean;
+      score?: number;
+      evidence?: string;
+      source?: string;
+      confidence?: number;
+      explanation?: string;
+    }[];
   }[];
   overallScore: number;
   /** @deprecated migrated to discoveryQuestions */

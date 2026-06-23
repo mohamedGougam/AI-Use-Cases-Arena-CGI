@@ -1,19 +1,18 @@
-import type { ReadinessDimension } from "@/lib/architect-engine";
+import type { ReadinessCriterion, ReadinessDimension } from "@/lib/architect-engine";
 
-/** True when explanation follows evidence-citation format from OpenAI prompts. */
-export function explanationHasCitation(explanation?: string): boolean {
-  if (!explanation?.trim()) return false;
-  return (
-    /^In (title|description|business problem|proposed solution|architect brief|workshop answer)/i.test(
-      explanation.trim()
-    ) || /^Not evidenced in/i.test(explanation.trim())
+/** True when criterion has structured evidence from master-context assessment. */
+export function criterionHasEvidence(criterion: ReadinessCriterion): boolean {
+  return Boolean(
+    criterion.evidence?.trim() ||
+      criterion.source?.trim() ||
+      (criterion.confidence != null && criterion.confidence > 0)
   );
 }
 
 export function assessmentNeedsCitationRefresh(dimensions: ReadinessDimension[]): boolean {
   const withExplanation = dimensions.flatMap((d) =>
-    d.criteria.filter((c) => c.explanation?.trim())
+    d.criteria.filter((c) => c.explanation?.trim() || c.met)
   );
   if (!withExplanation.length) return false;
-  return withExplanation.some((c) => !explanationHasCitation(c.explanation));
+  return withExplanation.some((c) => c.met && !criterionHasEvidence(c));
 }

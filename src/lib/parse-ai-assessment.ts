@@ -7,11 +7,14 @@ import type {
   TelecomImpactArea,
 } from "@/lib/architect-engine";
 import type { AiContentRichness } from "@/lib/content-richness";
-import { READINESS_DIMENSION_DEFS, scoreFromCriteria } from "@/lib/readiness-criteria";
+import { READINESS_DIMENSION_DEFS } from "@/lib/readiness-criteria";
 import { TELECOM_IMPACT_AREAS } from "@/lib/constants";
+import type { MasterDiscoveryContext } from "@/lib/master-discovery-context";
+import { parseMasterDiscoveryContext } from "@/lib/master-discovery-context";
 import type { ArchitectDiscoveryQuestion } from "@/types";
 
 export interface ParsedAiAssessment {
+  masterDiscoveryContext: MasterDiscoveryContext;
   dimensions: ReadinessDimension[];
   overallScore: number;
   discoveryQuestions: ArchitectDiscoveryQuestion[];
@@ -62,14 +65,47 @@ function parseArchitecture(
   return { pattern, rationale, confidence, technologies };
 }
 
-function parseCriterionEntry(value: unknown): { met: boolean; explanation?: string } | null {
-  if (typeof value === "boolean") return { met: value };
+function parseCriterionEntry(value: unknown, label: string): ReadinessCriterion | null {
+  if (typeof value === "boolean") {
+    return { label, met: value };
+  }
   if (!value || typeof value !== "object") return null;
   const o = value as Record<string, unknown>;
-  if (typeof o.met !== "boolean") return null;
-  const explanation =
+
+  const statusStr = typeof o.status === "string" ? o.status.toLowerCase() : "";
+  const met =
+    typeof o.met === "boolean"
+      ? o.met
+      : statusStr === "met" || statusStr === "yes" || statusStr === "identified";
+
+  const evidence =
+    typeof o.evidence === "string" ? o.evidence.trim().slice(0, 320) : undefined;
+  const source = typeof o.source === "string" ? o.source.trim().slice(0, 120) : undefined;
+  const confidence =
+    typeof o.confidence === "number"
+      ? Math.min(100, Math.max(0, Math.round(o.confidence)))
+      : undefined;
+  const score =
+    typeof o.score === "number"
+      ? Math.min(100, Math.max(0, Math.round(o.score)))
+      : confidence;
+
+  let explanation =
     typeof o.explanation === "string" ? o.explanation.trim().slice(0, 420) : undefined;
-  return { met: o.met, explanation: explanation || undefined };
+
+  if (!explanation && evidence && source) {
+    explanation = `Evidence: "${evidence}" — Source: ${source}`;
+  }
+
+  return {
+    label,
+    met,
+    score,
+    evidence: evidence || undefined,
+    source: source || undefined,
+    confidence: confidence ?? score,
+    explanation: explanation || undefined,
+  };
 }
 
 function parseCriteria(dimensionKey: string, rawCriteria: unknown): ReadinessCriterion[] | null {
@@ -81,16 +117,21 @@ function parseCriteria(dimensionKey: string, rawCriteria: unknown): ReadinessCri
   const criteria: ReadinessCriterion[] = [];
 
   for (const c of def.criteria) {
-    const parsed = parseCriterionEntry(map[c.id]);
+    const parsed = parseCriterionEntry(map[c.id], c.label);
     if (!parsed) return null;
-    criteria.push({
-      label: c.label,
-      met: parsed.met,
-      explanation: parsed.explanation,
-    });
+    criteria.push(parsed);
   }
 
   return criteria;
+}
+
+function dimensionScoreFromCriteria(criteria: ReadinessCriterion[]): number {
+  if (!criteria.length) return 0;
+  const total = criteria.reduce((sum, c) => {
+    if (typeof c.score === "number") return sum + c.score;
+    return sum + (c.met ? 100 : 0);
+  }, 0);
+  return Math.round(total / criteria.length);
 }
 
 function parseDimensions(raw: unknown): ReadinessDimension[] | null {
@@ -103,11 +144,10 @@ function parseDimensions(raw: unknown): ReadinessDimension[] | null {
     if (!entry || typeof entry !== "object") return null;
     const criteria = parseCriteria(def.key, (entry as Record<string, unknown>).criteria);
     if (!criteria) return null;
-    const met = criteria.filter((c) => c.met).length;
     dimensions.push({
       key: def.key,
       title: def.title,
-      score: scoreFromCriteria(met, criteria.length),
+      score: dimensionScoreFromCriteria(criteria),
       criteria,
     });
   }
@@ -280,6 +320,7 @@ function parseEstimation(raw: unknown, unlocked: boolean): ArchitectEstimationOu
 export function parseAiAssessmentResponse(content: string): ParsedAiAssessment | null {
   try {
     const raw = JSON.parse(content) as Record<string, unknown>;
+    const masterDiscoveryContext = parseMasterDiscoveryContext(raw.masterDiscoveryContext);
     const dimensions = parseDimensions(raw.dimensions);
     const discoveryQuestions =
       parseDiscoveryQuestions(raw.discoveryQuestions) ??
@@ -314,6 +355,7 @@ export function parseAiAssessmentResponse(content: string): ParsedAiAssessment |
     );
 
     return {
+      masterDiscoveryContext,
       dimensions,
       overallScore,
       discoveryQuestions,

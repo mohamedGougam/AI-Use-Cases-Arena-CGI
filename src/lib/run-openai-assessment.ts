@@ -3,7 +3,7 @@ import { buildAssessmentInputPayload } from "@/lib/architect-assessment-payload"
 import {
   ARCHITECT_GOVERNANCE_SYSTEM_PROMPT,
   ASSESSMENT_JSON_SCHEMA,
-  CRITERION_EXPLANATION_RULES,
+  MASTER_CONTEXT_SCORING_RULES,
 } from "@/lib/architect-governance-prompt";
 import { mergeDiscoveryQuestions } from "@/lib/discovery-questions";
 import { parseAiAssessmentResponse } from "@/lib/parse-ai-assessment";
@@ -53,7 +53,7 @@ Generate follow-up discovery questions based on answers already captured.
 JSON schema:
 ${ASSESSMENT_JSON_SCHEMA}
 
-${CRITERION_EXPLANATION_RULES}
+${MASTER_CONTEXT_SCORING_RULES}
 
 Allowed telecom domains: ${payload.telecomDomains.join(", ")}
 
@@ -71,7 +71,7 @@ Generate discovery questions for the workshop. Do not invent missing facts.
 JSON schema:
 ${ASSESSMENT_JSON_SCHEMA}
 
-${CRITERION_EXPLANATION_RULES}
+${MASTER_CONTEXT_SCORING_RULES}
 
 Allowed telecom domains: ${payload.telecomDomains.join(", ")}
 
@@ -81,7 +81,7 @@ ${JSON.stringify(payload, null, 2)}`;
   const completion = await client.chat.completions.create({
     model,
     temperature: 0.3,
-    max_tokens: 4500,
+    max_tokens: 5000,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: ARCHITECT_GOVERNANCE_SYSTEM_PROMPT },
@@ -115,6 +115,7 @@ export function toArchitectAiAssessment(
 ) {
   const { assessment, discoveryQuestions, model, generatedAt } = result;
   return {
+    masterDiscoveryContext: assessment.masterDiscoveryContext,
     dimensions: assessment.dimensions,
     overallScore: assessment.overallScore,
     discoveryQuestions,

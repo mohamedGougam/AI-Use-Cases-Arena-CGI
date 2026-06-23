@@ -9,6 +9,10 @@ import { countWords } from "@/lib/document-analysis";
 export interface ReadinessCriterion {
   label: string;
   met: boolean;
+  score?: number;
+  evidence?: string;
+  source?: string;
+  confidence?: number;
   explanation?: string;
 }
 
@@ -132,7 +136,12 @@ export interface ArchitectDiscoveryQuestionItem {
   status: "missing" | "answered" | "used";
 }
 
+import type { MasterDiscoveryContext } from "@/lib/master-discovery-context";
+import { EMPTY_MASTER_DISCOVERY_CONTEXT } from "@/lib/master-discovery-context";
+
 export interface ArchitectAssessment {
+
+  masterDiscoveryContext: MasterDiscoveryContext;
 
   dimensions: ReadinessDimension[];
 
@@ -1034,6 +1043,8 @@ export function analyzeUseCase(uc: UseCase): ArchitectAssessment {
   };
 
   return {
+
+    masterDiscoveryContext: { ...EMPTY_MASTER_DISCOVERY_CONTEXT },
 
     dimensions,
 

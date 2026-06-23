@@ -48,6 +48,13 @@ export function applyArchitectOverrides(
       ...c,
       met: bool(`dimension.${dim.key}.criteria.${i}`, c.met),
       label: str(`dimension.${dim.key}.criteria.${i}.label`, c.label),
+      score: num(`dimension.${dim.key}.criteria.${i}.score`, c.score ?? (c.met ? 100 : 0)),
+      evidence: str(`dimension.${dim.key}.criteria.${i}.evidence`, c.evidence ?? "") || undefined,
+      source: str(`dimension.${dim.key}.criteria.${i}.source`, c.source ?? "") || undefined,
+      confidence: num(
+        `dimension.${dim.key}.criteria.${i}.confidence`,
+        c.confidence ?? c.score ?? (c.met ? 100 : 0)
+      ),
       explanation: str(
         `dimension.${dim.key}.criteria.${i}.explanation`,
         c.explanation ?? ""

@@ -21,6 +21,7 @@ import { ArenaDatabaseStatus } from "@/components/architect/arena-database-statu
 import { ArchitectAiReviewHeader } from "@/components/architect/architect-ai-review-header";
 import { ArchitectDiscoveryWorkshop } from "@/components/architect/architect-discovery-workshop";
 import { ArchitectGovernancePanel } from "@/components/architect/architect-governance-panel";
+import { MasterDiscoveryContextPanel } from "@/components/architect/master-discovery-context-panel";
 import { useArchitectOverrideHandlers } from "@/components/architect/use-architect-overrides";
 import { useArchitectSync } from "@/components/architect/use-architect-sync";
 import { reassessAfterAnswer, useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
@@ -174,6 +175,8 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
             governance={assessment.governance}
             confidence={assessment.architecture.confidence}
           />
+
+          <MasterDiscoveryContextPanel context={assessment.masterDiscoveryContext} />
 
           <OverallReadinessBanner
             score={assessment.overallScore}

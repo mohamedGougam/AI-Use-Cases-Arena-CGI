@@ -59,7 +59,7 @@ export function migrateLegacyQuestions(
 }
 
 /** Bump when assessment prompt/output rules change — invalidates cached assessments. */
-export const ASSESSMENT_PROMPT_VERSION = "v2-evidence-citations";
+export const ASSESSMENT_PROMPT_VERSION = "v3-master-discovery-context";
 
 export function workshopFingerprint(
   useCase: {

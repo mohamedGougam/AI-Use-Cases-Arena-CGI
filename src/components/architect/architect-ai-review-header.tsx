@@ -45,7 +45,7 @@ export function ArchitectAiReviewHeader({
           )}
           {needsCitationRefresh && !loading && (
             <Badge variant="outline" className="border-sky-500/40 text-sky-400">
-              Regenerate for source quotes in assessment details
+              Regenerate for holistic evidence-based scoring
             </Badge>
           )}
         </div>

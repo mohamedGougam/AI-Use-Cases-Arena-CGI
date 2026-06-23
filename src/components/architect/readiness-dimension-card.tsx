@@ -1,14 +1,46 @@
 "use client";
 
-import { CheckCircle2, Circle, HelpCircle } from "lucide-react";
-import type { ReadinessDimension } from "@/lib/architect-engine";
-import { getCriterionMeta, getDimensionMeta, getQuestionMeta } from "@/lib/architect-field-meta";
+import { CheckCircle2, Circle } from "lucide-react";
+import type { ReadinessCriterion, ReadinessDimension } from "@/lib/architect-engine";
+import { getCriterionMeta, getDimensionMeta } from "@/lib/architect-field-meta";
 import { EditableArchitectField } from "@/components/architect/editable-architect-field";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-
 import type { AiAssessmentSource } from "@/components/architect/use-openai-assessment";
+
+function CriterionEvidenceBlock({ criterion }: { criterion: ReadinessCriterion }) {
+  if (!criterion.evidence && !criterion.source && criterion.confidence == null) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-md border border-border/10 bg-background/30 p-3 text-xs space-y-2">
+      {criterion.evidence && (
+        <div>
+          <p className="font-medium text-foreground/80">Evidence</p>
+          <p className="mt-0.5 text-muted whitespace-pre-wrap leading-relaxed">
+            &ldquo;{criterion.evidence}&rdquo;
+          </p>
+        </div>
+      )}
+      <div className="flex flex-wrap gap-4">
+        {criterion.source && (
+          <div>
+            <p className="font-medium text-foreground/80">Source</p>
+            <p className="mt-0.5 text-muted">{criterion.source}</p>
+          </div>
+        )}
+        {criterion.confidence != null && (
+          <div>
+            <p className="font-medium text-foreground/80">Confidence</p>
+            <p className="mt-0.5 tabular-nums text-primary">{criterion.confidence}%</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function ReadinessDimensionCard({
   dimension,
@@ -66,15 +98,16 @@ export function ReadinessDimensionCard({
                 onReset={() => overrides.onReset(criterionKey)}
                 className="!p-2"
               />
+              <CriterionEvidenceBlock criterion={c} />
               <EditableArchitectField
                 fieldKey={explanationKey}
-                label="Assessment detail"
+                label="Assessment"
                 value={c.explanation ?? ""}
-                displayValue={c.explanation || "No detail yet — click edit to add."}
+                displayValue={c.explanation || "No assessment yet — regenerate review."}
                 meta={{
-                  meaning: "Evidence for this criterion — where it was found and the exact wording.",
+                  meaning: "Consultant summary of how this criterion was judged.",
                   calculation:
-                    "Met: In [source field]: \"quoted sentence\". Not met: lists fields checked and what is missing.",
+                    "Derived from master discovery context across all sources — not a single form field.",
                 }}
                 type="textarea"
                 multiline
@@ -99,53 +132,6 @@ export function ReadinessDimensionCard({
           );
         })}
       </ul>
-    </div>
-  );
-}
-
-export function ArchitectQuestions({
-  questions,
-  overrides,
-  source = "rules",
-}: {
-  questions: string[];
-  overrides: ArchitectOverrideContext;
-  source?: AiAssessmentSource;
-}) {
-  return (
-    <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <HelpCircle className="h-5 w-5 text-amber-500" />
-        <h3 className="font-semibold">Architect Questions</h3>
-      </div>
-      <p className="mb-4 text-sm text-muted">
-        Follow-up questions until sufficient information exists for estimation. Edit to reflect your workshop discussion.
-      </p>
-      <ol className="space-y-3">
-        {questions.map((q, i) => {
-          const key = `question.${i}`;
-          return (
-            <li key={key} className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary mt-2">
-                {i + 1}
-              </span>
-              <div className="flex-1">
-                <EditableArchitectField
-                  fieldKey={key}
-                  label={`Question ${i + 1}`}
-                  value={q}
-                  meta={getQuestionMeta(i, source === "openai" ? "openai" : "rules")}
-                  type="textarea"
-                  isOverridden={overrides.isOverridden(key)}
-                  overrideNote={overrides.getNote(key)}
-                  onSave={(v, note) => overrides.onSave(key, v, note)}
-                  onReset={() => overrides.onReset(key)}
-                />
-              </div>
-            </li>
-          );
-        })}
-      </ol>
     </div>
   );
 }
