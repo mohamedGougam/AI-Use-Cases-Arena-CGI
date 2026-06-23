@@ -56,7 +56,7 @@ export function TelecomImpactAnalysis({
                 label={`${area.area} relevance`}
                 value={area.relevance}
                 displayValue={`${area.relevance}%`}
-                meta={getTelecomAreaMeta(area.area, source)}
+                meta={getTelecomAreaMeta(area.area, source === "openai" ? "openai" : "rules")}
                 type="number"
                 isOverridden={overrides.isOverridden(fieldKey)}
                 overrideNote={overrides.getNote(fieldKey)}

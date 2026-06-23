@@ -1,19 +1,16 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { HardHat } from "lucide-react";
 import type { UseCase } from "@/types";
-import { analyzeUseCase } from "@/lib/architect-engine";
 import { applyArchitectOverrides } from "@/lib/apply-architect-overrides";
+import { emptyArchitectAssessment } from "@/lib/map-ai-assessment";
 import { useApp } from "@/context/app-context";
 import { useAuth } from "@/context/auth-context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { OverallReadinessBanner, ReadinessGauge } from "@/components/architect/readiness-gauge";
-import {
-  ArchitectQuestions,
-  ReadinessDimensionCard,
-} from "@/components/architect/readiness-dimension-card";
+import { ReadinessDimensionCard } from "@/components/architect/readiness-dimension-card";
 import { TelecomImpactAnalysis } from "@/components/architect/telecom-impact-analysis";
 import { ArchitectureCard } from "@/components/architect/architecture-card";
 import { ArchitectDocumentUpload } from "@/components/architect/architect-document-upload";
@@ -22,43 +19,54 @@ import { ArchitectExportPanel } from "@/components/architect/architect-export-pa
 import { EvaluationHistoryPanel } from "@/components/architect/evaluation-history-panel";
 import { ArenaDatabaseStatus } from "@/components/architect/arena-database-status";
 import { ArchitectAiReviewHeader } from "@/components/architect/architect-ai-review-header";
+import { ArchitectDiscoveryWorkshop } from "@/components/architect/architect-discovery-workshop";
+import { ArchitectGovernancePanel } from "@/components/architect/architect-governance-panel";
 import { useArchitectOverrideHandlers } from "@/components/architect/use-architect-overrides";
 import { useArchitectSync } from "@/components/architect/use-architect-sync";
-import { useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
+import { reassessAfterAnswer, useOpenAiAssessment } from "@/components/architect/use-openai-assessment";
 import type { ArchitectOverrideContext } from "@/components/architect/use-architect-overrides";
 import { getDimensionMeta } from "@/lib/architect-field-meta";
+import { migrateLegacyQuestions } from "@/lib/discovery-questions";
 
 export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
-  const { setArchitectFieldOverride, setArchitectFieldOverrides, setArchitectAiAssessment } = useApp();
+  const {
+    setArchitectFieldOverride,
+    setArchitectFieldOverrides,
+    applyWorkshopReassessment,
+  } = useApp();
   const { email } = useAuth();
-
-  const ruleAssessment = useMemo(() => analyzeUseCase(useCase), [useCase]);
+  const [reassessing, setReassessing] = useState(false);
 
   const onAiAssessment = useCallback(
-    (assessment: Parameters<typeof setArchitectAiAssessment>[1]) => {
-      setArchitectAiAssessment(useCase.id, assessment);
+    (
+      assessment: Parameters<typeof applyWorkshopReassessment>[1],
+      discoveryQuestions: Parameters<typeof applyWorkshopReassessment>[2]
+    ) => {
+      applyWorkshopReassessment(useCase.id, assessment, discoveryQuestions);
     },
-    [setArchitectAiAssessment, useCase.id]
+    [applyWorkshopReassessment, useCase.id]
   );
 
-  const openAi = useOpenAiAssessment(useCase, ruleAssessment, onAiAssessment);
+  const openAi = useOpenAiAssessment(useCase, onAiAssessment);
 
-  const baseAssessment = useMemo(
-    () => ({
-      ...ruleAssessment,
-      dimensions: openAi.dimensions ?? ruleAssessment.dimensions,
-      overallScore: openAi.overallScore ?? ruleAssessment.overallScore,
-      architectQuestions: openAi.architectQuestions ?? ruleAssessment.architectQuestions,
-      telecomImpactAreas: openAi.telecomImpactAreas ?? ruleAssessment.telecomImpactAreas,
-      architecture: openAi.architecture,
-    }),
-    [ruleAssessment, openAi]
-  );
+  const baseAssessment = useMemo(() => {
+    if (openAi.assessment) return openAi.assessment;
+    return emptyArchitectAssessment(useCase);
+  }, [openAi.assessment, useCase]);
 
   const assessment = useMemo(
     () => applyArchitectOverrides(baseAssessment, useCase.architectOverrides),
     [baseAssessment, useCase.architectOverrides]
   );
+
+  const discoveryQuestions = useMemo(() => {
+    if (useCase.architectDiscoveryQuestions?.length) {
+      return useCase.architectDiscoveryQuestions;
+    }
+    return assessment.discoveryQuestions.length
+      ? assessment.discoveryQuestions
+      : migrateLegacyQuestions(assessment.architectQuestions);
+  }, [useCase.architectDiscoveryQuestions, assessment.discoveryQuestions, assessment.architectQuestions]);
 
   const setFieldOverrides = useCallback(
     (updates: Parameters<typeof setArchitectFieldOverrides>[1]) => {
@@ -78,9 +86,37 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
 
   const overrides = useArchitectOverrideHandlers(useCase.architectOverrides, setField);
 
+  const handleReassess = useCallback(
+    async (questionId: string, answer: string) => {
+      const architectName =
+        useCase.architectOverrides?.updatedByName ||
+        (email ? email.split("@")[0] : "CGI AI Architect");
+
+      setReassessing(true);
+      try {
+        const result = await reassessAfterAnswer(useCase, questionId, answer, architectName);
+        if (!result.ok) return result;
+
+        const { architectAiAssessment, discoveryQuestions: updatedQuestions } = result.data;
+        applyWorkshopReassessment(useCase.id, architectAiAssessment, updatedQuestions);
+        return { ok: true as const };
+      } catch (err) {
+        return {
+          ok: false as const,
+          error: err instanceof Error ? err.message : "Reassessment failed",
+        };
+      } finally {
+        setReassessing(false);
+      }
+    },
+    [applyWorkshopReassessment, email, useCase]
+  );
+
   const exportedByName =
     useCase.architectOverrides?.updatedByName ||
     (email ? email.split("@")[0] : "CGI AI Architect");
+
+  const workshopLoading = openAi.loading || reassessing;
 
   return (
     <section className="space-y-4">
@@ -121,7 +157,26 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
             generatedAt={openAi.generatedAt}
             onRegenerate={openAi.regenerate}
           />
-          <OverallReadinessBanner score={assessment.overallScore} overrides={overrides} source={openAi.source} />
+
+          <ArchitectDiscoveryWorkshop
+            useCaseId={useCase.id}
+            questions={discoveryQuestions}
+            assessment={assessment}
+            architectName={exportedByName}
+            loading={workshopLoading}
+            onReassess={handleReassess}
+          />
+
+          <ArchitectGovernancePanel
+            governance={assessment.governance}
+            confidence={assessment.architecture.confidence}
+          />
+
+          <OverallReadinessBanner
+            score={assessment.overallScore}
+            overrides={overrides}
+            source={openAi.source === "openai" ? "openai" : "rules"}
+          />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {assessment.dimensions.map((d) => (
@@ -130,7 +185,7 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
                 label={d.title.replace(" Readiness", "").replace(" Understanding", "")}
                 score={d.score}
                 fieldKey={`dimension.${d.key}.score`}
-                meta={getDimensionMeta(d.key, openAi.source)}
+                meta={getDimensionMeta(d.key, openAi.source === "openai" ? "openai" : "rules")}
                 overrides={overrides}
               />
             ))}
@@ -142,19 +197,19 @@ export function ArchitectWorkspace({ useCase }: { useCase: UseCase }) {
                 key={d.key}
                 dimension={d}
                 overrides={overrides}
-                source={openAi.source}
+                source={openAi.source === "openai" ? "openai" : "rules"}
                 onSyncSave={syncField}
               />
             ))}
           </div>
 
-          <ArchitectQuestions questions={assessment.architectQuestions} overrides={overrides} source={openAi.source} />
-          <TelecomImpactAnalysis areas={assessment.telecomImpactAreas} overrides={overrides} source={openAi.source} />
+          <TelecomImpactAnalysis areas={assessment.telecomImpactAreas} overrides={overrides} source={openAi.source === "openai" ? "openai" : "rules"} />
           <ArchitectureCard
             architecture={assessment.architecture}
             overrides={overrides}
             syncing={syncing}
             onSyncSave={syncField}
+            locked={!assessment.architectureUnlocked}
           />
         </TabsContent>
 

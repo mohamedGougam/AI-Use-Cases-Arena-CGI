@@ -28,8 +28,13 @@ export function ArchitectAiReviewHeader({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium">AI Architect Review</span>
-          {source === "rules" && !loading && (
-            <Badge variant="outline">Rule-based fallback</Badge>
+          {source === "openai" && !loading && (
+            <Badge variant="outline" className="border-primary/40">
+              OpenAI governance mode
+            </Badge>
+          )}
+          {source === "none" && !loading && !missingApiKey && (
+            <Badge variant="outline">Awaiting assessment</Badge>
           )}
           {stale && (
             <Badge variant="outline" className="border-amber-500/40 text-amber-600">
@@ -47,27 +52,27 @@ export function ArchitectAiReviewHeader({
         </Button>
       </div>
 
-      {source !== "rules" && generatedAt && !loading && (
+      {source === "openai" && generatedAt && !loading && (
         <p className="text-xs text-muted">Generated {formatDate(generatedAt)}</p>
       )}
 
       {loading && (
         <p className="flex items-center gap-2 text-sm text-muted">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Analyzing business submission and readiness…
+          Running OpenAI discovery assessment…
         </p>
       )}
 
       {missingApiKey && !loading && (
         <p className="text-xs text-amber-600 dark:text-amber-400">
-          AI assessment is not configured on this server. Add OPENAI_API_KEY to .env.local (local) or
-          Vercel Environment Variables (production), then restart or redeploy and regenerate.
+          OpenAI is required for architect governance. Add OPENAI_API_KEY to .env.local (local) or Vercel
+          Environment Variables (production), then restart or redeploy.
         </p>
       )}
 
       {error && (
         <p className="text-sm text-destructive">
-          {error}. Showing rule-based assessment.
+          {error}. No fallback assessment is shown — fix the OpenAI configuration and regenerate.
         </p>
       )}
     </div>

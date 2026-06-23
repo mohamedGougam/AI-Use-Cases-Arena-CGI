@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Users } from "lucide-react";
+import { Calculator, Lock, Users } from "lucide-react";
 import type { ArchitectAssessment } from "@/lib/architect-engine";
 import { ARCHITECT_FIELD_META, getDeliveryRoleMeta, getModelEstimateMeta } from "@/lib/architect-field-meta";
 import { EditableArchitectField } from "@/components/architect/editable-architect-field";
@@ -15,6 +15,27 @@ export function EffortEstimationPanel({
   assessment: ArchitectAssessment;
   overrides: ArchitectOverrideContext;
 }) {
+  const locked = assessment.estimation.locked || !assessment.estimationUnlocked;
+
+  if (locked) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-8 text-center space-y-3">
+          <Lock className="mx-auto h-10 w-10 text-amber-500" />
+          <h3 className="text-lg font-bold tracking-wide">ESTIMATION LOCKED</h3>
+          <p className="text-sm text-muted max-w-lg mx-auto">
+            {assessment.estimation.lockReason ?? "Insufficient information available."}
+          </p>
+          <p className="text-xs text-muted">
+            Continue the discovery workshop until business objective, stakeholders, success criteria, data
+            source, data owner, expected users, and integration landscape are evidenced.
+          </p>
+        </div>
+        <ArchitectGovernanceEstimationHints assessment={assessment} />
+      </div>
+    );
+  }
+
   const { modelEstimates, consensus } = assessment;
 
   return (
@@ -23,9 +44,12 @@ export function EffortEstimationPanel({
         <div className="mb-4 flex items-center gap-2">
           <Calculator className="h-5 w-5 text-primary" />
           <h3 className="font-semibold">Multi-Model Estimation Engine</h3>
+          <Badge variant="outline" className="border-emerald-500/40 text-emerald-500">
+            Unlocked
+          </Badge>
         </div>
         <p className="mb-4 text-sm text-muted">
-          Consensus timeline estimates from GPT, Claude, Gemini, and DeepSeek for workshop planning.
+          OpenAI-generated consensus timeline from evidenced workshop information.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {modelEstimates.map((est) => {
@@ -115,6 +139,21 @@ export function EffortEstimationPanel({
       </div>
 
       <DeliveryTeamPanel assessment={assessment} overrides={overrides} />
+    </div>
+  );
+}
+
+function ArchitectGovernanceEstimationHints({ assessment }: { assessment: ArchitectAssessment }) {
+  const missing = assessment.governance.missingInformation;
+  if (!missing.length) return null;
+  return (
+    <div className="rounded-xl border border-border/20 bg-card/60 p-5">
+      <h4 className="text-sm font-semibold mb-2">Information still required</h4>
+      <ul className="space-y-1 text-sm text-muted">
+        {missing.map((item) => (
+          <li key={item}>• {item}</li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -1,16 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  ArchitectAssessment,
-  ArchitectureRecommendation,
-  ReadinessDimension,
-  TelecomImpactArea,
-} from "@/lib/architect-engine";
-import { assessmentInputFingerprint } from "@/lib/architect-assessment-payload";
-import type { ArchitectAiAssessment, UseCase } from "@/types";
+import type { ArchitectAssessment } from "@/lib/architect-engine";
+import { workshopFingerprint, migrateLegacyQuestions } from "@/lib/discovery-questions";
+import { mapAiToArchitectAssessment } from "@/lib/map-ai-assessment";
+import type { ArchitectAiAssessment, ArchitectDiscoveryQuestion, UseCase } from "@/types";
 
-export type AiAssessmentSource = "openai" | "rules";
+export type AiAssessmentSource = "openai" | "rules" | "none";
 
 interface OpenAiAssessmentState {
   source: AiAssessmentSource;
@@ -20,91 +16,117 @@ interface OpenAiAssessmentState {
   model?: string;
   generatedAt?: string;
   stale: boolean;
-  dimensions: ReadinessDimension[] | null;
-  overallScore: number | null;
-  architectQuestions: string[] | null;
-  telecomImpactAreas: TelecomImpactArea[] | null;
-  contentRichness: ArchitectAiAssessment["contentRichness"] | null;
-  architecture: ArchitectureRecommendation;
+  assessment: ArchitectAssessment | null;
 }
 
-function fromCache(cached: ArchitectAiAssessment) {
-  return {
-    dimensions: cached.dimensions as ReadinessDimension[],
-    overallScore: cached.overallScore,
-    architectQuestions: cached.architectQuestions,
-    telecomImpactAreas: cached.telecomImpactAreas as TelecomImpactArea[],
-    contentRichness: cached.contentRichness ?? null,
-    architecture: {
-      pattern: cached.pattern,
-      technologies: cached.technologies,
-      confidence: cached.confidence,
-      rationale: cached.rationale,
+function fromCachedAssessment(
+  cached: ArchitectAiAssessment,
+  useCase: UseCase
+): ArchitectAssessment {
+  const discoveryQuestions =
+    cached.discoveryQuestions?.length
+      ? cached.discoveryQuestions
+      : migrateLegacyQuestions(cached.architectQuestions ?? [], useCase.architectDiscoveryQuestions);
+
+  return mapAiToArchitectAssessment(
+    {
+      dimensions: cached.dimensions as ArchitectAssessment["dimensions"],
+      overallScore: cached.overallScore,
+      discoveryQuestions,
+      telecomImpactAreas: cached.telecomImpactAreas as ArchitectAssessment["telecomImpactAreas"],
+      architecture: {
+        pattern: cached.pattern,
+        technologies: cached.technologies,
+        confidence: cached.confidence,
+        rationale: cached.rationale,
+      },
+      architectureUnlocked: cached.architectureUnlocked ?? false,
+      estimationUnlocked: cached.estimationUnlocked ?? false,
+      governance: cached.governance ?? {
+        evidenceUsed: [],
+        missingInformation: [],
+        assumptions: [],
+        risks: [],
+        executiveSummary: "",
+      },
+      estimation: cached.estimation ?? {
+        locked: true,
+        lockReason: "Insufficient information available.",
+        modelEstimates: [],
+        consensus: { timelineMin: 0, timelineMax: 0, confidence: 0 },
+        deliveryTeam: [],
+        requiredSkills: [],
+        totalTeamDays: 0,
+      },
+      contentRichness: cached.contentRichness,
     },
-  };
-}
-
-function legacyCache(useCase: UseCase): ArchitectAiAssessment | null {
-  if (useCase.architectAiAssessment) return useCase.architectAiAssessment;
-  const legacy = useCase.architectAiRecommendation;
-  if (!legacy) return null;
-  return {
-    dimensions: [],
-    overallScore: 0,
-    architectQuestions: [],
-    telecomImpactAreas: [],
-    pattern: legacy.pattern,
-    technologies: legacy.technologies,
-    confidence: legacy.confidence,
-    rationale: legacy.rationale,
-    model: legacy.model,
-    generatedAt: legacy.generatedAt,
-    inputFingerprint: legacy.inputFingerprint,
-  };
+    discoveryQuestions,
+    useCase
+  );
 }
 
 export function useOpenAiAssessment(
   useCase: UseCase,
-  ruleAssessment: ArchitectAssessment,
-  onAiAssessment: (assessment: ArchitectAiAssessment) => void
-): OpenAiAssessmentState & { regenerate: () => void } {
-  const fingerprint = assessmentInputFingerprint(useCase);
-  const cached = legacyCache(useCase);
-  const cacheValid = Boolean(cached?.inputFingerprint === fingerprint && cached.dimensions.length > 0);
+  onAssessment: (assessment: ArchitectAiAssessment, discoveryQuestions: ArchitectDiscoveryQuestion[]) => void
+): OpenAiAssessmentState & {
+  regenerate: () => void;
+  contentRichness: ArchitectAiAssessment["contentRichness"] | null;
+} {
+  const fingerprint = workshopFingerprint(useCase);
+  const cached = useCase.architectAiAssessment;
+  const cacheValid = Boolean(
+    cached?.inputFingerprint === fingerprint &&
+      (cached.discoveryQuestions?.length || cached.dimensions?.length)
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [missingApiKey, setMissingApiKey] = useState(false);
-  const [aiData, setAiData] = useState<ReturnType<typeof fromCache> | null>(
-    cacheValid && cached ? fromCache(cached) : null
+  const [assessment, setAssessment] = useState<ArchitectAssessment | null>(
+    cacheValid && cached ? fromCachedAssessment(cached, useCase) : null
   );
   const [meta, setMeta] = useState({ model: cached?.model, generatedAt: cached?.generatedAt });
+  const [contentRichness, setContentRichness] = useState(cached?.contentRichness ?? null);
   const fetchedRef = useRef<string | null>(cacheValid ? fingerprint : null);
 
-  const applyAssessment = useCallback(
-    (
-      assessment: ReturnType<typeof fromCache>,
-      model: string,
-      generatedAt: string
-    ) => {
-      setAiData(assessment);
-      setMeta({ model, generatedAt });
-      onAiAssessment({
-        dimensions: assessment.dimensions,
-        overallScore: assessment.overallScore,
-        architectQuestions: assessment.architectQuestions,
-        telecomImpactAreas: assessment.telecomImpactAreas,
-        contentRichness: assessment.contentRichness ?? undefined,
-        pattern: assessment.architecture.pattern,
-        technologies: assessment.architecture.technologies,
-        confidence: assessment.architecture.confidence,
-        rationale: assessment.architecture.rationale,
-        model,
-        generatedAt,
-        inputFingerprint: fingerprint,
-      });
+  const applyResponse = useCallback(
+    (data: {
+      architectAiAssessment: ArchitectAiAssessment;
+      discoveryQuestions: ArchitectDiscoveryQuestion[];
+      model: string;
+      generatedAt: string;
+      assessment: {
+        contentRichness?: ArchitectAiAssessment["contentRichness"];
+      };
+    }) => {
+      const mapped = mapAiToArchitectAssessment(
+        {
+          ...data.assessment,
+          discoveryQuestions: data.discoveryQuestions,
+          architecture: {
+            pattern: data.architectAiAssessment.pattern,
+            technologies: data.architectAiAssessment.technologies,
+            confidence: data.architectAiAssessment.confidence,
+            rationale: data.architectAiAssessment.rationale,
+          },
+          architectureUnlocked: data.architectAiAssessment.architectureUnlocked,
+          estimationUnlocked: data.architectAiAssessment.estimationUnlocked,
+          governance: data.architectAiAssessment.governance,
+          estimation: data.architectAiAssessment.estimation,
+          dimensions: data.architectAiAssessment.dimensions as ArchitectAssessment["dimensions"],
+          overallScore: data.architectAiAssessment.overallScore,
+          telecomImpactAreas:
+            data.architectAiAssessment.telecomImpactAreas as ArchitectAssessment["telecomImpactAreas"],
+        },
+        data.discoveryQuestions,
+        useCase
+      );
+      setAssessment(mapped);
+      setContentRichness(data.assessment.contentRichness ?? null);
+      setMeta({ model: data.model, generatedAt: data.generatedAt });
+      onAssessment(data.architectAiAssessment, data.discoveryQuestions);
     },
-    [fingerprint, onAiAssessment]
+    [onAssessment, useCase]
   );
 
   const fetchAssessment = useCallback(async () => {
@@ -115,69 +137,90 @@ export function useOpenAiAssessment(
       const res = await fetch("/api/architect/assess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ useCase }),
+        body: JSON.stringify({
+          useCase,
+          discoveryQuestions: useCase.architectDiscoveryQuestions,
+        }),
       });
       const data = await res.json();
 
-      if (data.fallback) {
-        setAiData(null);
-        setMissingApiKey(data.reason === "missing_api_key");
+      if (res.status === 503) {
+        setMissingApiKey(true);
+        setAssessment(null);
         fetchedRef.current = fingerprint;
         return;
       }
 
       if (!res.ok) throw new Error(data.error ?? "Assessment failed");
 
-      const a = data.assessment;
-      applyAssessment(
-        {
-          dimensions: a.dimensions,
-          overallScore: a.overallScore,
-          architectQuestions: a.architectQuestions,
-          telecomImpactAreas: a.telecomImpactAreas,
-          contentRichness: a.contentRichness ?? null,
-          architecture: a.architecture,
-        },
-        data.model,
-        data.generatedAt
-      );
+      applyResponse(data);
       fetchedRef.current = fingerprint;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not generate assessment");
     } finally {
       setLoading(false);
     }
-  }, [useCase, fingerprint, applyAssessment]);
+  }, [useCase, fingerprint, applyResponse]);
+
+  useEffect(() => {
+    const cached = useCase.architectAiAssessment;
+    if (cached?.inputFingerprint === fingerprint) {
+      setAssessment(fromCachedAssessment(cached, useCase));
+      setMeta({ model: cached.model, generatedAt: cached.generatedAt });
+      setContentRichness(cached.contentRichness ?? null);
+      fetchedRef.current = fingerprint;
+    }
+  }, [useCase, useCase.architectAiAssessment, useCase.architectDiscoveryQuestions, fingerprint]);
 
   useEffect(() => {
     if (cacheValid && cached) {
-      setAiData(fromCache(cached));
+      setAssessment(fromCachedAssessment(cached, useCase));
       setMeta({ model: cached.model, generatedAt: cached.generatedAt });
+      setContentRichness(cached.contentRichness ?? null);
       fetchedRef.current = fingerprint;
       return;
     }
 
     if (fetchedRef.current === fingerprint) return;
     void fetchAssessment();
-  }, [fingerprint, cacheValid, cached, fetchAssessment]);
+  }, [fingerprint, cacheValid, cached, fetchAssessment, useCase]);
 
-  const hasAiReadiness = Boolean(aiData?.dimensions.length);
-  const stale = Boolean(aiData && !cacheValid);
+  const stale = Boolean(cached && !cacheValid);
 
   return {
-    source: hasAiReadiness ? "openai" : "rules",
+    source: assessment ? "openai" : "none",
     loading,
     error,
     missingApiKey,
     model: meta.model,
     generatedAt: meta.generatedAt,
     stale,
-    dimensions: aiData?.dimensions ?? null,
-    overallScore: aiData?.overallScore ?? null,
-    architectQuestions: aiData?.architectQuestions ?? null,
-    telecomImpactAreas: aiData?.telecomImpactAreas ?? null,
-    contentRichness: aiData?.contentRichness ?? null,
-    architecture: aiData?.architecture ?? ruleAssessment.architecture,
+    assessment,
+    contentRichness,
     regenerate: () => void fetchAssessment(),
   };
+}
+
+export async function reassessAfterAnswer(
+  useCase: UseCase,
+  questionId: string,
+  answer: string,
+  answeredBy: string
+) {
+  const res = await fetch("/api/architect/reassess", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      useCase,
+      questionId,
+      answer,
+      answeredBy,
+      discoveryQuestions: useCase.architectDiscoveryQuestions,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    return { ok: false as const, error: data.error ?? "Reassessment failed" };
+  }
+  return { ok: true as const, data };
 }

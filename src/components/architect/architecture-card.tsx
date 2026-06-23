@@ -31,11 +31,13 @@ export function ArchitectureCard({
   architecture,
   overrides,
   syncing = false,
+  locked = false,
   onSyncSave,
 }: {
   architecture: ArchitectureRecommendation;
   overrides: ArchitectOverrideContext;
   syncing?: boolean;
+  locked?: boolean;
   onSyncSave: (fieldKey: string, value: string | number | boolean, architectNote?: string) => void;
 }) {
   const save = (fieldKey: string) => (value: string | number | boolean, note?: string) => {
@@ -58,8 +60,9 @@ export function ArchitectureCard({
       </div>
 
       <p className="text-xs text-muted">
-        Edit any field — your workshop judgment will harmonize pattern, stack, confidence, and readiness
-        signals where relevant.
+        {locked
+          ? "Architecture is locked until the discovery workshop captures sufficient evidenced information."
+          : "Edit any field — your workshop judgment will harmonize pattern, stack, confidence, and readiness signals where relevant."}
       </p>
 
       <EditableArchitectField

@@ -133,6 +133,42 @@ export interface ArchitectOverrides {
   updatedByName: string;
 }
 
+/** Architect discovery workshop question with captured business answer. */
+export type ArchitectQuestionStatus = "missing" | "answered" | "used";
+
+export interface ArchitectDiscoveryQuestion {
+  id: string;
+  question: string;
+  rationale: string;
+  answer?: string;
+  answeredAt?: string;
+  answeredBy?: string;
+  status: ArchitectQuestionStatus;
+}
+
+export interface ArchitectGovernance {
+  evidenceUsed: string[];
+  missingInformation: string[];
+  assumptions: string[];
+  risks: string[];
+  executiveSummary: string;
+}
+
+export interface ArchitectAiEstimation {
+  locked: boolean;
+  lockReason?: string;
+  modelEstimates: {
+    model: string;
+    weeks: number;
+    complexity: "Low" | "Medium" | "High";
+    confidence: number;
+  }[];
+  consensus: { timelineMin: number; timelineMax: number; confidence: number };
+  deliveryTeam: { role: string; days: number }[];
+  requiredSkills: string[];
+  totalTeamDays: number;
+}
+
 /** AI-generated readiness + architecture assessment cached per use case. */
 export interface ArchitectAiAssessment {
   dimensions: {
@@ -142,12 +178,18 @@ export interface ArchitectAiAssessment {
     criteria: { label: string; met: boolean; explanation?: string }[];
   }[];
   overallScore: number;
-  architectQuestions: string[];
+  /** @deprecated migrated to discoveryQuestions */
+  architectQuestions?: string[];
+  discoveryQuestions: ArchitectDiscoveryQuestion[];
   telecomImpactAreas: { area: string; relevance: number }[];
   pattern: string;
   technologies: string[];
   confidence: number;
   rationale: string;
+  architectureUnlocked: boolean;
+  estimationUnlocked: boolean;
+  governance: ArchitectGovernance;
+  estimation: ArchitectAiEstimation;
   contentRichness?: {
     score: number;
     summary: string;
@@ -195,6 +237,8 @@ export interface UseCase {
   architectBrief?: ArchitectDocumentBrief;
   architectOverrides?: ArchitectOverrides;
   architectAiAssessment?: ArchitectAiAssessment;
+  /** Discovery workshop Q&A — persisted per use case (source of truth for answers). */
+  architectDiscoveryQuestions?: ArchitectDiscoveryQuestion[];
   /** @deprecated migrated to architectAiAssessment */
   architectAiRecommendation?: ArchitectAiRecommendation;
 }

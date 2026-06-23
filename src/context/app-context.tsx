@@ -41,6 +41,7 @@ import {
 import type {
   ArchitectAiAssessment,
   ArchitectAiRecommendation,
+  ArchitectDiscoveryQuestion,
   ArchitectDocumentBrief,
   ArchitectOverrideEntry,
   Comment,
@@ -92,6 +93,11 @@ interface AppContextValue {
   setArchitectAiAssessment: (
     useCaseId: string,
     assessment: ArchitectAiAssessment
+  ) => void;
+  applyWorkshopReassessment: (
+    useCaseId: string,
+    assessment: ArchitectAiAssessment,
+    discoveryQuestions: ArchitectDiscoveryQuestion[]
   ) => void;
   /** @deprecated use setArchitectAiAssessment */
   setArchitectAiRecommendation: (
@@ -597,15 +603,46 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [setArchitectFieldOverrides]
   );
 
+  const applyWorkshopReassessment = useCallback(
+    (
+      useCaseId: string,
+      assessment: ArchitectAiAssessment,
+      discoveryQuestions: ArchitectDiscoveryQuestion[]
+    ) => {
+      if (!canAccessArchitectTools) return;
+      updateUseCases((prev) =>
+        prev.map((uc) => {
+          if (uc.id !== useCaseId) return uc;
+          const updated: UseCase = {
+            ...uc,
+            architectDiscoveryQuestions: discoveryQuestions,
+            architectAiAssessment: assessment,
+            architectAiRecommendation: undefined,
+          };
+          void recordArenaSnapshot({
+            useCase: updated,
+            eventType: "overrides_updated",
+            ...actorInfo(),
+            detail: `Workshop reassessment: ${assessment.confidence}% confidence, ${discoveryQuestions.filter((q) => q.answer).length} answers`,
+          });
+          return updated;
+        })
+      );
+    },
+    [canAccessArchitectTools, updateUseCases, actorInfo]
+  );
+
   const setArchitectAiAssessment = useCallback(
     (useCaseId: string, assessment: ArchitectAiAssessment) => {
       if (!canAccessArchitectTools) return;
       updateUseCases((prev) =>
         prev.map((uc) => {
           if (uc.id !== useCaseId) return uc;
-          const updated = {
+          const updated: UseCase = {
             ...uc,
             architectAiAssessment: assessment,
+            architectDiscoveryQuestions:
+              assessment.discoveryQuestions ?? uc.architectDiscoveryQuestions,
             architectAiRecommendation: undefined,
           };
           void recordArenaSnapshot({
@@ -626,12 +663,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectAiAssessment(useCaseId, {
         dimensions: [],
         overallScore: 0,
+        discoveryQuestions: [],
         architectQuestions: [],
         telecomImpactAreas: [],
         pattern: recommendation.pattern,
         technologies: recommendation.technologies,
         confidence: recommendation.confidence,
         rationale: recommendation.rationale,
+        architectureUnlocked: false,
+        estimationUnlocked: false,
+        governance: {
+          evidenceUsed: [],
+          missingInformation: [],
+          assumptions: [],
+          risks: [],
+          executiveSummary: "",
+        },
+        estimation: {
+          locked: true,
+          lockReason: "Insufficient information available.",
+          modelEstimates: [],
+          consensus: { timelineMin: 0, timelineMax: 0, confidence: 0 },
+          deliveryTeam: [],
+          requiredSkills: [],
+          totalTeamDays: 0,
+        },
         model: recommendation.model,
         generatedAt: recommendation.generatedAt,
         inputFingerprint: recommendation.inputFingerprint,
@@ -693,6 +749,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectFieldOverride,
       setArchitectFieldOverrides,
       setArchitectAiAssessment,
+      applyWorkshopReassessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,
       hasVoted,
@@ -715,6 +772,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setArchitectFieldOverride,
       setArchitectFieldOverrides,
       setArchitectAiAssessment,
+      applyWorkshopReassessment,
       setArchitectAiRecommendation,
       clearArchitectOverrides,
       hasVoted,

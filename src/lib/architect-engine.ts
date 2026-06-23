@@ -104,17 +104,56 @@ export interface DeliveryRole {
 
 
 
+export interface ArchitectGovernanceOutput {
+  evidenceUsed: string[];
+  missingInformation: string[];
+  assumptions: string[];
+  risks: string[];
+  executiveSummary: string;
+}
+
+export interface ArchitectEstimationOutput {
+  locked: boolean;
+  lockReason?: string;
+  modelEstimates: ModelEstimate[];
+  consensus: ConsensusEstimate;
+  deliveryTeam: DeliveryRole[];
+  requiredSkills: string[];
+  totalTeamDays: number;
+}
+
+export interface ArchitectDiscoveryQuestionItem {
+  id: string;
+  question: string;
+  rationale: string;
+  answer?: string;
+  answeredAt?: string;
+  answeredBy?: string;
+  status: "missing" | "answered" | "used";
+}
+
 export interface ArchitectAssessment {
 
   dimensions: ReadinessDimension[];
 
   overallScore: number;
 
+  /** @deprecated use discoveryQuestions */
   architectQuestions: string[];
+
+  discoveryQuestions: ArchitectDiscoveryQuestionItem[];
+
+  governance: ArchitectGovernanceOutput;
+
+  architectureUnlocked: boolean;
+
+  estimationUnlocked: boolean;
 
   telecomImpactAreas: TelecomImpactArea[];
 
   architecture: ArchitectureRecommendation;
+
+  estimation: ArchitectEstimationOutput;
 
   modelEstimates: ModelEstimate[];
 
@@ -977,7 +1016,22 @@ export function analyzeUseCase(uc: UseCase): ArchitectAssessment {
 
   const { deliveryTeam, requiredSkills, totalTeamDays } = recommendDeliveryTeam(uc, architecture);
 
+  const discoveryQuestions = architectQuestions.map((question, index) => ({
+    id: `Q${index + 1}`,
+    question,
+    rationale: "Follow-up question to close information gaps before architecture or estimation.",
+    status: "missing" as const,
+  }));
 
+  const estimation = {
+    locked: true,
+    lockReason: "Insufficient information available.",
+    modelEstimates,
+    consensus,
+    deliveryTeam,
+    requiredSkills,
+    totalTeamDays,
+  };
 
   return {
 
@@ -987,9 +1041,25 @@ export function analyzeUseCase(uc: UseCase): ArchitectAssessment {
 
     architectQuestions,
 
+    discoveryQuestions,
+
+    governance: {
+      evidenceUsed: [],
+      missingInformation: ["Rule-based preview only — OpenAI assessment required for workshop governance."],
+      assumptions: [],
+      risks: [],
+      executiveSummary: "Use the discovery workshop with OpenAI assessment for consulting-grade output.",
+    },
+
+    architectureUnlocked: false,
+
+    estimationUnlocked: false,
+
     telecomImpactAreas,
 
     architecture,
+
+    estimation,
 
     modelEstimates,
 

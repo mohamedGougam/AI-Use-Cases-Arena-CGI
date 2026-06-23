@@ -22,7 +22,7 @@ export function ReadinessDimensionCard({
   onSyncSave?: (fieldKey: string, value: string | number | boolean, architectNote?: string) => void;
 }) {
   const scoreKey = `dimension.${dimension.key}.score`;
-  const dimMeta = getDimensionMeta(dimension.key, source);
+  const dimMeta = getDimensionMeta(dimension.key, source === "openai" ? "openai" : "rules");
 
   const saveField = (fieldKey: string) => (value: string | number | boolean, note?: string) => {
     if (onSyncSave) onSyncSave(fieldKey, value, note);
@@ -49,7 +49,7 @@ export function ReadinessDimensionCard({
         {dimension.criteria.map((c, i) => {
           const criterionKey = `dimension.${dimension.key}.criteria.${i}`;
           const explanationKey = `${criterionKey}.explanation`;
-          const meta = getCriterionMeta(dimension.key, i, c.label, source);
+          const meta = getCriterionMeta(dimension.key, i, c.label, source === "openai" ? "openai" : "rules");
           return (
             <li key={criterionKey} className="space-y-2">
               <EditableArchitectField
@@ -133,7 +133,7 @@ export function ArchitectQuestions({
                   fieldKey={key}
                   label={`Question ${i + 1}`}
                   value={q}
-                  meta={getQuestionMeta(i, source)}
+                  meta={getQuestionMeta(i, source === "openai" ? "openai" : "rules")}
                   type="textarea"
                   isOverridden={overrides.isOverridden(key)}
                   overrideNote={overrides.getNote(key)}

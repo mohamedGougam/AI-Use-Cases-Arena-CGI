@@ -1,5 +1,7 @@
 import { READINESS_DIMENSION_DEFS } from "@/lib/readiness-criteria";
 
+export type ArchitectMetaSource = "openai" | "rules" | "none";
+
 export interface ArchitectFieldMeta {
   meaning: string;
   calculation: string;
@@ -215,7 +217,7 @@ export function getCriterionMeta(
   dimensionKey: string,
   index: number,
   label: string,
-  source: "openai" | "rules" = "rules"
+  source: ArchitectMetaSource = "rules"
 ): ArchitectFieldMeta {
   const def = READINESS_DIMENSION_DEFS.find((d) => d.key === dimensionKey);
   const criterionId = def?.criteria[index]?.id;
@@ -243,7 +245,7 @@ export function getCriterionMeta(
 
 export function getTelecomAreaMeta(
   area: string,
-  source: "openai" | "rules" = "rules"
+  source: ArchitectMetaSource = "rules"
 ): ArchitectFieldMeta {
   return {
     meaning: `Likely impact on the ${area} domain within a telecom operator.`,
@@ -271,7 +273,7 @@ export function getDeliveryRoleMeta(role: string): ArchitectFieldMeta {
 
 export function getQuestionMeta(
   index: number,
-  source: "openai" | "rules" = "rules"
+  source: ArchitectMetaSource = "rules"
 ): ArchitectFieldMeta {
   return {
     meaning: `Follow-up question #${index + 1} to close information gaps before estimation.`,
@@ -284,7 +286,7 @@ export function getQuestionMeta(
 
 export function getDimensionMeta(
   key: string,
-  source: "openai" | "rules" = "rules"
+  source: ArchitectMetaSource = "rules"
 ): ArchitectFieldMeta {
   const base =
     DIMENSION_META[key] ?? {
