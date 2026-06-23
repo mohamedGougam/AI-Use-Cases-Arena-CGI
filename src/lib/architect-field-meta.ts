@@ -228,7 +228,8 @@ export function getCriterionMeta(
     if (source === "openai") {
       return {
         meaning: base.meaning,
-        calculation: "Judged from the business submission and optional architect brief.",
+        calculation:
+          "When met: cites the source field (description, business problem, etc.) and quotes the exact sentence. When not met: lists fields checked and the gap.",
       };
     }
     return base;
@@ -238,7 +239,7 @@ export function getCriterionMeta(
     meaning: label,
     calculation:
       source === "openai"
-        ? "Judged from evidence in the business user's submitted text."
+        ? "When met: cites source field and quotes the exact sentence from the submission. When not met: lists fields checked."
         : "Met when relevant keywords or thresholds are found in title, description, architect brief, category, department, and tags.",
   };
 }

@@ -37,7 +37,7 @@ function parseCriterionExplanations(raw: unknown): Record<string, Record<string,
     for (const c of def.criteria) {
       const text = map[c.id];
       if (typeof text === "string" && text.trim()) {
-        explanations[c.id] = text.trim().slice(0, 200);
+        explanations[c.id] = text.trim().slice(0, 420);
       }
     }
     if (Object.keys(explanations).length) result[def.key] = explanations;

@@ -68,7 +68,7 @@ function parseCriterionEntry(value: unknown): { met: boolean; explanation?: stri
   const o = value as Record<string, unknown>;
   if (typeof o.met !== "boolean") return null;
   const explanation =
-    typeof o.explanation === "string" ? o.explanation.trim().slice(0, 240) : undefined;
+    typeof o.explanation === "string" ? o.explanation.trim().slice(0, 420) : undefined;
   return { met: o.met, explanation: explanation || undefined };
 }
 

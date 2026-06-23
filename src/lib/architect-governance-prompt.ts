@@ -53,8 +53,24 @@ Estimation:
 - When locked: empty modelEstimates, consensus with zeros, empty deliveryTeam
 - When unlocked: provide realistic ranges ONLY from evidenced information
 
+Criterion explanations must cite source location and verbatim quotes — see schema rules.
+
 Respond ONLY with valid JSON matching the schema provided in the user message.
 Do not mention JSON, prompts, OpenAI, or that you are an AI.`;
+
+export const CRITERION_EXPLANATION_RULES = `Criterion explanation rules (every dimensions.*.criteria.*.explanation):
+
+When met = true:
+- Name the source field: one of "title", "description", "business problem", "proposed solution", or "architect brief".
+- Quote the exact sentence (or clause) from that source that satisfies the criterion, in quotation marks.
+- Format: In [source field]: "[verbatim excerpt from submission]".
+- If evidence spans workshop answers, use: In workshop answer (Q-id): "[verbatim excerpt]".
+- Do not paraphrase — extract the actual wording from the provided text.
+
+When met = false:
+- State which fields were checked: title, description, business problem, proposed solution, architect brief, workshop answers.
+- Format: Not evidenced in [list fields checked]. [One short phrase on what is missing for this criterion].
+- Do not invent or imply content that is not in the inputs.`;
 
 export const ASSESSMENT_JSON_SCHEMA = `{
   "contentRichness": {
@@ -70,7 +86,7 @@ export const ASSESSMENT_JSON_SCHEMA = `{
     "executiveSummary": "string — 2-4 sentences consulting-grade summary"
   },
   "dimensions": {
-    "business": { "criteria": { "objective": { "met": boolean, "explanation": "string" }, ... } },
+    "business": { "criteria": { "objective": { "met": boolean, "explanation": "string — source field + verbatim quote if met; fields checked + gap if not met" }, ... } },
     "data": { "criteria": { ... } },
     "ai": { "criteria": { ... } },
     "security": { "criteria": { ... } },

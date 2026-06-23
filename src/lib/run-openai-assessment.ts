@@ -3,6 +3,7 @@ import { buildAssessmentInputPayload } from "@/lib/architect-assessment-payload"
 import {
   ARCHITECT_GOVERNANCE_SYSTEM_PROMPT,
   ASSESSMENT_JSON_SCHEMA,
+  CRITERION_EXPLANATION_RULES,
 } from "@/lib/architect-governance-prompt";
 import { mergeDiscoveryQuestions } from "@/lib/discovery-questions";
 import { parseAiAssessmentResponse } from "@/lib/parse-ai-assessment";
@@ -52,6 +53,8 @@ Generate follow-up discovery questions based on answers already captured.
 JSON schema:
 ${ASSESSMENT_JSON_SCHEMA}
 
+${CRITERION_EXPLANATION_RULES}
+
 Allowed telecom domains: ${payload.telecomDomains.join(", ")}
 
 Use case input:
@@ -67,6 +70,8 @@ Generate discovery questions for the workshop. Do not invent missing facts.
 
 JSON schema:
 ${ASSESSMENT_JSON_SCHEMA}
+
+${CRITERION_EXPLANATION_RULES}
 
 Allowed telecom domains: ${payload.telecomDomains.join(", ")}
 

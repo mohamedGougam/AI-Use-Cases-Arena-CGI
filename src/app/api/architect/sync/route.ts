@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { buildAssessmentInputPayload } from "@/lib/architect-assessment-payload";
 import { parseArchitectSyncResponse } from "@/lib/parse-architect-sync";
+import { CRITERION_EXPLANATION_RULES } from "@/lib/architect-governance-prompt";
 import { READINESS_DIMENSION_DEFS } from "@/lib/readiness-criteria";
 import type { ArchitectAssessment } from "@/lib/architect-engine";
 import type { UseCase } from "@/types";
@@ -22,7 +23,7 @@ Respond ONLY with valid JSON:
     "confidence": number 1-100
   },
   "criterionExplanations": {
-    "business": { "objective": "8-18 word explanation", ... },
+    "business": { "objective": "source field + verbatim quote if met", ... },
     "data": { ... },
     "ai": { ... },
     "security": { ... },
@@ -44,6 +45,7 @@ Rules:
 - Keep rationale as the primary AI & data architecture narrative with concrete components, data flows, integrations, and delivery — not generic summaries of readiness gaps.
 - Align pattern, technology stack, and confidence with the rationale.
 - Refresh criterion explanations only where the architect's change affects them; keep others consistent with submission evidence.
+${CRITERION_EXPLANATION_RULES}
 - Adjust met/not met flags and dimension scores only when clearly implied by the architect edit.
 - Prefer Azure OpenAI, Microsoft Fabric, Databricks, Power BI.
 - Do not mention JSON, prompts, or AI vendors.`;

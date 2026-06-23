@@ -72,8 +72,9 @@ export function ReadinessDimensionCard({
                 value={c.explanation ?? ""}
                 displayValue={c.explanation || "No detail yet — click edit to add."}
                 meta={{
-                  meaning: "How this criterion was judged for this use case.",
-                  calculation: "Grounded in the business submission and architect workshop input.",
+                  meaning: "Evidence for this criterion — where it was found and the exact wording.",
+                  calculation:
+                    "Met: In [source field]: \"quoted sentence\". Not met: lists fields checked and what is missing.",
                 }}
                 type="textarea"
                 multiline
